@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth ───
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  onboarded     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  business Business?
+  accounts Account[]
+  sessions Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Business ───
+
+model Business {
+  id        String   @id @default(cuid())
+  name      String
+  website   String?
+  industry  String
+  phone     String?
+  timezone  String   @default("Australia/Sydney")
+  plan      Plan     @default(STARTER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  agents        Agent[]
+  conversations Conversation[]
+  smsNumbers    SmsNumber[]
+}
+
+enum Plan {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+// ─── AI Agents ───
+
+model Agent {
+  id             String      @id @default(cuid())
+  name           String
+  tone           AgentTone   @default(PROFESSIONAL)
+  status         AgentStatus @default(DRAFT)
+  systemPrompt   String?     @db.Text
+  knowledgeBase  String?     @db.Text
+  industry       String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  conversations Conversation[]
+}
+
+enum AgentTone {
+  PROFESSIONAL
+  FRIENDLY
+  CASUAL
+}
+
+enum AgentStatus {
+  ACTIVE
+  PAUSED
+  DRAFT
+}
+
+// ─── SMS Numbers ───
+
+model SmsNumber {
+  id         String   @id @default(cuid())
+  number     String   @unique
+  provider   String   @default("160.com.au")
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  conversations Conversation[]
+}
+
+// ─── Conversations ───
+
+model Conversation {
+  id               String             @id @default(cuid())
+  contactName      String?
+  contactPhone     String
+  status           ConversationStatus @default(ACTIVE)
+  sentiment        Sentiment          @default(NEUTRAL)
+  messagesCount    Int                @default(0)
+  lastMessageAt    DateTime           @default(now())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  businessId   String
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  agentId      String
+  agent        Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  smsNumberId  String?
+  smsNumber    SmsNumber? @relation(fields: [smsNumberId], references: [id])
+
+  messages Message[]
+}
+
+enum ConversationStatus {
+  ACTIVE
+  RESOLVED
+  ESCALATED
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+// ─── Messages ───
+
+model Message {
+  id        String      @id @default(cuid())
+  content   String      @db.Text
+  role      MessageRole
+  smsId     String?
+  createdAt DateTime    @default(now())
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+enum MessageRole {
+  USER
+  AGENT
+  SYSTEM
+}
