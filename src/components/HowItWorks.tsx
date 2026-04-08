@@ -3,25 +3,25 @@ const steps = [
     step: "01",
     title: "Connect Your Business",
     description:
-      "Sign up and connect your existing tools — CRM, calendar, e-commerce. We assign you a dedicated Australian virtual number.",
+      "Sign up and connect your existing tools — CRM, calendar, e-commerce. We set up your dedicated Australian SMS number and WhatsApp Business profile.",
   },
   {
     step: "02",
-    title: "Configure Your AI Agent",
+    title: "Choose Your Channel",
     description:
-      "Set your agent's personality, knowledge base, and conversation flows. Train it on your FAQs, products, and policies.",
+      "Pick SMS for universal reach, WhatsApp for rich conversations, or go Omnichannel for both. Each plan is tailored to how your customers prefer to communicate.",
   },
   {
     step: "03",
-    title: "Go Live in Minutes",
+    title: "Configure Your AI Agent",
     description:
-      "Your AI agent starts handling inbound and outbound SMS conversations — qualifying leads, booking appointments, answering questions.",
+      "Set your agent's personality, knowledge base, and conversation flows. Train it on your FAQs, products, and policies — the same AI powers both channels.",
   },
   {
     step: "04",
-    title: "Monitor & Optimise",
+    title: "Go Live & Optimise",
     description:
-      "Track performance in real time. Review conversations, refine responses, and watch your conversion rates climb.",
+      "Your AI agent starts handling conversations across SMS and WhatsApp — qualifying leads, booking appointments, and answering questions 24/7. Track everything from your dashboard.",
   },
 ];
 

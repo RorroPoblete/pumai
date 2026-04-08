@@ -1,19 +1,19 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 const protectedRoutes = ["/dashboard", "/onboarding"];
 const authRoutes = ["/login", "/register", "/forgot-password"];
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
   const { pathname } = req.nextUrl;
-  const isLoggedIn = !!req.auth;
+  const isLoggedIn = !!token;
 
-  // Redirect logged-in users away from auth pages
   if (authRoutes.some((r) => pathname.startsWith(r)) && isLoggedIn) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  // Redirect unauthenticated users to login
   if (protectedRoutes.some((r) => pathname.startsWith(r)) && !isLoggedIn) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
@@ -21,7 +21,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/dashboard/:path*", "/onboarding/:path*", "/login", "/register", "/forgot-password"],

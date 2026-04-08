@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "⏳ Waiting for database..."
+echo "Waiting for database..."
 until node -e "
 const net = require('net');
 const s = new net.Socket();
@@ -13,13 +13,13 @@ s.on('timeout', () => { s.destroy(); process.exit(1); });
   sleep 1
 done
 
-echo "✅ Database is ready"
+echo "Database is ready"
 
-echo "📦 Pushing schema to database..."
+echo "Pushing schema to database..."
 npx prisma db push
 
-echo "🌱 Seeding database..."
-node --import tsx/esm prisma/seed.mjs || echo "⚠️  Seed skipped (may already exist)"
+echo "Seeding database..."
+node --import tsx prisma/seed.ts || echo "Seed skipped (may already exist or failed)"
 
-echo "🚀 Starting PumAI on port 3000..."
+echo "Starting PumAI on port 3000..."
 exec node server.js

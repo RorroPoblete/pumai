@@ -1,5 +1,5 @@
 import TopBar from "@/components/dashboard/TopBar";
-import { seedMetrics, seedConversations, seedAgents, seedChartData } from "@/lib/seed";
+import { getDashboardOverview } from "@/lib/queries";
 
 const statusColor = {
   active: "bg-[rgba(34,197,94,0.12)] text-[#22c55e]",
@@ -13,10 +13,22 @@ const sentimentDot = {
   negative: "bg-[#ef4444]",
 };
 
-export default function DashboardOverview() {
-  const m = seedMetrics;
-  const chart = seedChartData;
-  const maxChart = Math.max(...chart.conversationsPerDay.map((d) => d.value));
+export default async function DashboardOverview() {
+  const data = await getDashboardOverview();
+
+  if (!data) {
+    return (
+      <>
+        <TopBar title="Overview" />
+        <div className="flex-1 flex items-center justify-center text-[#71717A] text-sm">
+          Complete onboarding to see your dashboard.
+        </div>
+      </>
+    );
+  }
+
+  const { metrics: m, conversations, agents, chart } = data;
+  const maxChart = Math.max(...chart.conversationsPerDay.map((d) => d.value), 1);
 
   return (
     <>
@@ -49,7 +61,7 @@ export default function DashboardOverview() {
             {
               label: "Avg Response",
               value: m.responseTime,
-              change: m.responseTimeChange,
+              change: m.responseTimeChange || null,
               icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -59,7 +71,7 @@ export default function DashboardOverview() {
             {
               label: "Conversion Rate",
               value: `${m.conversionRate}%`,
-              change: m.conversionChange,
+              change: m.conversionChange || null,
               icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -147,10 +159,10 @@ export default function DashboardOverview() {
                 Agent Status
               </h4>
               <div className="space-y-2">
-                {seedAgents.slice(0, 3).map((a) => (
+                {agents.slice(0, 3).map((a) => (
                   <div key={a.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#22c55e]" />
+                      <div className={`w-2 h-2 rounded-full ${a.status === "active" ? "bg-[#22c55e]" : a.status === "paused" ? "bg-[#f59e0b]" : "bg-[#71717A]"}`} />
                       <span className="text-xs text-[#A1A1AA]">{a.name}</span>
                     </div>
                     <span className="text-xs text-[#71717A]">{a.conversationsToday} today</span>
@@ -181,7 +193,7 @@ export default function DashboardOverview() {
                 </tr>
               </thead>
               <tbody>
-                {seedConversations.slice(0, 6).map((c) => (
+                {conversations.slice(0, 6).map((c) => (
                   <tr
                     key={c.id}
                     className="border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(139,92,246,0.04)] transition-colors"

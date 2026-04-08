@@ -54,7 +54,17 @@ const navItems = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  plan?: string;
+  conversationsUsed?: number;
+  conversationsLimit?: number;
+}
+
+export default function Sidebar({
+  plan = "STARTER",
+  conversationsUsed = 0,
+  conversationsLimit = 300,
+}: SidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -93,10 +103,13 @@ export default function Sidebar() {
       {/* Bottom */}
       <div className="px-3 pb-4">
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-4">
-          <div className="text-xs font-semibold text-white mb-1">Starter Plan</div>
-          <div className="text-xs text-[#71717A] mb-3">312 / 500 conversations used</div>
+          <div className="text-xs font-semibold text-white mb-1">{plan.charAt(0) + plan.slice(1).toLowerCase()} Plan</div>
+          <div className="text-xs text-[#71717A] mb-3">{conversationsUsed} / {conversationsLimit} conversations used</div>
           <div className="h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
-            <div className="h-full w-[62%] gradient-btn rounded-full" />
+            <div
+              className="h-full gradient-btn rounded-full"
+              style={{ width: `${Math.min(conversationsUsed / conversationsLimit * 100, 100)}%` }}
+            />
           </div>
         </div>
       </div>

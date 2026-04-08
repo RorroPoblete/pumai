@@ -1,12 +1,9 @@
 import bcrypt from "bcryptjs";
-import path from "path";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../src/generated/prisma/client.js";
 
-// Resolve generated client from project root
-const clientPath = path.join(__dirname, "..", "src", "generated", "prisma");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { PrismaClient } = require(clientPath);
-
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("🌱 Seeding database...");
@@ -76,47 +73,64 @@ async function main() {
 
   console.log("  ✓ SMS numbers created");
 
-  // ─── Agents ───
-  const agents = await Promise.all([
-    prisma.agent.create({
-      data: {
-        name: "Sam", tone: "PROFESSIONAL", status: "ACTIVE", industry: "Healthcare",
-        systemPrompt: "You are Sam, a professional medical receptionist AI for a healthcare clinic in Sydney.",
-        businessId: business1.id,
-      },
-    }),
-    prisma.agent.create({
-      data: {
-        name: "Alex", tone: "FRIENDLY", status: "ACTIVE", industry: "Real Estate",
-        systemPrompt: "You are Alex, a friendly real estate assistant helping buyers find properties in Sydney.",
-        businessId: business1.id,
-      },
-    }),
-    prisma.agent.create({
-      data: {
-        name: "Jordan", tone: "CASUAL", status: "ACTIVE", industry: "Automotive",
-        systemPrompt: "You are Jordan, a laid-back car dealership assistant helping customers with test drives.",
-        businessId: business1.id,
-      },
-    }),
-    prisma.agent.create({
-      data: {
-        name: "Support Bot", tone: "PROFESSIONAL", status: "PAUSED", industry: "E-commerce & Retail",
-        systemPrompt: "You are a support assistant for an e-commerce store.",
-        businessId: business1.id,
-      },
-    }),
-    prisma.agent.create({
-      data: {
-        name: "Bookings", tone: "FRIENDLY", status: "DRAFT", industry: "Hospitality",
-        businessId: business1.id,
-      },
-    }),
-  ]);
+  // ─── Agents (idempotent — skip if already seeded) ───
+  const existingAgents = await prisma.agent.findMany({
+    where: { businessId: business1.id },
+    orderBy: { createdAt: "asc" },
+  });
 
-  console.log("  ✓ Agents created");
+  let agents = existingAgents;
 
-  // ─── Conversations ───
+  if (existingAgents.length === 0) {
+    agents = await Promise.all([
+      prisma.agent.create({
+        data: {
+          name: "Sam", tone: "PROFESSIONAL", status: "ACTIVE", industry: "Healthcare",
+          systemPrompt: "You are Sam, a professional medical receptionist AI for a healthcare clinic in Sydney.",
+          businessId: business1.id,
+        },
+      }),
+      prisma.agent.create({
+        data: {
+          name: "Alex", tone: "FRIENDLY", status: "ACTIVE", industry: "Real Estate",
+          systemPrompt: "You are Alex, a friendly real estate assistant helping buyers find properties in Sydney.",
+          businessId: business1.id,
+        },
+      }),
+      prisma.agent.create({
+        data: {
+          name: "Jordan", tone: "CASUAL", status: "ACTIVE", industry: "Automotive",
+          systemPrompt: "You are Jordan, a laid-back car dealership assistant helping customers with test drives.",
+          businessId: business1.id,
+        },
+      }),
+      prisma.agent.create({
+        data: {
+          name: "Support Bot", tone: "PROFESSIONAL", status: "PAUSED", industry: "E-commerce & Retail",
+          systemPrompt: "You are a support assistant for an e-commerce store.",
+          businessId: business1.id,
+        },
+      }),
+      prisma.agent.create({
+        data: {
+          name: "Bookings", tone: "FRIENDLY", status: "DRAFT", industry: "Hospitality",
+          businessId: business1.id,
+        },
+      }),
+    ]);
+    console.log("  ✓ Agents created");
+  } else {
+    console.log("  ✓ Agents already exist, skipping");
+  }
+
+  // ─── Conversations (idempotent — skip if already seeded) ───
+  const existingConvs = await prisma.conversation.count({ where: { businessId: business1.id } });
+  if (existingConvs > 0) {
+    console.log("  ✓ Conversations already exist, skipping");
+    console.log("\n✅ Seed completed (idempotent run)!");
+    console.log("📧 Demo login: demo@pumai.com.au / password123");
+    return;
+  }
   const convos = [
     { name: "Sarah Mitchell", phone: "+61412345678", status: "ACTIVE", sentiment: "POSITIVE", agent: 0,
       msgs: [

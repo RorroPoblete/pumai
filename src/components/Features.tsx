@@ -15,9 +15,9 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
       </svg>
     ),
-    title: "SMS Works on Every Phone",
+    title: "Dual-Channel: SMS & WhatsApp",
     description:
-      "No app downloads, no WhatsApp needed. SMS has 98% open rates in Australia and reaches every single mobile device.",
+      "SMS for universal reach (98% open rate, every phone) — WhatsApp for rich conversations (buttons, images, catalogues, payment links). One platform, two channels.",
   },
   {
     icon: (
@@ -76,7 +76,7 @@ export default function Features() {
             <span className="gradient-text-violet"> customer conversations</span>
           </h2>
           <p className="mt-4 text-lg text-[#A1A1AA] max-w-2xl mx-auto">
-            Replace expensive call centres and rigid chatbots with intelligent SMS agents
+            Replace expensive call centres and rigid chatbots with intelligent SMS &amp; WhatsApp agents
             that truly understand your customers.
           </p>
         </div>

@@ -22,13 +22,13 @@ export default function Hero() {
           <br />
           <span className="gradient-text">Support Team,</span>
           <br />
-          <span className="text-[#8B5CF6]">via SMS</span>
+          <span className="text-[#8B5CF6]">via SMS & WhatsApp</span>
         </h1>
 
         {/* Subtitle */}
         <p className="animate-fade-in-up-delay-2 text-lg sm:text-xl text-[#A1A1AA] max-w-2xl mx-auto mb-10 leading-relaxed">
           AI-powered conversational agents that handle sales, support, and marketing
-          for your business — 24/7 over SMS. No app downloads. Works on every phone.
+          for your business — 24/7 over SMS and WhatsApp. Universal reach meets rich conversations.
         </p>
 
         {/* CTAs */}
@@ -52,7 +52,7 @@ export default function Hero() {
           {[
             { value: "98%", label: "SMS Open Rate" },
             { value: "2.5M+", label: "SMEs in Australia" },
-            { value: "<2s", label: "Delivery Time" },
+            { value: "2", label: "Channels, One Platform" },
           ].map((s) => (
             <div key={s.label}>
               <div className="text-2xl sm:text-3xl font-black gradient-text-violet">

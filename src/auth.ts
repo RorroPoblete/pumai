@@ -2,9 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
-
-// Temporary in-memory store (replace with DB later)
-const users: { id: string; name: string; email: string; password: string; onboarded: boolean }[] = [];
+import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -44,8 +42,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = credentials.email as string;
         const password = credentials.password as string;
 
-        const user = users.find((u) => u.email === email);
-        if (!user) return null;
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || !user.password) return null;
 
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return null;
@@ -56,19 +54,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 });
 
-// Helper: register user (temporary, replace with DB)
 export async function registerUser(name: string, email: string, password: string) {
-  const exists = users.find((u) => u.email === email);
+  const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) throw new Error("Email already registered");
 
   const hashed = await bcrypt.hash(password, 12);
-  const user = {
-    id: crypto.randomUUID(),
-    name,
-    email,
-    password: hashed,
-    onboarded: false,
-  };
-  users.push(user);
+  const user = await prisma.user.create({
+    data: { name, email, password: hashed },
+  });
   return { id: user.id, name: user.name, email: user.email };
 }

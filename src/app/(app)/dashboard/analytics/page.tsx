@@ -1,10 +1,22 @@
 import TopBar from "@/components/dashboard/TopBar";
-import { seedMetrics, seedChartData, seedAgents } from "@/lib/seed";
+import { getDashboardOverview } from "@/lib/queries";
 
-export default function AnalyticsPage() {
-  const m = seedMetrics;
-  const chart = seedChartData;
-  const maxChart = Math.max(...chart.conversationsPerDay.map((d) => d.value));
+export default async function AnalyticsPage() {
+  const data = await getDashboardOverview();
+
+  if (!data) {
+    return (
+      <>
+        <TopBar title="Analytics" />
+        <div className="flex-1 flex items-center justify-center text-[#71717A] text-sm">
+          Complete onboarding to see analytics.
+        </div>
+      </>
+    );
+  }
+
+  const { metrics: m, chart, agents } = data;
+  const maxChart = Math.max(...chart.conversationsPerDay.map((d) => d.value), 1);
 
   return (
     <>
@@ -14,9 +26,9 @@ export default function AnalyticsPage() {
         {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Total Conversations", value: m.totalConversations.toLocaleString(), change: `+${m.conversationsChange}%` },
-            { label: "Messages Sent", value: m.messagesThisMonth.toLocaleString(), change: `+${m.messagesChange}%` },
-            { label: "Conversion Rate", value: `${m.conversionRate}%`, change: `+${m.conversionChange}%` },
+            { label: "Total Conversations", value: m.totalConversations.toLocaleString(), change: `${m.conversationsChange >= 0 ? "+" : ""}${m.conversationsChange}%` },
+            { label: "Messages Sent", value: m.messagesThisMonth.toLocaleString(), change: `${m.messagesChange >= 0 ? "+" : ""}${m.messagesChange}%` },
+            { label: "Conversion Rate", value: `${m.conversionRate}%`, change: `${m.conversionChange >= 0 ? "+" : ""}${m.conversionChange}%` },
             { label: "Avg Response", value: m.responseTime, change: `${m.responseTimeChange}%` },
           ].map((k) => (
             <div key={k.label} className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-5">
@@ -107,7 +119,7 @@ export default function AnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {seedAgents.map((a) => (
+                {agents.map((a) => (
                   <tr key={a.id} className="border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(139,92,246,0.04)] transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
