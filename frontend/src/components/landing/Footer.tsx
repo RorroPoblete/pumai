@@ -9,7 +9,7 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0a]">
+    <footer className="border-t border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
           {/* Brand */}
@@ -22,11 +22,11 @@ export default function Footer() {
                 height={28}
                 className="rounded-lg"
               />
-              <span className="text-base font-bold text-white">
+              <span className="text-base font-bold text-[var(--text-primary)]">
                 Pum<span className="text-[#8B5CF6]">AI</span>
               </span>
             </div>
-            <p className="text-sm text-[#71717A] leading-relaxed">
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
               AI-powered SMS &amp; WhatsApp agents for Australian businesses. Built
               with compliance in mind.
             </p>
@@ -35,7 +35,7 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([heading, links]) => (
             <div key={heading}>
-              <h4 className="text-sm font-semibold text-white mb-4">
+              <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-4">
                 {heading}
               </h4>
               <ul className="space-y-2.5">
@@ -43,7 +43,7 @@ export default function Footer() {
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-sm text-[#71717A] hover:text-[#A78BFA] transition-colors duration-200"
+                      className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
                     >
                       {link}
                     </a>
@@ -55,12 +55,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-8 border-t border-[rgba(255,255,255,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#71717A]">
+        <div className="mt-12 pt-8 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[var(--text-muted)]">
             &copy; {new Date().getFullYear()} PumAI. All rights reserved.
             ABN registered in Australia.
           </p>
-          <div className="flex items-center gap-2 text-xs text-[#71717A]">
+          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
             <span>Compliant with Spam Act 2003</span>
             <span>&middot;</span>
             <span>Privacy Act 1988</span>

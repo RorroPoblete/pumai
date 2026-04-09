@@ -70,12 +70,12 @@ export default function Features() {
           <span className="text-xs font-semibold text-[#8B5CF6] tracking-widest uppercase">
             Features
           </span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
             Everything you need to automate
             <br className="hidden sm:block" />
             <span className="gradient-text-violet"> customer conversations</span>
           </h2>
-          <p className="mt-4 text-lg text-[#A1A1AA] max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
             Replace expensive call centres and rigid chatbots with intelligent omnichannel AI agents
             that truly understand your customers.
           </p>
@@ -88,11 +88,11 @@ export default function Features() {
               key={i}
               className="card-gradient border border-[rgba(139,92,246,0.15)] rounded-2xl p-8 hover:-translate-y-2 hover:border-[rgba(139,92,246,0.5)] hover:shadow-[0_20px_60px_rgba(139,92,246,0.15)] transition-all duration-400 group"
             >
-              <div className="w-14 h-14 rounded-xl bg-[rgba(139,92,246,0.12)] flex items-center justify-center text-[#A78BFA] mb-6 group-hover:bg-[rgba(139,92,246,0.2)] transition-colors">
+              <div className="w-14 h-14 rounded-xl bg-[rgba(139,92,246,0.12)] flex items-center justify-center text-[#8B5CF6] mb-6 group-hover:bg-[rgba(139,92,246,0.2)] transition-colors">
                 {f.icon}
               </div>
-              <h3 className="text-lg font-bold text-white mb-3">{f.title}</h3>
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3">{f.title}</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 {f.description}
               </p>
             </div>

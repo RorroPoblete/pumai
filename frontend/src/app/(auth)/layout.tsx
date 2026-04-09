@@ -21,16 +21,16 @@ export default function AuthLayout({
               height={44}
               className="rounded-xl"
             />
-            <span className="text-2xl font-bold text-white">
+            <span className="text-2xl font-bold text-[var(--text-primary)]">
               Pum<span className="text-[#8B5CF6]">AI</span>
             </span>
           </div>
 
-          <h2 className="text-3xl font-extrabold text-white leading-tight mb-4">
+          <h2 className="text-3xl font-extrabold text-[var(--text-primary)] leading-tight mb-4">
             Your AI sales & support team,{" "}
             <span className="gradient-text-violet">via SMS</span>
           </h2>
-          <p className="text-[#A1A1AA] leading-relaxed">
+          <p className="text-[var(--text-secondary)] leading-relaxed">
             AI-powered conversational agents that handle sales, support, and
             marketing for Australian businesses — 24/7 over SMS.
           </p>
@@ -43,7 +43,7 @@ export default function AuthLayout({
             ].map((s) => (
               <div key={s.label}>
                 <div className="text-xl font-black gradient-text-violet">{s.value}</div>
-                <div className="text-xs text-[#71717A] mt-1">{s.label}</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">{s.label}</div>
               </div>
             ))}
           </div>

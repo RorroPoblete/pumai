@@ -1,21 +1,16 @@
 # ─── Stage 1: Dependencies ───
 FROM node:22-alpine AS deps
-WORKDIR /app
+WORKDIR /build
 
 COPY frontend/package.json frontend/package-lock.json ./
-COPY backend/prisma ./prisma/
-COPY backend/prisma.config.ts ./
 RUN npm ci --ignore-scripts
 
 # ─── Stage 2: Build ───
 FROM node:22-alpine AS builder
-WORKDIR /app
+WORKDIR /build
 
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /build/node_modules ./node_modules
 COPY frontend/ ./
-
-# Replace symlinks with real backend files
-RUN rm -f src/backend prisma prisma.config.ts 2>/dev/null; true
 COPY backend/src/ ./src/backend/
 COPY backend/prisma/ ./prisma/
 COPY backend/prisma.config.ts ./prisma.config.ts
@@ -35,22 +30,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Standalone build
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /build/public ./public
+COPY --from=builder /build/.next/standalone ./
+COPY --from=builder /build/.next/static ./.next/static
+COPY --from=builder /build/prisma ./prisma
+COPY --from=builder /build/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /build/tsconfig.json ./tsconfig.json
+COPY --from=builder /build/src/generated ./src/generated
+COPY --from=builder /build/package.json ./package.json
+COPY --from=builder /build/node_modules ./node_modules
 
-# Prisma schema + generated client + config + tsconfig for tsx
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
-COPY --from=builder /app/src/generated ./src/generated
-COPY --from=builder /app/package.json ./package.json
-
-# Full node_modules for prisma CLI + tsx seed
-COPY --from=builder /app/node_modules ./node_modules
-
-# Entrypoint
 COPY frontend/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 

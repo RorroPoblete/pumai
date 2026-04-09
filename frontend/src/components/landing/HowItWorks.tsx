@@ -41,7 +41,7 @@ export default function HowItWorks() {
           <span className="text-xs font-semibold text-[#8B5CF6] tracking-widest uppercase">
             How It Works
           </span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
             Live in <span className="gradient-text-violet">four simple steps</span>
           </h2>
         </div>
@@ -56,17 +56,17 @@ export default function HowItWorks() {
               <div key={i} className="flex gap-6 md:gap-10 items-start">
                 {/* Step number */}
                 <div className="relative flex-shrink-0 w-12 h-12 rounded-full bg-[rgba(139,92,246,0.15)] border border-[rgba(139,92,246,0.4)] flex items-center justify-center">
-                  <span className="text-sm font-bold text-[#A78BFA]">
+                  <span className="text-sm font-bold text-[#8B5CF6]">
                     {s.step}
                   </span>
                 </div>
 
                 {/* Content */}
                 <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-2xl p-6 sm:p-8 flex-1 hover:border-[rgba(139,92,246,0.3)] transition-colors duration-300">
-                  <h3 className="text-xl font-bold text-white mb-2">
+                  <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
                     {s.title}
                   </h3>
-                  <p className="text-[#A1A1AA] leading-relaxed">
+                  <p className="text-[var(--text-secondary)] leading-relaxed">
                     {s.description}
                   </p>
                 </div>

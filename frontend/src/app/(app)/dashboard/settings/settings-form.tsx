@@ -33,32 +33,32 @@ export default function SettingsForm({
       <div className="flex-1 overflow-y-auto p-6 space-y-6 max-w-3xl">
         {/* Business Info */}
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-6">
-          <h3 className="text-sm font-semibold text-white mb-5">Business Information</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-5">Business Information</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">Business name</label>
+              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">Business name</label>
               <input
                 type="text"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm focus:outline-none focus:border-[#8B5CF6] transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm focus:outline-none focus:border-[#8B5CF6] transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">Email</label>
+              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm focus:outline-none focus:border-[#8B5CF6] transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm focus:outline-none focus:border-[#8B5CF6] transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">Timezone</label>
+              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">Timezone</label>
               <select
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm focus:outline-none focus:border-[#8B5CF6] transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm focus:outline-none focus:border-[#8B5CF6] transition-colors"
               >
                 <option value="Australia/Sydney">Australia/Sydney (AEST)</option>
                 <option value="Australia/Melbourne">Australia/Melbourne (AEST)</option>
@@ -67,7 +67,7 @@ export default function SettingsForm({
                 <option value="Australia/Adelaide">Australia/Adelaide (ACST)</option>
               </select>
             </div>
-            <button className="gradient-btn text-white text-sm font-semibold px-6 py-2.5 rounded-xl glow-sm hover:glow-md transition-all">
+            <button className="gradient-btn !text-white text-sm font-semibold px-6 py-2.5 rounded-xl glow-sm hover:glow-md transition-all">
               Save Changes
             </button>
           </div>
@@ -75,32 +75,32 @@ export default function SettingsForm({
 
         {/* SMS Configuration */}
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-6">
-          <h3 className="text-sm font-semibold text-white mb-5">SMS Configuration</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-5">SMS Configuration</h3>
           <div className="space-y-4">
             {smsNumbers.map((sms) => (
-              <div key={sms.number} className="flex items-center justify-between p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
+              <div key={sms.number} className="flex items-center justify-between p-4 rounded-xl bg-[var(--bg-input)] border border-[var(--border-subtle)]">
                 <div>
-                  <div className="text-sm font-medium text-white">Virtual Number</div>
-                  <div className="text-xs text-[#71717A]">{sms.number}</div>
+                  <div className="text-sm font-medium text-[var(--text-primary)]">Virtual Number</div>
+                  <div className="text-xs text-[var(--text-muted)]">{sms.number}</div>
                 </div>
                 <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ${
                   sms.active
                     ? "bg-[rgba(34,197,94,0.12)] text-[#22c55e]"
-                    : "bg-[rgba(113,113,122,0.12)] text-[#71717A]"
+                    : "bg-[rgba(113,113,122,0.12)] text-[var(--text-muted)]"
                 }`}>
                   {sms.active ? "Active" : "Inactive"}
                 </span>
               </div>
             ))}
             {smsNumbers.length === 0 && (
-              <div className="p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] text-sm text-[#71717A]">
+              <div className="p-4 rounded-xl bg-[var(--bg-input)] border border-[var(--border-subtle)] text-sm text-[var(--text-muted)]">
                 No SMS numbers configured yet.
               </div>
             )}
-            <div className="flex items-center justify-between p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-[var(--bg-input)] border border-[var(--border-subtle)]">
               <div>
-                <div className="text-sm font-medium text-white">SMS Provider</div>
-                <div className="text-xs text-[#71717A]">Cellcast — Direct carrier connection (Telstra, Optus, Vodafone)</div>
+                <div className="text-sm font-medium text-[var(--text-primary)]">SMS Provider</div>
+                <div className="text-xs text-[var(--text-muted)]">Cellcast — Direct carrier connection (Telstra, Optus, Vodafone)</div>
               </div>
               <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[rgba(34,197,94,0.12)] text-[#22c55e]">
                 Connected
@@ -111,7 +111,7 @@ export default function SettingsForm({
 
         {/* Notifications */}
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-6">
-          <h3 className="text-sm font-semibold text-white mb-5">Notifications</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-5">Notifications</h3>
           <div className="space-y-3">
             {[
               { key: "escalations", label: "Escalation alerts", desc: "Get notified when a conversation is escalated to a human" },
@@ -121,11 +121,11 @@ export default function SettingsForm({
             ].map((n) => (
               <div
                 key={n.key}
-                className="flex items-center justify-between p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]"
+                className="flex items-center justify-between p-4 rounded-xl bg-[var(--bg-input)] border border-[var(--border-subtle)]"
               >
                 <div>
-                  <div className="text-sm font-medium text-white">{n.label}</div>
-                  <div className="text-xs text-[#71717A]">{n.desc}</div>
+                  <div className="text-sm font-medium text-[var(--text-primary)]">{n.label}</div>
+                  <div className="text-xs text-[var(--text-muted)]">{n.desc}</div>
                 </div>
                 <button
                   onClick={() =>
@@ -137,7 +137,7 @@ export default function SettingsForm({
                   className={`w-11 h-6 rounded-full transition-colors duration-200 relative ${
                     notifications[n.key as keyof typeof notifications]
                       ? "bg-[#8B5CF6]"
-                      : "bg-[rgba(255,255,255,0.1)]"
+                      : "bg-[var(--bg-hover)]"
                   }`}
                 >
                   <span
@@ -156,7 +156,7 @@ export default function SettingsForm({
         {/* Danger zone */}
         <div className="border border-[rgba(239,68,68,0.2)] rounded-xl p-6">
           <h3 className="text-sm font-semibold text-[#ef4444] mb-2">Danger Zone</h3>
-          <p className="text-xs text-[#71717A] mb-4">
+          <p className="text-xs text-[var(--text-muted)] mb-4">
             Permanently delete your account and all associated data. This action cannot be undone.
           </p>
           <button className="text-sm font-semibold text-[#ef4444] px-5 py-2.5 rounded-xl border border-[rgba(239,68,68,0.3)] hover:bg-[rgba(239,68,68,0.08)] transition-colors">

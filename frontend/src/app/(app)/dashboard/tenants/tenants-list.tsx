@@ -16,9 +16,9 @@ interface Business {
 }
 
 const planColor: Record<string, string> = {
-  ENTERPRISE: "bg-[rgba(139,92,246,0.12)] text-[#A78BFA]",
+  ENTERPRISE: "bg-[rgba(139,92,246,0.12)] text-[#8B5CF6]",
   GROWTH: "bg-[rgba(59,130,246,0.12)] text-[#3b82f6]",
-  STARTER: "bg-[rgba(255,255,255,0.06)] text-[#71717A]",
+  STARTER: "bg-[var(--bg-hover)] text-[var(--text-muted)]",
 };
 
 const industries = ["Healthcare", "Automotive", "Real Estate", "E-commerce & Retail", "Trades & Services", "Hospitality", "Education", "Other"];
@@ -55,11 +55,11 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
           placeholder="Search tenants..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-xs px-4 py-2 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-sm text-white placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] transition-colors"
+          className="w-full max-w-xs px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
         />
         <button
           onClick={() => setShowForm(!showForm)}
-          className="gradient-btn text-white text-sm font-semibold px-5 py-2 rounded-xl glow-sm hover:glow-md transition-all whitespace-nowrap"
+          className="gradient-btn !text-white text-sm font-semibold px-5 py-2 rounded-xl glow-sm hover:glow-md transition-all whitespace-nowrap"
         >
           {showForm ? "Cancel" : "+ New Tenant"}
         </button>
@@ -71,30 +71,30 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
           action={(fd) => startTransition(() => createTenant(fd))}
           className="card-gradient border border-[rgba(139,92,246,0.15)] rounded-xl p-6 space-y-4"
         >
-          <h3 className="text-sm font-semibold text-white">Create New Tenant</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Create New Tenant</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-[#A1A1AA] mb-1">Business Name</label>
-              <input name="name" required placeholder="Acme Pty Ltd" className="w-full px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6]" />
+              <label className="block text-xs text-[var(--text-secondary)] mb-1">Business Name</label>
+              <input name="name" required placeholder="Acme Pty Ltd" className="w-full px-3 py-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6]" />
             </div>
             <div>
-              <label className="block text-xs text-[#A1A1AA] mb-1">Industry</label>
-              <select name="industry" required className="w-full px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-[#8B5CF6]">
+              <label className="block text-xs text-[var(--text-secondary)] mb-1">Industry</label>
+              <select name="industry" required className="w-full px-3 py-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6]">
                 <option value="">Select...</option>
                 {industries.map((i) => <option key={i} value={i}>{i}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs text-[#A1A1AA] mb-1">Owner Name</label>
-              <input name="ownerName" required placeholder="John Smith" className="w-full px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6]" />
+              <label className="block text-xs text-[var(--text-secondary)] mb-1">Owner Name</label>
+              <input name="ownerName" required placeholder="John Smith" className="w-full px-3 py-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6]" />
             </div>
             <div>
-              <label className="block text-xs text-[#A1A1AA] mb-1">Owner Email</label>
-              <input name="ownerEmail" type="email" required placeholder="john@acme.com.au" className="w-full px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6]" />
+              <label className="block text-xs text-[var(--text-secondary)] mb-1">Owner Email</label>
+              <input name="ownerEmail" type="email" required placeholder="john@acme.com.au" className="w-full px-3 py-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6]" />
             </div>
             <div>
-              <label className="block text-xs text-[#A1A1AA] mb-1">Plan</label>
-              <select name="plan" className="w-full px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-[#8B5CF6]">
+              <label className="block text-xs text-[var(--text-secondary)] mb-1">Plan</label>
+              <select name="plan" className="w-full px-3 py-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6]">
                 <option value="STARTER">Starter</option>
                 <option value="GROWTH">Growth</option>
                 <option value="ENTERPRISE">Enterprise</option>
@@ -104,7 +104,7 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
           <button
             type="submit"
             disabled={pending}
-            className="gradient-btn text-white text-sm font-semibold px-6 py-2.5 rounded-xl glow-sm hover:glow-md transition-all disabled:opacity-50"
+            className="gradient-btn !text-white text-sm font-semibold px-6 py-2.5 rounded-xl glow-sm hover:glow-md transition-all disabled:opacity-50"
           >
             {pending ? "Creating..." : "Create Tenant"}
           </button>
@@ -116,16 +116,16 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.06)]">
+              <tr className="border-b border-[var(--border-subtle)]">
                 {["Business", "Plan", "Industry", "Members", "Convos", "Agents", "Created", "Actions"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map((b) => (
-                <tr key={b.id} className="border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(139,92,246,0.03)] transition-colors">
-                  <td className="px-4 py-3 text-sm font-medium text-white">{b.name}</td>
+                <tr key={b.id} className="border-b border-[var(--border-subtle)] hover:bg-[rgba(139,92,246,0.03)] transition-colors">
+                  <td className="px-4 py-3 text-sm font-medium text-[var(--text-primary)]">{b.name}</td>
                   <td className="px-4 py-3">
                     <select
                       value={b.plan}
@@ -138,17 +138,17 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
                       <option value="ENTERPRISE">Enterprise</option>
                     </select>
                   </td>
-                  <td className="px-4 py-3 text-xs text-[#A1A1AA]">{b.industry}</td>
-                  <td className="px-4 py-3 text-xs text-[#A1A1AA]">{b.members}</td>
-                  <td className="px-4 py-3 text-xs text-[#A1A1AA]">{b.conversations}</td>
-                  <td className="px-4 py-3 text-xs text-[#A1A1AA]">{b.agents}</td>
-                  <td className="px-4 py-3 text-xs text-[#71717A]">{b.createdAt}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{b.industry}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{b.members}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{b.conversations}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">{b.agents}</td>
+                  <td className="px-4 py-3 text-xs text-[var(--text-muted)]">{b.createdAt}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleView(b.id)}
                         disabled={pending}
-                        className="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-[rgba(139,92,246,0.1)] text-[#A78BFA] hover:bg-[rgba(139,92,246,0.2)] transition-colors"
+                        className="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-[rgba(139,92,246,0.1)] text-[#8B5CF6] hover:bg-[rgba(139,92,246,0.2)] transition-colors"
                       >
                         View
                       </button>
@@ -167,7 +167,7 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
           </table>
         </div>
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-[#71717A] text-sm">No tenants found.</div>
+          <div className="text-center py-12 text-[var(--text-muted)] text-sm">No tenants found.</div>
         )}
       </div>
     </>

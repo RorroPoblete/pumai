@@ -68,11 +68,11 @@ export default function Industries() {
           <span className="text-xs font-semibold text-[#8B5CF6] tracking-widest uppercase">
             Industries
           </span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
             Built for{" "}
             <span className="gradient-text-violet">Australian industries</span>
           </h2>
-          <p className="mt-4 text-lg text-[#A1A1AA] max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
             From healthcare to hospitality — our AI agents adapt to the unique needs of
             your vertical.
           </p>
@@ -101,8 +101,8 @@ export default function Industries() {
                   {ind.priority === "high" ? "High Priority" : "Growing"}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">{ind.name}</h3>
-              <p className="text-sm text-[#A1A1AA] leading-relaxed">
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">{ind.name}</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 {ind.description}
               </p>
             </div>

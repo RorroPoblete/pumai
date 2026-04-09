@@ -1,1 +1,0 @@
-../backend/prisma.config.ts

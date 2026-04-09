@@ -3,7 +3,7 @@ import { getDashboardOverview } from "@/backend/queries";
 
 const statusColor = {
   active: "bg-[rgba(34,197,94,0.12)] text-[#22c55e]",
-  resolved: "bg-[rgba(139,92,246,0.12)] text-[#A78BFA]",
+  resolved: "bg-[rgba(139,92,246,0.12)] text-[#8B5CF6]",
   escalated: "bg-[rgba(239,68,68,0.12)] text-[#ef4444]",
 };
 
@@ -20,7 +20,7 @@ export default async function DashboardOverview() {
     return (
       <>
         <TopBar title="Overview" />
-        <div className="flex-1 flex items-center justify-center text-[#71717A] text-sm">
+        <div className="flex-1 flex items-center justify-center text-[var(--text-muted)] text-sm">
           Complete onboarding to see your dashboard.
         </div>
       </>
@@ -84,14 +84,14 @@ export default async function DashboardOverview() {
               className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-5"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-[#71717A] uppercase tracking-wider">
+                <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   {kpi.label}
                 </span>
-                <div className="w-8 h-8 rounded-lg bg-[rgba(139,92,246,0.1)] flex items-center justify-center text-[#A78BFA]">
+                <div className="w-8 h-8 rounded-lg bg-[rgba(139,92,246,0.1)] flex items-center justify-center text-[#8B5CF6]">
                   {kpi.icon}
                 </div>
               </div>
-              <div className="text-2xl font-black text-white">{kpi.value}</div>
+              <div className="text-2xl font-black text-[var(--text-primary)]">{kpi.value}</div>
               {kpi.change !== null && (
                 <div
                   className={`text-xs font-medium mt-1 ${
@@ -110,18 +110,18 @@ export default async function DashboardOverview() {
           {/* Chart - Conversations per day */}
           <div className="lg:col-span-2 card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-5">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-sm font-semibold text-white">Conversations This Week</h3>
-              <span className="text-xs text-[#71717A]">{m.messagesThisMonth.toLocaleString()} messages total</span>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">Conversations This Week</h3>
+              <span className="text-xs text-[var(--text-muted)]">{m.messagesThisMonth.toLocaleString()} messages total</span>
             </div>
             <div className="flex items-end justify-between gap-2 h-40">
               {chart.conversationsPerDay.map((d) => (
                 <div key={d.day} className="flex-1 flex flex-col items-center gap-2">
-                  <span className="text-xs text-[#A1A1AA] font-medium">{d.value}</span>
+                  <span className="text-xs text-[var(--text-secondary)] font-medium">{d.value}</span>
                   <div
                     className="w-full rounded-t-md gradient-btn transition-all duration-300 hover:opacity-80"
                     style={{ height: `${(d.value / maxChart) * 100}%`, minHeight: 8 }}
                   />
-                  <span className="text-[10px] text-[#71717A]">{d.day}</span>
+                  <span className="text-[10px] text-[var(--text-muted)]">{d.day}</span>
                 </div>
               ))}
             </div>
@@ -129,7 +129,7 @@ export default async function DashboardOverview() {
 
           {/* Sentiment breakdown */}
           <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-white mb-6">Sentiment</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-6">Sentiment</h3>
             <div className="space-y-4">
               {(
                 [
@@ -140,10 +140,10 @@ export default async function DashboardOverview() {
               ).map((s) => (
                 <div key={s.label}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-[#A1A1AA]">{s.label}</span>
-                    <span className="text-xs font-semibold text-white">{s.value}%</span>
+                    <span className="text-xs text-[var(--text-secondary)]">{s.label}</span>
+                    <span className="text-xs font-semibold text-[var(--text-primary)]">{s.value}%</span>
                   </div>
-                  <div className="h-2 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                  <div className="h-2 rounded-full bg-[var(--bg-hover)] overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{ width: `${s.value}%`, background: s.color }}
@@ -155,7 +155,7 @@ export default async function DashboardOverview() {
 
             {/* Agent status */}
             <div className="mt-8">
-              <h4 className="text-xs font-semibold text-[#71717A] uppercase tracking-wider mb-3">
+              <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
                 Agent Status
               </h4>
               <div className="space-y-2">
@@ -163,9 +163,9 @@ export default async function DashboardOverview() {
                   <div key={a.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${a.status === "active" ? "bg-[#22c55e]" : a.status === "paused" ? "bg-[#f59e0b]" : "bg-[#71717A]"}`} />
-                      <span className="text-xs text-[#A1A1AA]">{a.name}</span>
+                      <span className="text-xs text-[var(--text-secondary)]">{a.name}</span>
                     </div>
-                    <span className="text-xs text-[#71717A]">{a.conversationsToday} today</span>
+                    <span className="text-xs text-[var(--text-muted)]">{a.conversationsToday} today</span>
                   </div>
                 ))}
               </div>
@@ -175,18 +175,18 @@ export default async function DashboardOverview() {
 
         {/* Recent Conversations */}
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-white">Recent Conversations</h3>
-            <a href="/dashboard/conversations" className="text-xs text-[#8B5CF6] hover:text-[#A78BFA] transition-colors">
+          <div className="px-5 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Recent Conversations</h3>
+            <a href="/dashboard/conversations" className="text-xs text-[#8B5CF6] hover:text-[#8B5CF6] transition-colors">
               View all &rarr;
             </a>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[rgba(255,255,255,0.04)]">
+                <tr className="border-b border-[var(--border-subtle)]">
                   {["Contact", "Agent", "Status", "Last Message", "Time"].map((h) => (
-                    <th key={h} className="px-5 py-3 text-left text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">
+                    <th key={h} className="px-5 py-3 text-left text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                       {h}
                     </th>
                   ))}
@@ -196,27 +196,27 @@ export default async function DashboardOverview() {
                 {conversations.slice(0, 6).map((c) => (
                   <tr
                     key={c.id}
-                    className="border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(139,92,246,0.04)] transition-colors"
+                    className="border-b border-[var(--border-subtle)] hover:bg-[rgba(139,92,246,0.04)] transition-colors"
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className={`w-2 h-2 rounded-full ${sentimentDot[c.sentiment]}`} />
                         <div>
-                          <div className="text-sm font-medium text-white">{c.contact}</div>
-                          <div className="text-xs text-[#71717A]">{c.phone}</div>
+                          <div className="text-sm font-medium text-[var(--text-primary)]">{c.contact}</div>
+                          <div className="text-xs text-[var(--text-muted)]">{c.phone}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-[#A1A1AA]">{c.agentName}</td>
+                    <td className="px-5 py-3.5 text-xs text-[var(--text-secondary)]">{c.agentName}</td>
                     <td className="px-5 py-3.5">
                       <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${statusColor[c.status]}`}>
                         {c.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-[#A1A1AA] max-w-xs truncate">
+                    <td className="px-5 py-3.5 text-xs text-[var(--text-secondary)] max-w-xs truncate">
                       {c.lastMessage}
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-[#71717A] whitespace-nowrap">
+                    <td className="px-5 py-3.5 text-xs text-[var(--text-muted)] whitespace-nowrap">
                       {c.updatedAt}
                     </td>
                   </tr>

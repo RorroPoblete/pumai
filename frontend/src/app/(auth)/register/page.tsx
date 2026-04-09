@@ -54,22 +54,22 @@ export default function RegisterPage() {
     <div>
       {/* Mobile logo */}
       <div className="lg:hidden flex items-center gap-2 mb-8">
-        <span className="text-xl font-bold text-white">
+        <span className="text-xl font-bold text-[var(--text-primary)]">
           Pum<span className="text-[#8B5CF6]">AI</span>
         </span>
       </div>
 
-      <h1 className="text-2xl font-extrabold text-white mb-2">
+      <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">
         Create your account
       </h1>
-      <p className="text-sm text-[#A1A1AA] mb-8">
+      <p className="text-sm text-[var(--text-secondary)] mb-8">
         Start automating customer conversations in minutes
       </p>
 
       {/* Google */}
       <button
         onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
-        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] transition-colors text-sm font-medium text-white mb-6"
+        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[var(--border-input)] bg-[var(--bg-input)] hover:bg-[var(--bg-hover)] transition-colors text-sm font-medium text-[var(--text-primary)] mb-6"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -82,9 +82,9 @@ export default function RegisterPage() {
 
       {/* Divider */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex-1 h-px bg-[rgba(255,255,255,0.08)]" />
-        <span className="text-xs text-[#71717A]">or</span>
-        <div className="flex-1 h-px bg-[rgba(255,255,255,0.08)]" />
+        <div className="flex-1 h-px bg-[var(--bg-hover)]" />
+        <span className="text-xs text-[var(--text-muted)]">or</span>
+        <div className="flex-1 h-px bg-[var(--bg-hover)]" />
       </div>
 
       {/* Form */}
@@ -96,7 +96,7 @@ export default function RegisterPage() {
         )}
 
         <div>
-          <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
             Full name
           </label>
           <input
@@ -104,13 +104,13 @@ export default function RegisterPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
             placeholder="John Smith"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
             Work email
           </label>
           <input
@@ -118,13 +118,13 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
             placeholder="you@company.com.au"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
             Password
           </label>
           <input
@@ -133,7 +133,7 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
             placeholder="Min. 8 characters"
           />
         </div>
@@ -141,21 +141,21 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full gradient-btn text-white font-semibold py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full gradient-btn !text-white font-semibold py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Creating account..." : "Create Account"}
         </button>
 
-        <p className="text-xs text-[#71717A] text-center">
+        <p className="text-xs text-[var(--text-muted)] text-center">
           By signing up, you agree to our Terms of Service and Privacy Policy.
         </p>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[#71717A]">
+      <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="text-[#8B5CF6] font-medium hover:text-[#A78BFA] transition-colors"
+          className="text-[#8B5CF6] font-medium hover:text-[#8B5CF6] transition-colors"
         >
           Sign in
         </Link>

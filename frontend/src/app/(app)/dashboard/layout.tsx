@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   ]);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
       <Sidebar
         plan={summary?.plan ?? "STARTER"}
         conversationsUsed={summary?.conversationsUsed ?? 0}

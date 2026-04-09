@@ -103,7 +103,7 @@ export default function Sidebar({
       {/* Logo */}
       <div className="px-5 py-6 flex items-center gap-2.5">
         <Image src="/logo.png" alt="PumAI" width={30} height={30} className="rounded-lg" />
-        <span className="text-base font-bold text-white">
+        <span className="text-base font-bold text-[var(--text-primary)]">
           Pum<span className="text-[#8B5CF6]">AI</span>
         </span>
       </div>
@@ -125,8 +125,8 @@ export default function Sidebar({
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               isActive(item.href)
-                ? "bg-[rgba(139,92,246,0.12)] text-white"
-                : "text-[#71717A] hover:text-[#A1A1AA] hover:bg-[rgba(255,255,255,0.04)]"
+                ? "bg-[rgba(139,92,246,0.12)] text-[var(--text-primary)]"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-input)]"
             }`}
           >
             <span className={isActive(item.href) ? "text-[#8B5CF6]" : ""}>{item.icon}</span>
@@ -137,14 +137,14 @@ export default function Sidebar({
         {/* Superadmin: Tenants */}
         {isSuperadmin && (
           <>
-            <div className="pt-3 mt-3 border-t border-[rgba(255,255,255,0.06)]" />
+            <div className="pt-3 mt-3 border-t border-[var(--border-subtle)]" />
             <Link
               href={adminNavItem.href}
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive(adminNavItem.href)
-                  ? "bg-[rgba(239,68,68,0.1)] text-white"
-                  : "text-[#71717A] hover:text-[#A1A1AA] hover:bg-[rgba(255,255,255,0.04)]"
+                  ? "bg-[rgba(239,68,68,0.1)] text-[var(--text-primary)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-input)]"
               }`}
             >
               <span className={isActive(adminNavItem.href) ? "text-[#ef4444]" : ""}>{adminNavItem.icon}</span>
@@ -158,7 +158,7 @@ export default function Sidebar({
       <div className="px-3 pb-4 space-y-3">
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-[#71717A] hover:text-[#ef4444] hover:bg-[rgba(239,68,68,0.06)] transition-all duration-200"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[#ef4444] hover:bg-[rgba(239,68,68,0.06)] transition-all duration-200"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -166,9 +166,9 @@ export default function Sidebar({
           Log out
         </button>
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-4">
-          <div className="text-xs font-semibold text-white mb-1">{plan.charAt(0) + plan.slice(1).toLowerCase()} Plan</div>
-          <div className="text-xs text-[#71717A] mb-3">{conversationsUsed} / {conversationsLimit} conversations used</div>
-          <div className="h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+          <div className="text-xs font-semibold text-[var(--text-primary)] mb-1">{plan.charAt(0) + plan.slice(1).toLowerCase()} Plan</div>
+          <div className="text-xs text-[var(--text-muted)] mb-3">{conversationsUsed} / {conversationsLimit} conversations used</div>
+          <div className="h-1.5 rounded-full bg-[var(--bg-hover)] overflow-hidden">
             <div
               className="h-full gradient-btn rounded-full"
               style={{ width: `${Math.min(conversationsUsed / conversationsLimit * 100, 100)}%` }}
@@ -182,17 +182,17 @@ export default function Sidebar({
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-60 flex-col border-r border-[rgba(255,255,255,0.06)] bg-[#0a0a0a] fixed inset-y-0 left-0 z-40">
+      <aside className="hidden lg:flex w-60 flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-secondary)] fixed inset-y-0 left-0 z-40">
         {nav}
       </aside>
 
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-[rgba(0,0,0,0.8)] backdrop-blur-xl border border-[rgba(255,255,255,0.1)]"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--border-input)]"
         aria-label="Open menu"
       >
-        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
@@ -201,13 +201,13 @@ export default function Sidebar({
       {mobileOpen && (
         <>
           <div
-            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="lg:hidden fixed inset-y-0 left-0 w-64 bg-[#0a0a0a] border-r border-[rgba(255,255,255,0.06)] z-50">
+          <aside className="lg:hidden fixed inset-y-0 left-0 w-64 bg-[var(--bg-secondary)] border-r border-[var(--border-subtle)] z-50">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 text-[#71717A] hover:text-white"
+              className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               aria-label="Close menu"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

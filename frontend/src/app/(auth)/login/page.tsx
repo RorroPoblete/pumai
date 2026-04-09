@@ -33,20 +33,20 @@ export default function LoginPage() {
     <div>
       {/* Mobile logo */}
       <div className="lg:hidden flex items-center gap-2 mb-8">
-        <span className="text-xl font-bold text-white">
+        <span className="text-xl font-bold text-[var(--text-primary)]">
           Pum<span className="text-[#8B5CF6]">AI</span>
         </span>
       </div>
 
-      <h1 className="text-2xl font-extrabold text-white mb-2">Welcome back</h1>
-      <p className="text-sm text-[#A1A1AA] mb-8">
+      <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">Welcome back</h1>
+      <p className="text-sm text-[var(--text-secondary)] mb-8">
         Sign in to manage your AI agents
       </p>
 
       {/* Google */}
       <button
         onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] transition-colors text-sm font-medium text-white mb-6"
+        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[var(--border-input)] bg-[var(--bg-input)] hover:bg-[var(--bg-hover)] transition-colors text-sm font-medium text-[var(--text-primary)] mb-6"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path
@@ -71,9 +71,9 @@ export default function LoginPage() {
 
       {/* Divider */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex-1 h-px bg-[rgba(255,255,255,0.08)]" />
-        <span className="text-xs text-[#71717A]">or</span>
-        <div className="flex-1 h-px bg-[rgba(255,255,255,0.08)]" />
+        <div className="flex-1 h-px bg-[var(--bg-hover)]" />
+        <span className="text-xs text-[var(--text-muted)]">or</span>
+        <div className="flex-1 h-px bg-[var(--bg-hover)]" />
       </div>
 
       {/* Form */}
@@ -85,7 +85,7 @@ export default function LoginPage() {
         )}
 
         <div>
-          <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">
+          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
             Email
           </label>
           <input
@@ -93,19 +93,19 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
             placeholder="you@company.com"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-medium text-[#A1A1AA]">
+            <label className="text-xs font-medium text-[var(--text-secondary)]">
               Password
             </label>
             <Link
               href="/forgot-password"
-              className="text-xs text-[#8B5CF6] hover:text-[#A78BFA] transition-colors"
+              className="text-xs text-[#8B5CF6] hover:text-[#8B5CF6] transition-colors"
             >
               Forgot password?
             </Link>
@@ -115,7 +115,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
             placeholder="••••••••"
           />
         </div>
@@ -123,17 +123,17 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full gradient-btn text-white font-semibold py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full gradient-btn !text-white font-semibold py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[#71717A]">
+      <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
-          className="text-[#8B5CF6] font-medium hover:text-[#A78BFA] transition-colors"
+          className="text-[#8B5CF6] font-medium hover:text-[#8B5CF6] transition-colors"
         >
           Create one
         </Link>

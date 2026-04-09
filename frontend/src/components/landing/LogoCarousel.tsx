@@ -11,8 +11,8 @@ const integrations = [
 
 function LogoItem({ name }: { name: string }) {
   return (
-    <div className="flex-shrink-0 flex items-center justify-center px-8 py-4 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] hover:border-[rgba(139,92,246,0.3)] hover:bg-[rgba(139,92,246,0.05)] transition-all duration-300">
-      <span className="text-sm font-semibold text-[#71717A] whitespace-nowrap tracking-wide">
+    <div className="flex-shrink-0 flex items-center justify-center px-8 py-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-input)] hover:border-[rgba(139,92,246,0.3)] hover:bg-[rgba(139,92,246,0.05)] transition-all duration-300">
+      <span className="text-sm font-semibold text-[var(--text-muted)] whitespace-nowrap tracking-wide">
         {name}
       </span>
     </div>
@@ -21,9 +21,9 @@ function LogoItem({ name }: { name: string }) {
 
 export default function LogoCarousel() {
   return (
-    <section className="py-16 overflow-hidden border-y border-[rgba(255,255,255,0.04)]">
+    <section className="py-16 overflow-hidden border-y border-[var(--border-subtle)]">
       <div className="text-center mb-8">
-        <span className="text-xs font-semibold text-[#71717A] tracking-widest uppercase">
+        <span className="text-xs font-semibold text-[var(--text-muted)] tracking-widest uppercase">
           Integrates with your favourite tools
         </span>
       </div>

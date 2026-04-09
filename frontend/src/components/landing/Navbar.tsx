@@ -46,7 +46,7 @@ export default function Navbar() {
             height={36}
             className="rounded-lg"
           />
-          <span className="text-lg font-bold tracking-tight text-white">
+          <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
             Pum<span className="text-[#8B5CF6]">AI</span>
           </span>
         </a>
@@ -58,7 +58,7 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               onClick={(e) => handleClick(e, l.href)}
-              className="text-sm font-medium text-[#A1A1AA] hover:text-white transition-colors duration-300"
+              className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-300"
             >
               {l.label}
             </a>
@@ -66,7 +66,7 @@ export default function Navbar() {
           <a
             href="#pricing"
             onClick={(e) => handleClick(e, "#pricing")}
-            className="gradient-btn text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition-all duration-300 glow-sm"
+            className="gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition-all duration-300 glow-sm"
           >
             Get Started
           </a>
@@ -75,7 +75,7 @@ export default function Navbar() {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-white p-2"
+          className="md:hidden text-[var(--text-primary)] p-2"
           aria-label="Toggle menu"
         >
           <svg
@@ -112,7 +112,7 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 onClick={(e) => handleClick(e, l.href)}
-                className="text-sm font-medium text-[#A1A1AA] hover:text-white transition-colors"
+                className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 {l.label}
               </a>
@@ -120,7 +120,7 @@ export default function Navbar() {
             <a
               href="#pricing"
               onClick={(e) => handleClick(e, "#pricing")}
-              className="gradient-btn text-white text-sm font-semibold px-5 py-2.5 rounded-xl text-center"
+              className="gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl text-center"
             >
               Get Started
             </a>

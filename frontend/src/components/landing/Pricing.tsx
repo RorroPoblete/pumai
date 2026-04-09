@@ -118,11 +118,11 @@ export default function Pricing() {
           <span className="text-xs font-semibold text-[#8B5CF6] tracking-widest uppercase">
             Pricing
           </span>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
             Five channels,{" "}
             <span className="gradient-text-violet">one platform</span>
           </h2>
-          <p className="mt-4 text-lg text-[#A1A1AA] max-w-xl mx-auto">
+          <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-xl mx-auto">
             Choose the channels your customers use. Mix and match, or go Omnichannel for full coverage.
           </p>
         </div>
@@ -139,7 +139,7 @@ export default function Pricing() {
                 className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
                   active
                     ? `border-2 shadow-[0_0_20px_${c.bg}0.15)]`
-                    : "border-2 border-[rgba(255,255,255,0.1)] text-[#71717A] hover:border-[rgba(255,255,255,0.2)]"
+                    : "border-2 border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border-input)]"
                 }`}
                 style={
                   active
@@ -181,24 +181,24 @@ export default function Pricing() {
             >
               {p.popular && (
                 <div
-                  className="absolute -top-3 right-6 text-xs font-bold px-3 py-1 rounded-md text-white"
+                  className="absolute -top-3 right-6 text-xs font-bold px-3 py-1 rounded-md text-[var(--text-primary)]"
                   style={{ background: cfg.color }}
                 >
                   MOST POPULAR
                 </div>
               )}
 
-              <div className="text-sm font-semibold text-[#A1A1AA] mb-1">{p.name}</div>
+              <div className="text-sm font-semibold text-[var(--text-secondary)] mb-1">{p.name}</div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-4xl font-black text-white">{p.price}</span>
-                <span className="text-[#71717A] text-sm">{p.period}</span>
+                <span className="text-4xl font-black text-[var(--text-primary)]">{p.price}</span>
+                <span className="text-[var(--text-muted)] text-sm">{p.period}</span>
               </div>
-              <div className="text-xs text-[#71717A] mb-2">{p.target}</div>
+              <div className="text-xs text-[var(--text-muted)] mb-2">{p.target}</div>
               <div className="text-xs font-medium mb-6" style={{ color: cfg.color }}>{p.setup}</div>
 
               <ul className="space-y-3 mb-8">
                 {p.features.map((f, j) => (
-                  <li key={j} className="flex items-start gap-3 text-sm text-[#A1A1AA]">
+                  <li key={j} className="flex items-start gap-3 text-sm text-[var(--text-secondary)]">
                     <svg className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: cfg.color }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -211,8 +211,8 @@ export default function Pricing() {
                 href="#"
                 className={`block text-center font-semibold py-3 rounded-xl transition-all duration-300 ${
                   p.popular
-                    ? "gradient-btn text-white glow-sm hover:glow-md"
-                    : "border-2 border-[rgba(139,92,246,0.4)] text-white hover:bg-[rgba(139,92,246,0.08)] hover:border-[#8B5CF6]"
+                    ? "gradient-btn !text-white glow-sm hover:glow-md"
+                    : "border-2 border-[rgba(139,92,246,0.4)] text-[var(--text-primary)] hover:bg-[rgba(139,92,246,0.08)] hover:border-[#8B5CF6]"
                 }`}
               >
                 {p.cta}
@@ -223,21 +223,21 @@ export default function Pricing() {
 
         {/* Omnichannel upsell */}
         <div className="mt-10 p-6 rounded-2xl border border-[rgba(139,92,246,0.25)] bg-[rgba(139,92,246,0.05)] text-center">
-          <div className="text-sm font-bold text-[#A78BFA] mb-1">
+          <div className="text-sm font-bold text-[#8B5CF6] mb-1">
             Want all channels?
           </div>
-          <div className="text-lg font-extrabold text-white mb-2">
+          <div className="text-lg font-extrabold text-[var(--text-primary)] mb-2">
             Upgrade to Omnichannel for{" "}
             <span className="gradient-text-violet">+A$350/month</span>
           </div>
-          <p className="text-sm text-[#A1A1AA] max-w-lg mx-auto">
+          <p className="text-sm text-[var(--text-secondary)] max-w-lg mx-auto">
             Add SMS + WhatsApp + Webchat + Instagram + Messenger on top of any plan.
             One AI platform, five channels, total coverage.
           </p>
         </div>
 
         {/* Extras */}
-        <div className="mt-8 text-center text-sm text-[#71717A] space-y-1.5">
+        <div className="mt-8 text-center text-sm text-[var(--text-muted)] space-y-1.5">
           <p>Prepaid SMS packs: 500 conversations for A$275 &middot; Prepaid WA packs: 1,000 conversations for A$180</p>
           <p>Dedicated virtual SMS number: A$15/month &middot; WhatsApp Business API setup included</p>
           <p>Webchat widget free to embed &middot; Meta Business verification included for Social plans</p>

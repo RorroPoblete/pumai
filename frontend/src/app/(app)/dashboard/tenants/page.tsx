@@ -27,8 +27,8 @@ export default async function TenantsPage() {
               { label: "Agents", value: overview.totalAgents },
             ].map((kpi) => (
               <div key={kpi.label} className="card-gradient border border-[rgba(239,68,68,0.1)] rounded-xl p-4">
-                <div className="text-[10px] font-medium text-[#71717A] uppercase tracking-wider mb-1">{kpi.label}</div>
-                <div className="text-xl font-black text-white">{kpi.value.toLocaleString()}</div>
+                <div className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1">{kpi.label}</div>
+                <div className="text-xl font-black text-[var(--text-primary)]">{kpi.value.toLocaleString()}</div>
               </div>
             ))}
           </div>

@@ -289,7 +289,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.push("/dashboard/agents")}
-              className="text-sm text-[#A1A1AA] hover:text-white transition-colors"
+              className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               &larr; Back to Agents
             </button>
@@ -319,7 +319,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
               <button
                 onClick={handleSave}
                 disabled={isPending || !name.trim()}
-                className="gradient-btn text-white text-sm font-semibold px-6 py-2 rounded-lg glow-sm hover:glow-md transition-all disabled:opacity-50"
+                className="gradient-btn !text-white text-sm font-semibold px-6 py-2 rounded-lg glow-sm hover:glow-md transition-all disabled:opacity-50"
               >
                 {isPending ? "Saving..." : saved ? "Saved!" : isNew ? "Create Agent" : "Save Changes"}
               </button>
@@ -327,15 +327,15 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 border-b border-[rgba(255,255,255,0.06)] pb-px">
+          <div className="flex gap-1 border-b border-[var(--border-subtle)] pb-px">
             {tabs.map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`px-4 py-2.5 text-sm font-medium transition-colors rounded-t-lg ${
                   tab === t
-                    ? "text-white border-b-2 border-[#8B5CF6] bg-[rgba(139,92,246,0.08)]"
-                    : "text-[#71717A] hover:text-[#A1A1AA] hover:bg-[rgba(255,255,255,0.03)]"
+                    ? "text-[var(--text-primary)] border-b-2 border-[#8B5CF6] bg-[rgba(139,92,246,0.08)]"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-input)]"
                 }`}
               >
                 {t}
@@ -348,7 +348,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
             <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-6 space-y-6">
               {/* Name */}
               <div>
-                <label className="block text-xs font-medium text-[#A1A1AA] mb-1.5">
+                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                   Agent name
                 </label>
                 <input
@@ -356,13 +356,13 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Sam, Reception Bot, Support"
-                  className="w-full px-4 py-3 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-white text-sm placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
                 />
               </div>
 
               {/* Tone */}
               <div>
-                <label className="block text-xs font-medium text-[#A1A1AA] mb-3">
+                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-3">
                   Conversation tone
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -374,11 +374,11 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                       className={`p-4 rounded-xl border text-left transition-all duration-200 ${
                         tone === t.value
                           ? "border-[#8B5CF6] bg-[rgba(139,92,246,0.12)]"
-                          : "border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:border-[rgba(139,92,246,0.3)]"
+                          : "border-[var(--border-input)] bg-[var(--bg-input)] hover:border-[rgba(139,92,246,0.3)]"
                       }`}
                     >
-                      <div className="text-sm font-semibold text-white">{t.label}</div>
-                      <div className="text-xs text-[#71717A] mt-1">{t.desc}</div>
+                      <div className="text-sm font-semibold text-[var(--text-primary)]">{t.label}</div>
+                      <div className="text-xs text-[var(--text-muted)] mt-1">{t.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -386,7 +386,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
 
               {/* Industry */}
               <div>
-                <label className="block text-xs font-medium text-[#A1A1AA] mb-3">
+                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-3">
                   Industry
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -397,8 +397,8 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                       onClick={() => setIndustry(ind)}
                       className={`px-3 py-2.5 rounded-lg border text-xs font-medium transition-all ${
                         industry === ind
-                          ? "border-[#8B5CF6] bg-[rgba(139,92,246,0.12)] text-white"
-                          : "border-[rgba(255,255,255,0.08)] text-[#A1A1AA] hover:border-[rgba(139,92,246,0.3)]"
+                          ? "border-[#8B5CF6] bg-[rgba(139,92,246,0.12)] text-[var(--text-primary)]"
+                          : "border-[var(--border-input)] text-[var(--text-secondary)] hover:border-[rgba(139,92,246,0.3)]"
                       }`}
                     >
                       {ind}
@@ -413,33 +413,33 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
           {tab === "System Prompt" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-[#A1A1AA]">
+                <p className="text-sm text-[var(--text-secondary)]">
                   Define your agent&apos;s personality, instructions, and behaviour rules.
                 </p>
                 {industry && promptTemplates[industry] && (
                   <button
                     onClick={handleApplyTemplate}
-                    className="text-xs font-semibold text-[#8B5CF6] hover:text-[#A78BFA] transition-colors px-3 py-1.5 rounded-lg border border-[rgba(139,92,246,0.3)] hover:bg-[rgba(139,92,246,0.08)]"
+                    className="text-xs font-semibold text-[#8B5CF6] hover:text-[#8B5CF6] transition-colors px-3 py-1.5 rounded-lg border border-[rgba(139,92,246,0.3)] hover:bg-[rgba(139,92,246,0.08)]"
                   >
                     Apply {industry} template
                   </button>
                 )}
               </div>
               <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl overflow-hidden">
-                <div className="px-4 py-2 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">System Prompt</span>
-                  <span className="text-[10px] text-[#71717A]">{systemPrompt.length} chars</span>
+                <div className="px-4 py-2 border-b border-[var(--border-subtle)] flex items-center justify-between">
+                  <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">System Prompt</span>
+                  <span className="text-[10px] text-[var(--text-muted)]">{systemPrompt.length} chars</span>
                 </div>
                 <textarea
                   value={systemPrompt}
                   onChange={(e) => setSystemPrompt(e.target.value)}
                   rows={16}
                   placeholder="You are a helpful AI assistant for [business name]. You help customers with..."
-                  className="w-full px-4 py-4 bg-transparent text-sm text-[#e2e8f0] placeholder-[#71717A] focus:outline-none resize-none leading-relaxed font-mono"
+                  className="w-full px-4 py-4 bg-transparent text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none resize-none leading-relaxed font-mono"
                 />
               </div>
-              <div className="text-xs text-[#71717A] space-y-1">
-                <p><strong className="text-[#A1A1AA]">Tips:</strong></p>
+              <div className="text-xs text-[var(--text-muted)] space-y-1">
+                <p><strong className="text-[var(--text-secondary)]">Tips:</strong></p>
                 <p>- Start with &quot;You are...&quot; to define the agent&apos;s role</p>
                 <p>- Include specific business information (hours, services, policies)</p>
                 <p>- Define boundaries (what the agent should NOT do)</p>
@@ -451,24 +451,24 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
           {/* Tab: Knowledge Base */}
           {tab === "Knowledge Base" && (
             <div className="space-y-4">
-              <p className="text-sm text-[#A1A1AA]">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Add your FAQs, product information, policies, and any context your agent needs to answer customer questions accurately.
               </p>
               <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl overflow-hidden">
-                <div className="px-4 py-2 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-[#71717A] uppercase tracking-wider">Knowledge Base</span>
-                  <span className="text-[10px] text-[#71717A]">{knowledgeBase.length} chars</span>
+                <div className="px-4 py-2 border-b border-[var(--border-subtle)] flex items-center justify-between">
+                  <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">Knowledge Base</span>
+                  <span className="text-[10px] text-[var(--text-muted)]">{knowledgeBase.length} chars</span>
                 </div>
                 <textarea
                   value={knowledgeBase}
                   onChange={(e) => setKnowledgeBase(e.target.value)}
                   rows={20}
                   placeholder={`# FAQs\n\nQ: What are your opening hours?\nA: We're open Monday to Friday, 9am to 5pm AEST.\n\nQ: How do I book an appointment?\nA: You can book online at our website or reply here with your preferred time.\n\n# Services\n\n- Service 1: Description and pricing\n- Service 2: Description and pricing\n\n# Policies\n\n- Cancellation policy: 24 hours notice required\n- Payment: We accept card, cash, and bank transfer`}
-                  className="w-full px-4 py-4 bg-transparent text-sm text-[#e2e8f0] placeholder-[#71717A] focus:outline-none resize-none leading-relaxed font-mono"
+                  className="w-full px-4 py-4 bg-transparent text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none resize-none leading-relaxed font-mono"
                 />
               </div>
-              <div className="text-xs text-[#71717A] space-y-1">
-                <p><strong className="text-[#A1A1AA]">What to include:</strong></p>
+              <div className="text-xs text-[var(--text-muted)] space-y-1">
+                <p><strong className="text-[var(--text-secondary)]">What to include:</strong></p>
                 <p>- Frequently asked questions and answers</p>
                 <p>- Product/service catalogue with prices</p>
                 <p>- Business policies (refunds, cancellations, warranties)</p>
@@ -481,26 +481,26 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
           {/* Tab: Test */}
           {tab === "Test" && (
             <div className="space-y-4">
-              <p className="text-sm text-[#A1A1AA]">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Test your agent with a live conversation. Responses are powered by AI using your system prompt and knowledge base.
               </p>
 
               {/* Chat window */}
               <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl overflow-hidden">
                 {/* Chat header */}
-                <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#A78BFA] flex items-center justify-center text-xs font-bold text-white">
+                <div className="px-4 py-3 border-b border-[var(--border-subtle)] flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#A78BFA] flex items-center justify-center text-xs font-bold !text-white">
                     {name.charAt(0) || "A"}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-white">{name || "Agent"}</div>
+                    <div className="text-sm font-semibold text-[var(--text-primary)]">{name || "Agent"}</div>
                     <div className="text-[10px] text-[#22c55e]">
                       {chatLoading ? "Typing..." : "Online"}
                     </div>
                   </div>
                   <button
                     onClick={() => { setChatMessages([]); setChatMeta(null); setAnalysis(null); }}
-                    className="ml-auto text-xs text-[#71717A] hover:text-[#A1A1AA] transition-colors"
+                    className="ml-auto text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
                   >
                     Clear
                   </button>
@@ -509,7 +509,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                 {/* Messages */}
                 <div className="h-80 overflow-y-auto p-4 space-y-3">
                   {chatMessages.length === 0 && (
-                    <div className="flex items-center justify-center h-full text-sm text-[#71717A]">
+                    <div className="flex items-center justify-center h-full text-sm text-[var(--text-muted)]">
                       Send a message to test your agent
                     </div>
                   )}
@@ -521,8 +521,8 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                       <div
                         className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                           msg.role === "user"
-                            ? "bg-[#8B5CF6] text-white rounded-br-md"
-                            : "bg-[rgba(255,255,255,0.06)] text-[#e2e8f0] rounded-bl-md"
+                            ? "bg-[#8B5CF6] text-[var(--text-primary)] rounded-br-md"
+                            : "bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-bl-md"
                         }`}
                       >
                         {msg.content || (
@@ -551,7 +551,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                 )}
 
                 {/* Input */}
-                <div className="border-t border-[rgba(255,255,255,0.06)] p-3 flex gap-2">
+                <div className="border-t border-[var(--border-subtle)] p-3 flex gap-2">
                   <input
                     type="text"
                     value={chatInput}
@@ -559,12 +559,12 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                     onKeyDown={(e) => e.key === "Enter" && handleSendTest()}
                     placeholder={chatLoading ? "Waiting for response..." : "Type a test message..."}
                     disabled={chatLoading}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] transition-colors disabled:opacity-50"
                   />
                   <button
                     onClick={handleSendTest}
                     disabled={chatLoading}
-                    className="gradient-btn text-white px-4 py-2.5 rounded-xl glow-sm hover:glow-md transition-all disabled:opacity-50"
+                    className="gradient-btn !text-white px-4 py-2.5 rounded-xl glow-sm hover:glow-md transition-all disabled:opacity-50"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -577,7 +577,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
               <button
                 onClick={handleAnalyze}
                 disabled={chatMessages.length === 0 || analyzing || chatLoading}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[rgba(139,92,246,0.2)] bg-[rgba(139,92,246,0.06)] text-sm font-semibold text-[#A78BFA] hover:bg-[rgba(139,92,246,0.12)] hover:border-[rgba(139,92,246,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[rgba(139,92,246,0.2)] bg-[rgba(139,92,246,0.06)] text-sm font-semibold text-[#8B5CF6] hover:bg-[rgba(139,92,246,0.12)] hover:border-[rgba(139,92,246,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -590,8 +590,8 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                 <div className="card-gradient border border-[rgba(139,92,246,0.15)] rounded-xl p-5 space-y-4">
                   {/* Header */}
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold text-white">Conversation Analysis</h4>
-                    <button onClick={() => setAnalysis(null)} className="text-[#71717A] hover:text-[#A1A1AA] transition-colors">
+                    <h4 className="text-sm font-semibold text-[var(--text-primary)]">Conversation Analysis</h4>
+                    <button onClick={() => setAnalysis(null)} className="text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
@@ -601,7 +601,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                   {/* Sentiment bar */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-[#A1A1AA]">Sentiment</span>
+                      <span className="text-xs text-[var(--text-secondary)]">Sentiment</span>
                       <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                         analysis.sentiment === "positive" ? "bg-[rgba(34,197,94,0.12)] text-[#22c55e]"
                         : analysis.sentiment === "negative" ? "bg-[rgba(239,68,68,0.12)] text-[#ef4444]"
@@ -610,7 +610,7 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                         {analysis.sentiment.toUpperCase()} ({analysis.sentimentScore}/100)
                       </span>
                     </div>
-                    <div className="h-2.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                    <div className="h-2.5 rounded-full bg-[var(--bg-hover)] overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{
@@ -627,32 +627,32 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
 
                   {/* Grid: Escalation, Language */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)]">
-                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-1">Escalation</div>
+                    <div className="p-3 rounded-lg bg-[var(--bg-input)] border border-[var(--border-subtle)]">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Escalation</div>
                       {analysis.escalation ? (
                         <div>
                           <span className="text-xs font-semibold text-[#ef4444]">Required</span>
                           {analysis.escalationReason && (
-                            <p className="text-[10px] text-[#71717A] mt-0.5">{analysis.escalationReason}</p>
+                            <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{analysis.escalationReason}</p>
                           )}
                         </div>
                       ) : (
                         <span className="text-xs font-semibold text-[#22c55e]">Not needed</span>
                       )}
                     </div>
-                    <div className="p-3 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)]">
-                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-1">Language</div>
-                      <span className="text-xs font-semibold text-white uppercase">{analysis.language}</span>
+                    <div className="p-3 rounded-lg bg-[var(--bg-input)] border border-[var(--border-subtle)]">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Language</div>
+                      <span className="text-xs font-semibold text-[var(--text-primary)] uppercase">{analysis.language}</span>
                     </div>
                   </div>
 
                   {/* Topics */}
                   {analysis.topics.length > 0 && (
                     <div>
-                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-2">Topics</div>
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-2">Topics</div>
                       <div className="flex flex-wrap gap-1.5">
                         {analysis.topics.map((t, i) => (
-                          <span key={i} className="text-[10px] font-medium px-2 py-1 rounded-md bg-[rgba(139,92,246,0.1)] text-[#A78BFA]">
+                          <span key={i} className="text-[10px] font-medium px-2 py-1 rounded-md bg-[rgba(139,92,246,0.1)] text-[#8B5CF6]">
                             {t}
                           </span>
                         ))}
@@ -663,8 +663,8 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                   {/* Summary */}
                   {analysis.summary && (
                     <div>
-                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-1">Summary</div>
-                      <p className="text-xs text-[#A1A1AA] leading-relaxed">{analysis.summary}</p>
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Summary</div>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{analysis.summary}</p>
                     </div>
                   )}
                 </div>

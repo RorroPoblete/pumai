@@ -19,7 +19,7 @@ interface Agent {
 const statusStyle = {
   active: { bg: "bg-[rgba(34,197,94,0.12)]", text: "text-[#22c55e]", dot: "bg-[#22c55e]" },
   paused: { bg: "bg-[rgba(245,158,11,0.12)]", text: "text-[#f59e0b]", dot: "bg-[#f59e0b]" },
-  draft: { bg: "bg-[rgba(113,113,122,0.12)]", text: "text-[#71717A]", dot: "bg-[#71717A]" },
+  draft: { bg: "bg-[rgba(113,113,122,0.12)]", text: "text-[var(--text-muted)]", dot: "bg-[#71717A]" },
 };
 
 export default function AgentsList({ agents }: { agents: Agent[] }) {
@@ -37,10 +37,10 @@ export default function AgentsList({ agents }: { agents: Agent[] }) {
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-[#A1A1AA]">{agents.length} agents configured</p>
+          <p className="text-sm text-[var(--text-secondary)]">{agents.length} agents configured</p>
           <Link
             href="/dashboard/agents/new"
-            className="gradient-btn text-white text-sm font-semibold px-5 py-2.5 rounded-xl glow-sm hover:glow-md transition-all duration-300"
+            className="gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl glow-sm hover:glow-md transition-all duration-300"
           >
             + New Agent
           </Link>
@@ -59,12 +59,12 @@ export default function AgentsList({ agents }: { agents: Agent[] }) {
                 {/* Top row */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#A78BFA] flex items-center justify-center text-sm font-bold text-white">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#A78BFA] flex items-center justify-center text-sm font-bold text-[var(--text-primary)]">
                       {a.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-white">{a.name}</div>
-                      <div className="text-xs text-[#71717A] capitalize">{a.tone}</div>
+                      <div className="text-sm font-semibold text-[var(--text-primary)]">{a.name}</div>
+                      <div className="text-xs text-[var(--text-muted)] capitalize">{a.tone}</div>
                     </div>
                   </div>
                   <div className={`flex items-center gap-1.5 ${s.bg} ${s.text} text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md`}>
@@ -74,31 +74,31 @@ export default function AgentsList({ agents }: { agents: Agent[] }) {
                 </div>
 
                 {/* Info */}
-                <div className="text-xs text-[#71717A] mb-4">{a.industry}</div>
+                <div className="text-xs text-[var(--text-muted)] mb-4">{a.industry}</div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[rgba(255,255,255,0.04)]">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border-subtle)]">
                   <div>
-                    <div className="text-lg font-black text-white">{a.conversationsToday}</div>
-                    <div className="text-[10px] text-[#71717A] uppercase tracking-wider">Today</div>
+                    <div className="text-lg font-black text-[var(--text-primary)]">{a.conversationsToday}</div>
+                    <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Today</div>
                   </div>
                   <div>
-                    <div className="text-lg font-black text-white">{a.conversionRate}%</div>
-                    <div className="text-[10px] text-[#71717A] uppercase tracking-wider">Conversion</div>
+                    <div className="text-lg font-black text-[var(--text-primary)]">{a.conversionRate}%</div>
+                    <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Conversion</div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-[rgba(255,255,255,0.04)] opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-[var(--border-subtle)] opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/agents/${a.id}`); }}
-                    className="text-xs text-[#A1A1AA] hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.04)]"
+                    className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--bg-input)]"
                   >
                     Edit
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/agents/${a.id}?tab=test`); }}
-                    className="text-xs text-[#A1A1AA] hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.04)]"
+                    className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--bg-input)]"
                   >
                     Test
                   </button>
