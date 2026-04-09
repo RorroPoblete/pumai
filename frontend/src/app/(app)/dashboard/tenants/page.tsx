@@ -1,4 +1,4 @@
-import { getAdminBusinesses, getAdminOverview } from "@/backend/admin-queries";
+import { getAdminBusinessesWithMembers, getAdminOverview } from "@/backend/admin-queries";
 import TopBar from "@/components/dashboard/TopBar";
 import TenantsList from "./tenants-list";
 import { getSessionContext } from "@/backend/auth-utils";
@@ -9,7 +9,7 @@ export default async function TenantsPage() {
   if (ctx?.role !== "SUPERADMIN") redirect("/dashboard");
 
   const [businesses, overview] = await Promise.all([
-    getAdminBusinesses(),
+    getAdminBusinessesWithMembers(),
     getAdminOverview(),
   ]);
 

@@ -70,3 +70,70 @@ export async function updateTenantPlan(businessId: string, plan: string) {
 
   revalidatePath("/dashboard/tenants");
 }
+
+// ─── User Management ───
+
+export async function addUserToTenant(formData: FormData) {
+  await requireSuperadmin();
+
+  const businessId = formData.get("businessId") as string;
+  const email = formData.get("email") as string;
+  const name = formData.get("name") as string;
+  const role = (formData.get("role") as string) || "MEMBER";
+
+  if (!businessId || !email || !name) throw new Error("All fields are required");
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  const user = existing ?? await prisma.user.create({
+    data: { name, email, onboarded: true },
+  });
+
+  const alreadyMember = await prisma.businessMember.findUnique({
+    where: { userId_businessId: { userId: user.id, businessId } },
+  });
+  if (alreadyMember) throw new Error("User is already a member of this business");
+
+  await prisma.businessMember.create({
+    data: { userId: user.id, businessId, role: role as "OWNER" | "ADMIN" | "MEMBER" },
+  });
+
+  revalidatePath("/dashboard/tenants");
+}
+
+export async function removeUserFromTenant(membershipId: string) {
+  await requireSuperadmin();
+
+  const membership = await prisma.businessMember.findUnique({
+    where: { id: membershipId },
+    select: { role: true },
+  });
+  if (membership?.role === "OWNER") throw new Error("Cannot remove the owner");
+
+  await prisma.businessMember.delete({ where: { id: membershipId } });
+  revalidatePath("/dashboard/tenants");
+}
+
+export async function updateMemberRole(membershipId: string, newRole: string) {
+  await requireSuperadmin();
+
+  if (newRole === "OWNER") throw new Error("Cannot assign owner role");
+
+  await prisma.businessMember.update({
+    where: { id: membershipId },
+    data: { role: newRole as "ADMIN" | "MEMBER" },
+  });
+  revalidatePath("/dashboard/tenants");
+}
+
+export async function deleteUser(userId: string) {
+  await requireSuperadmin();
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  if (user?.role === "SUPERADMIN") throw new Error("Cannot delete a superadmin");
+
+  await prisma.user.delete({ where: { id: userId } });
+  revalidatePath("/dashboard/tenants");
+}

@@ -81,6 +81,87 @@ export interface AdminBusiness {
   createdAt: string;
 }
 
+export interface AdminBusinessWithMembers extends AdminBusiness {
+  membersList: {
+    id: string;
+    userId: string;
+    userName: string;
+    userEmail: string;
+    role: string;
+    globalRole: string;
+    createdAt: string;
+  }[];
+}
+
+export async function getAdminBusinessesWithMembers(): Promise<AdminBusinessWithMembers[]> {
+  await requireSuperadmin();
+
+  const rows = await prisma.business.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      _count: { select: { conversations: true, agents: true, members: true } },
+      members: {
+        include: { user: { select: { id: true, name: true, email: true, role: true } } },
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+
+  return rows.map((b) => ({
+    id: b.id,
+    name: b.name,
+    plan: b.plan,
+    industry: b.industry,
+    phone: b.phone,
+    conversations: b._count.conversations,
+    agents: b._count.agents,
+    members: b._count.members,
+    createdAt: b.createdAt.toLocaleDateString("en-AU"),
+    membersList: b.members.map((m) => ({
+      id: m.id,
+      userId: m.user.id,
+      userName: m.user.name,
+      userEmail: m.user.email,
+      role: m.role,
+      globalRole: m.user.role,
+      createdAt: m.createdAt.toLocaleDateString("en-AU"),
+    })),
+  }));
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  onboarded: boolean;
+  businesses: { name: string; role: string }[];
+  createdAt: string;
+}
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  await requireSuperadmin();
+
+  const rows = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      memberships: {
+        include: { business: { select: { name: true } } },
+      },
+    },
+  });
+
+  return rows.map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    onboarded: u.onboarded,
+    businesses: u.memberships.map((m) => ({ name: m.business.name, role: m.role })),
+    createdAt: u.createdAt.toLocaleDateString("en-AU"),
+  }));
+}
+
 export async function getAdminBusinesses(): Promise<AdminBusiness[]> {
   await requireSuperadmin();
 
