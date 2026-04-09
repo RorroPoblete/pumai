@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
+import ToastProvider from "@/components/Toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,18 +10,34 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PumAI — Conversational AI Agents via SMS for Australian Business",
+  title: "PumAI — Omnichannel AI Agents for Australian Business",
   description:
-    "AI-powered SMS agents that automate sales, support, and marketing for Australian businesses. 24/7 conversational AI via SMS — no app required.",
+    "AI-powered agents that automate sales, support, and marketing via SMS, WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation.",
   keywords: [
-    "SMS AI",
-    "chatbot Australia",
-    "AI agents",
-    "business SMS",
+    "AI agents Australia",
+    "SMS chatbot",
+    "WhatsApp business",
+    "omnichannel AI",
     "conversational AI",
-    "Australian SME",
-    "customer support automation",
+    "Australian SME automation",
+    "customer support AI",
   ],
+  icons: {
+    icon: "/favicon.svg",
+  },
+  openGraph: {
+    title: "PumAI — Omnichannel AI Agents for Australian Business",
+    description: "AI-powered agents for SMS, WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation.",
+    url: "https://pumai.com.au",
+    siteName: "PumAI",
+    locale: "en_AU",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PumAI — Omnichannel AI Agents",
+    description: "AI-powered agents for SMS, WhatsApp, Webchat, Instagram DMs, and Messenger.",
+  },
 };
 
 export default function RootLayout({
@@ -31,7 +48,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} antialiased`} suppressHydrationWarning>
       <body className="min-h-screen font-sans">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

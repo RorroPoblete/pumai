@@ -41,7 +41,9 @@ export default function ConversationsList({ conversations }: { conversations: Co
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const perPage = 20;
 
   const filtered = conversations.filter((c) => {
     if (filter !== "All" && c.status !== filter.toLowerCase()) return false;
@@ -49,6 +51,8 @@ export default function ConversationsList({ conversations }: { conversations: Co
     return true;
   });
 
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const paginated = filtered.slice(page * perPage, (page + 1) * perPage);
   const selected = conversations.find((c) => c.id === selectedId) ?? null;
 
   useEffect(() => {
@@ -90,7 +94,7 @@ export default function ConversationsList({ conversations }: { conversations: Co
 
           {/* List */}
           <div className="flex-1 overflow-y-auto">
-            {filtered.map((c) => (
+            {paginated.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setSelectedId(c.id)}
@@ -121,6 +125,18 @@ export default function ConversationsList({ conversations }: { conversations: Co
             {filtered.length === 0 && (
               <div className="text-center py-16 text-[var(--text-muted)] text-sm">
                 No conversations found.
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-subtle)]">
+                <span className="text-[10px] text-[var(--text-muted)]">{filtered.length} total</span>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0} className="px-2 py-1 text-[10px] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30">Prev</button>
+                  <span className="text-[10px] text-[var(--text-secondary)] px-2">{page + 1}/{totalPages}</span>
+                  <button onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1} className="px-2 py-1 text-[10px] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30">Next</button>
+                </div>
               </div>
             )}
           </div>

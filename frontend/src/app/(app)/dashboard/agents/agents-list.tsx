@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import TopBar from "@/components/dashboard/TopBar";
 import { toggleAgentStatus } from "@/backend/actions";
@@ -25,6 +25,14 @@ const statusStyle = {
 export default function AgentsList({ agents }: { agents: Agent[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const filtered = agents.filter((a) => {
+    if (statusFilter !== "all" && a.status !== statusFilter) return false;
+    if (search && !a.name.toLowerCase().includes(search.toLowerCase()) && !a.industry.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   function handleToggle(id: string) {
     startTransition(() => toggleAgentStatus(id));
@@ -36,8 +44,32 @@ export default function AgentsList({ agents }: { agents: Agent[] }) {
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-[var(--text-secondary)]">{agents.length} agents configured</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              placeholder="Search agents..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-56 px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
+            />
+            <div className="flex gap-1">
+              {["all", "active", "paused", "draft"].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    statusFilter === s
+                      ? "bg-[rgba(139,92,246,0.12)] text-[var(--text-primary)]"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+                  }`}
+                >
+                  {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+            <span className="text-xs text-[var(--text-muted)]">{filtered.length} of {agents.length}</span>
+          </div>
           <Link
             href="/dashboard/agents/new"
             className="gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl glow-sm hover:glow-md transition-all duration-300"
@@ -48,7 +80,7 @@ export default function AgentsList({ agents }: { agents: Agent[] }) {
 
         {/* Agent cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {agents.map((a) => {
+          {filtered.map((a) => {
             const s = statusStyle[a.status];
             return (
               <div
