@@ -9,20 +9,27 @@ datasource db {
 
 // ─── Auth ───
 
+enum GlobalRole {
+  USER
+  SUPERADMIN
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String
-  email         String    @unique
+  email         String     @unique
   emailVerified DateTime?
   password      String?
   image         String?
-  onboarded     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  onboarded     Boolean    @default(false)
+  role          GlobalRole @default(USER)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
-  business Business?
-  accounts Account[]
-  sessions Session[]
+  business    Business?
+  memberships BusinessMember[]
+  accounts    Account[]
+  sessions    Session[]
 }
 
 model Account {
@@ -69,9 +76,48 @@ model Business {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  members       BusinessMember[]
+  invitations   Invitation[]
   agents        Agent[]
   conversations Conversation[]
   smsNumbers    SmsNumber[]
+}
+
+// ─── Multi-tenancy ───
+
+enum BusinessRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model BusinessMember {
+  id        String       @id @default(cuid())
+  role      BusinessRole @default(MEMBER)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+}
+
+model Invitation {
+  id        String       @id @default(cuid())
+  email     String
+  role      BusinessRole @default(MEMBER)
+  token     String       @unique @default(cuid())
+  expiresAt DateTime
+  accepted  Boolean      @default(false)
+  createdAt DateTime     @default(now())
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([email, businessId])
 }
 
 enum Plan {

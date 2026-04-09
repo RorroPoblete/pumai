@@ -13,17 +13,55 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // Initial sign-in: load user data
       if (user) {
         token.id = user.id;
         token.onboarded = (user as { onboarded?: boolean }).onboarded ?? false;
+        token.role = (user as { role?: string }).role ?? "USER";
+
+        // Find active business (first membership or owned business)
+        const membership = await prisma.businessMember.findFirst({
+          where: { userId: user.id },
+          select: { businessId: true, role: true },
+          orderBy: { createdAt: "asc" },
+        });
+        if (membership) {
+          token.activeBusinessId = membership.businessId;
+          token.businessRole = membership.role;
+        } else {
+          // Fallback: legacy 1:1 relation
+          const biz = await prisma.business.findUnique({
+            where: { userId: user.id },
+            select: { id: true },
+          });
+          token.activeBusinessId = biz?.id ?? null;
+          token.businessRole = biz ? "OWNER" : null;
+        }
       }
+
+      // Session update trigger (e.g. business switch)
+      if (trigger === "update" && token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { onboarded: true, role: true },
+        });
+        if (dbUser) {
+          token.onboarded = dbUser.onboarded;
+          token.role = dbUser.role;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as { onboarded?: boolean }).onboarded = token.onboarded as boolean;
+        const u = session.user as { id: string; onboarded?: boolean; role?: string; activeBusinessId?: string | null; businessRole?: string | null };
+        u.id = token.id as string;
+        u.onboarded = token.onboarded as boolean;
+        u.role = token.role as string;
+        u.activeBusinessId = token.activeBusinessId as string | null;
+        u.businessRole = token.businessRole as string | null;
       }
       return session;
     },
@@ -48,7 +86,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return null;
 
-        return { id: user.id, name: user.name, email: user.email, onboarded: user.onboarded };
+        return { id: user.id, name: user.name, email: user.email, onboarded: user.onboarded, role: user.role };
       },
     }),
   ],

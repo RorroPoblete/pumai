@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import TenantSwitcher from "./TenantSwitcher";
 
 const navItems = [
   {
@@ -55,16 +56,41 @@ const navItems = [
   },
 ];
 
+const adminNavItem = {
+  label: "Tenants",
+  href: "/dashboard/tenants",
+  icon: (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  ),
+};
+
+interface Tenant {
+  id: string;
+  name: string;
+  industry: string;
+  plan: string;
+}
+
 interface SidebarProps {
   plan?: string;
   conversationsUsed?: number;
   conversationsLimit?: number;
+  tenants?: Tenant[];
+  activeBusinessId?: string | null;
+  activeBusinessName?: string | null;
+  isSuperadmin?: boolean;
 }
 
 export default function Sidebar({
   plan = "STARTER",
   conversationsUsed = 0,
   conversationsLimit = 300,
+  tenants = [],
+  activeBusinessId = null,
+  activeBusinessName = null,
+  isSuperadmin = false,
 }: SidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -81,6 +107,14 @@ export default function Sidebar({
           Pum<span className="text-[#8B5CF6]">AI</span>
         </span>
       </div>
+
+      {/* Tenant Switcher */}
+      <TenantSwitcher
+        tenants={tenants}
+        activeId={activeBusinessId}
+        activeName={activeBusinessName}
+        isSuperadmin={isSuperadmin}
+      />
 
       {/* Nav items */}
       <nav className="flex-1 px-3 space-y-1">
@@ -99,6 +133,25 @@ export default function Sidebar({
             {item.label}
           </Link>
         ))}
+
+        {/* Superadmin: Tenants */}
+        {isSuperadmin && (
+          <>
+            <div className="pt-3 mt-3 border-t border-[rgba(255,255,255,0.06)]" />
+            <Link
+              href={adminNavItem.href}
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                isActive(adminNavItem.href)
+                  ? "bg-[rgba(239,68,68,0.1)] text-white"
+                  : "text-[#71717A] hover:text-[#A1A1AA] hover:bg-[rgba(255,255,255,0.04)]"
+              }`}
+            >
+              <span className={isActive(adminNavItem.href) ? "text-[#ef4444]" : ""}>{adminNavItem.icon}</span>
+              {adminNavItem.label}
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* Bottom */}

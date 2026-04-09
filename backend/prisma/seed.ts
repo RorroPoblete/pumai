@@ -10,6 +10,21 @@ async function main() {
 
   const password = await bcrypt.hash("password123", 12);
 
+  // ─── Superadmin ───
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@pumai.com.au" },
+    update: { role: "SUPERADMIN" },
+    create: {
+      name: "Super Admin",
+      email: "admin@pumai.com.au",
+      password,
+      onboarded: true,
+      role: "SUPERADMIN",
+    },
+  });
+
+  console.log("  ✓ Superadmin created (admin@pumai.com.au / password123)");
+
   // ─── Users ───
   const user1 = await prisma.user.upsert({
     where: { email: "demo@pumai.com.au" },
@@ -49,7 +64,7 @@ async function main() {
     },
   });
 
-  await prisma.business.upsert({
+  const business2 = await prisma.business.upsert({
     where: { userId: user2.id },
     update: {},
     create: {
@@ -62,7 +77,271 @@ async function main() {
     },
   });
 
-  console.log("  ✓ Businesses created");
+  // ─── Tenant 2: Urban Motors ───
+  const user3 = await prisma.user.upsert({
+    where: { email: "tony@urbanmotors.com.au" },
+    update: {},
+    create: { name: "Tony Stavros", email: "tony@urbanmotors.com.au", password, onboarded: true },
+  });
+  const user3b = await prisma.user.upsert({
+    where: { email: "bianca@urbanmotors.com.au" },
+    update: {},
+    create: { name: "Bianca Moretti", email: "bianca@urbanmotors.com.au", password, onboarded: true },
+  });
+  const business3 = await prisma.business.upsert({
+    where: { userId: user3.id },
+    update: {},
+    create: {
+      name: "Urban Motors Sydney",
+      website: "https://urbanmotors.com.au",
+      industry: "Automotive",
+      phone: "+61 2 9633 8000",
+      plan: "ENTERPRISE",
+      userId: user3.id,
+    },
+  });
+
+  // ─── Tenant 3: The Rocks Kitchen ───
+  const user4 = await prisma.user.upsert({
+    where: { email: "marcus@therockskitchen.com.au" },
+    update: {},
+    create: { name: "Marcus Webb", email: "marcus@therockskitchen.com.au", password, onboarded: true },
+  });
+  const business4 = await prisma.business.upsert({
+    where: { userId: user4.id },
+    update: {},
+    create: {
+      name: "The Rocks Kitchen & Bar",
+      website: "https://therockskitchen.com.au",
+      industry: "Hospitality",
+      phone: "+61 2 9241 1800",
+      plan: "GROWTH",
+      userId: user4.id,
+    },
+  });
+
+  // ─── Tenant 4: Harbour View Realty ───
+  const user5 = await prisma.user.upsert({
+    where: { email: "olivia@harbourviewrealty.com.au" },
+    update: {},
+    create: { name: "Olivia Tan", email: "olivia@harbourviewrealty.com.au", password, onboarded: true },
+  });
+  const business5 = await prisma.business.upsert({
+    where: { userId: user5.id },
+    update: {},
+    create: {
+      name: "Harbour View Realty",
+      website: "https://harbourviewrealty.com.au",
+      industry: "Real Estate",
+      phone: "+61 2 9380 5500",
+      plan: "GROWTH",
+      userId: user5.id,
+    },
+  });
+
+  console.log("  ✓ Businesses created (5 tenants)");
+
+  // ─── Business Members ───
+  const memberData = [
+    { userId: user1.id, businessId: business1.id, role: "OWNER" as const },
+    { userId: user2.id, businessId: business1.id, role: "MEMBER" as const },
+    { userId: user2.id, businessId: business2.id, role: "OWNER" as const },
+    { userId: user3.id, businessId: business3.id, role: "OWNER" as const },
+    { userId: user3b.id, businessId: business3.id, role: "ADMIN" as const },
+    { userId: user4.id, businessId: business4.id, role: "OWNER" as const },
+    { userId: user5.id, businessId: business5.id, role: "OWNER" as const },
+  ];
+  for (const m of memberData) {
+    await prisma.businessMember.upsert({
+      where: { userId_businessId: { userId: m.userId, businessId: m.businessId } },
+      update: {},
+      create: m,
+    });
+  }
+
+  console.log("  ✓ Business members created");
+
+  // ─── Agents for new tenants ───
+  const existingAgents3 = await prisma.agent.count({ where: { businessId: business3.id } });
+  if (existingAgents3 === 0) {
+    await Promise.all([
+      prisma.agent.create({
+        data: {
+          name: "Jordan", tone: "CASUAL", status: "ACTIVE", industry: "Automotive",
+          systemPrompt: "You are Jordan, a car sales assistant at Urban Motors Sydney. Help customers with test drives, trade-ins, and service bookings.",
+          businessId: business3.id,
+        },
+      }),
+      prisma.agent.create({
+        data: {
+          name: "Service Bot", tone: "PROFESSIONAL", status: "ACTIVE", industry: "Automotive",
+          systemPrompt: "You are the service assistant at Urban Motors. Help customers book services, check pricing, and arrange loan cars.",
+          businessId: business3.id,
+        },
+      }),
+    ]);
+  }
+
+  const existingAgents4 = await prisma.agent.count({ where: { businessId: business4.id } });
+  if (existingAgents4 === 0) {
+    await prisma.agent.create({
+      data: {
+        name: "Bookings", tone: "FRIENDLY", status: "ACTIVE", industry: "Hospitality",
+        systemPrompt: "You are the booking assistant for The Rocks Kitchen & Bar. Help with reservations, menu questions, and events.",
+        businessId: business4.id,
+      },
+    });
+  }
+
+  const existingAgents5 = await prisma.agent.count({ where: { businessId: business5.id } });
+  if (existingAgents5 === 0) {
+    await Promise.all([
+      prisma.agent.create({
+        data: {
+          name: "Alex", tone: "FRIENDLY", status: "ACTIVE", industry: "Real Estate",
+          systemPrompt: "You are Alex, a property assistant at Harbour View Realty. Help buyers find properties, schedule inspections, and answer suburb questions.",
+          businessId: business5.id,
+        },
+      }),
+      prisma.agent.create({
+        data: {
+          name: "Rentals Bot", tone: "PROFESSIONAL", status: "ACTIVE", industry: "Real Estate",
+          systemPrompt: "You are the rental assistant at Harbour View Realty. Help tenants with rental enquiries, inspections, and applications.",
+          businessId: business5.id,
+        },
+      }),
+    ]);
+  }
+
+  console.log("  ✓ Agents for all tenants created");
+
+  // ─── Conversations for new tenants ───
+  const daysAgoFn = (days: number) => new Date(Date.now() - days * 86400000);
+
+  const tenantConvos = [
+    // Urban Motors (business3)
+    { biz: business3.id, name: "Ryan McCarthy", phone: "+61445000444", status: "RESOLVED", sentiment: "POSITIVE", day: 1,
+      msgs: [
+        { c: "Hey, interested in the new RAV4 Hybrid. What's the drive-away price?", r: "USER" },
+        { c: "Hey Ryan! The RAV4 GXL Hybrid is $47,500 drive-away. Want to book a test drive?", r: "AGENT" },
+        { c: "Yeah, Saturday morning works for me.", r: "USER" },
+        { c: "Done! Saturday 10am. Bring your licence. See you then!", r: "AGENT" },
+      ],
+    },
+    { biz: business3.id, name: "Maria Gonzalez", phone: "+61489000888", status: "ACTIVE", sentiment: "NEUTRAL", day: 0,
+      msgs: [
+        { c: "Hi, my 2021 Mazda 3 needs a logbook service. How much?", r: "USER" },
+        { c: "Hey Maria! A minor logbook service for a Mazda 3 is $349. Want to book?", r: "AGENT" },
+      ],
+    },
+    { biz: business3.id, name: "Jake Morrison", phone: "+61496006060", status: "ACTIVE", sentiment: "POSITIVE", day: 0,
+      msgs: [
+        { c: "What trade-in can I get for a 2020 Hilux SR5?", r: "USER" },
+        { c: "A 2020 Hilux SR5 in good nick would be around $42-48K depending on kms. How many on the clock?", r: "AGENT" },
+        { c: "52,000 kms, full service history, no accidents.", r: "USER" },
+        { c: "Nice! You're looking at the higher end. Come in for a proper valuation — we'll beat any written offer.", r: "AGENT" },
+        { c: "Sweet, I'll swing by tomorrow arvo.", r: "USER" },
+      ],
+    },
+    { biz: business3.id, name: "Andrew Leung", phone: "+61492002020", status: "ESCALATED", sentiment: "NEGATIVE", day: 2,
+      msgs: [
+        { c: "I picked up my car yesterday and there's a scratch on the door that wasn't there before.", r: "USER" },
+        { c: "I'm really sorry to hear that, Andrew. Can you send us a photo?", r: "AGENT" },
+        { c: "This is the second time this has happened. I want to speak to the manager.", r: "USER" },
+        { c: "I completely understand your frustration. I'm escalating this to our service manager Jake right now.", r: "AGENT" },
+      ],
+    },
+    // The Rocks Kitchen (business4)
+    { biz: business4.id, name: "Jessica Adams", phone: "+61493003030", status: "RESOLVED", sentiment: "POSITIVE", day: 0,
+      msgs: [
+        { c: "Hi! I'd like to book a table for 4 this Saturday at 7pm.", r: "USER" },
+        { c: "Hi Jessica! Saturday 7pm for 4 is available. Any dietary requirements?", r: "AGENT" },
+        { c: "One person is gluten-free.", r: "USER" },
+        { c: "Noted! Booked: Jessica, Saturday 7pm, 4 guests, 1 GF. See you then!", r: "AGENT" },
+      ],
+    },
+    { biz: business4.id, name: "Peter Zhang", phone: "+61498008080", status: "ACTIVE", sentiment: "POSITIVE", day: 0,
+      msgs: [
+        { c: "We're organising a corporate dinner for 25 people. Do you have a private room?", r: "USER" },
+        { c: "Hi Peter! Yes, our private dining room fits 20. For 25, we can do a semi-private section. When were you thinking?", r: "AGENT" },
+        { c: "November 15th, a Friday evening. We'd need a set menu.", r: "USER" },
+        { c: "Perfect! Our 3-course set menu is $89pp and 4-course is $109pp. Drinks packages available from $59pp. Shall I send the full events pack?", r: "AGENT" },
+        { c: "Yes please, send it to peter@zhangcorp.com.au", r: "USER" },
+      ],
+    },
+    { biz: business4.id, name: "Natalie White", phone: "+61491001010", status: "RESOLVED", sentiment: "NEUTRAL", day: 3,
+      msgs: [
+        { c: "What are your specials this week?", r: "USER" },
+        { c: "This week: Tuesday $1 oysters with any main, Wednesday 2-course set menu $45pp, Thursday half-price selected wines!", r: "AGENT" },
+        { c: "The Wednesday deal sounds great. Thanks!", r: "USER" },
+      ],
+    },
+    // Harbour View Realty (business5)
+    { biz: business5.id, name: "Sam Romano", phone: "+61400010101", status: "ACTIVE", sentiment: "POSITIVE", day: 0,
+      msgs: [
+        { c: "Hi, we just got pre-approved for $1.5M. Looking for a 3-bed in the Eastern Suburbs.", r: "USER" },
+        { c: "Congrats Sam! Great budget for the East. I have 3 properties in Randwick and Coogee that match. Want to see them this weekend?", r: "AGENT" },
+        { c: "Yes! Saturday works. We need good schools nearby for our daughter.", r: "USER" },
+        { c: "Noted — school zone priority. I'll line up 3 inspections Saturday morning. I'll send details tonight.", r: "AGENT" },
+      ],
+    },
+    { biz: business5.id, name: "Wendy Tan", phone: "+61497007070", status: "RESOLVED", sentiment: "POSITIVE", day: 1,
+      msgs: [
+        { c: "Our offer on the Paddington terrace was accepted! So excited!", r: "USER" },
+        { c: "Amazing news Wendy! Congratulations! Settlement is in 6 weeks. I'll keep you posted every step of the way.", r: "AGENT" },
+        { c: "Thank you so much for everything, Olivia. You've been brilliant.", r: "USER" },
+      ],
+    },
+    { biz: business5.id, name: "Chris Patel", phone: "+61490000999", status: "ACTIVE", sentiment: "NEUTRAL", day: 0,
+      msgs: [
+        { c: "What's the rental market like in Newtown? Looking for a 2-bed under $650/week.", r: "USER" },
+        { c: "Hi Chris! Newtown 2-beds are tight but we have 2 options: King St $620/wk and Enmore Rd $640/wk. Both near the station.", r: "AGENT" },
+        { c: "Can I inspect both this Saturday?", r: "USER" },
+      ],
+    },
+    { biz: business5.id, name: "Linda Foster", phone: "+61499009090", status: "ESCALATED", sentiment: "NEGATIVE", day: 2,
+      msgs: [
+        { c: "The property you showed us had major plumbing issues not disclosed in the report. This is unacceptable.", r: "USER" },
+        { c: "I'm very sorry to hear that, Linda. That should have been in the building report.", r: "AGENT" },
+        { c: "We want to withdraw our offer and I'm considering legal action.", r: "USER" },
+        { c: "I understand completely. I'm escalating this to our principal Marcus immediately. He'll call you within the hour.", r: "AGENT" },
+      ],
+    },
+  ];
+
+  for (const conv of tenantConvos) {
+    const existing = await prisma.conversation.count({
+      where: { businessId: conv.biz, contactPhone: conv.phone },
+    });
+    if (existing > 0) continue;
+
+    const agent = await prisma.agent.findFirst({ where: { businessId: conv.biz, status: "ACTIVE" } });
+    if (!agent) continue;
+
+    const baseDate = daysAgoFn(conv.day);
+    await prisma.conversation.create({
+      data: {
+        contactName: conv.name,
+        contactPhone: conv.phone,
+        status: conv.status,
+        sentiment: conv.sentiment,
+        messagesCount: conv.msgs.length,
+        businessId: conv.biz,
+        agentId: agent.id,
+        createdAt: baseDate,
+        updatedAt: new Date(baseDate.getTime() + conv.msgs.length * 120000),
+        messages: {
+          create: conv.msgs.map((m, i) => ({
+            content: m.c,
+            role: m.r,
+            createdAt: new Date(baseDate.getTime() + i * 120000),
+          })),
+        },
+      },
+    });
+  }
+
+  console.log("  ✓ Conversations for all tenants created");
 
   // ─── SMS Numbers ───
   const smsNumber1 = await prisma.smsNumber.upsert({

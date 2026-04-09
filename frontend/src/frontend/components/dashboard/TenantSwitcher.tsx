@@ -1,0 +1,61 @@
+"use client";
+
+interface Tenant {
+  id: string;
+  name: string;
+  industry: string;
+  plan: string;
+}
+
+export default function TenantSwitcher({
+  tenants,
+  activeId,
+  activeName,
+  isSuperadmin,
+}: {
+  tenants: Tenant[];
+  activeId: string | null;
+  activeName: string | null;
+  isSuperadmin: boolean;
+}) {
+  if (tenants.length <= 1 && !isSuperadmin) return null;
+
+  function handleSwitch(businessId: string) {
+    if (!businessId) return;
+    document.cookie = `pumai_active_business=${businessId};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
+    window.location.href = "/dashboard";
+  }
+
+  return (
+    <div className="px-3 mb-2">
+      {isSuperadmin && (
+        <div className="flex items-center gap-1.5 px-3 mb-2">
+          <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[rgba(239,68,68,0.12)] text-[#ef4444]">
+            Admin
+          </span>
+          <a href="/dashboard/tenants" className="text-[10px] text-[#71717A] hover:text-[#A1A1AA] transition-colors">
+            Manage tenants
+          </a>
+        </div>
+      )}
+      <select
+        value={activeId ?? ""}
+        onChange={(e) => handleSwitch(e.target.value)}
+        className="w-full px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-[#8B5CF6] transition-colors appearance-none cursor-pointer"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717A'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 8px center",
+          backgroundSize: "16px",
+        }}
+      >
+        {!activeId && <option value="">Select a business...</option>}
+        {tenants.map((t) => (
+          <option key={t.id} value={t.id}>
+            {t.name} ({t.plan})
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}

@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { auth } from "@/auth";
+import { cookies } from "next/headers";
 
 // ─── Helpers ───
 
@@ -20,9 +21,76 @@ const PLAN_LIMITS: Record<string, number> = {
   ENTERPRISE: 4000,
 };
 
-async function getSessionUserId(): Promise<string | null> {
+interface SessionContext {
+  userId: string;
+  role: string;
+  activeBusinessId: string | null;
+  businessRole: string | null;
+}
+
+async function getSessionContext(): Promise<SessionContext | null> {
   const session = await auth();
-  return (session?.user as { id?: string })?.id ?? null;
+  const user = session?.user as Record<string, unknown> | undefined;
+  if (!user?.id) return null;
+  return {
+    userId: user.id as string,
+    role: (user.role as string) ?? "USER",
+    activeBusinessId: (user.activeBusinessId as string) ?? null,
+    businessRole: (user.businessRole as string) ?? null,
+  };
+}
+
+async function getActiveBusinessId(): Promise<string | null> {
+  const ctx = await getSessionContext();
+  if (!ctx) return null;
+
+  // Check cookie first (set by tenant switcher)
+  const cookieStore = await cookies();
+  const cookieBiz = cookieStore.get("pumai_active_business")?.value;
+  if (cookieBiz) {
+    // Superadmin can access any business
+    if (ctx.role === "SUPERADMIN") return cookieBiz;
+    // Regular user: verify membership
+    const member = await prisma.businessMember.findUnique({
+      where: { userId_businessId: { userId: ctx.userId, businessId: cookieBiz } },
+    });
+    if (member) return cookieBiz;
+  }
+
+  // Fallback: session activeBusinessId
+  if (ctx.activeBusinessId) return ctx.activeBusinessId;
+
+  // Fallback: legacy 1:1
+  const biz = await prisma.business.findUnique({
+    where: { userId: ctx.userId },
+    select: { id: true },
+  });
+  return biz?.id ?? null;
+}
+
+export async function getActiveBusiness(): Promise<{ id: string; name: string } | null> {
+  const id = await getActiveBusinessId();
+  if (!id) return null;
+  return prisma.business.findUnique({ where: { id }, select: { id: true, name: true } });
+}
+
+export async function getAvailableTenants(): Promise<{ id: string; name: string; industry: string; plan: string }[]> {
+  const ctx = await getSessionContext();
+  if (!ctx) return [];
+
+  if (ctx.role === "SUPERADMIN") {
+    return prisma.business.findMany({
+      select: { id: true, name: true, industry: true, plan: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
+  const memberships = await prisma.businessMember.findMany({
+    where: { userId: ctx.userId },
+    include: { business: { select: { id: true, name: true, industry: true, plan: true } } },
+  });
+
+  return memberships.map((m) => m.business);
 }
 
 // ─── Business Summary (for Sidebar) ───
@@ -34,11 +102,11 @@ export interface BusinessSummary {
 }
 
 export async function getBusinessSummary(): Promise<BusinessSummary | null> {
-  const userId = await getSessionUserId();
-  if (!userId) return null;
+  const businessId = await getActiveBusinessId();
+  if (!businessId) return null;
 
   const business = await prisma.business.findUnique({
-    where: { userId },
+    where: { id: businessId },
     select: { plan: true, _count: { select: { conversations: true } } },
   });
   if (!business) return null;
@@ -100,15 +168,8 @@ export interface DashboardOverviewData {
 }
 
 export async function getDashboardOverview(): Promise<DashboardOverviewData | null> {
-  const userId = await getSessionUserId();
-  if (!userId) return null;
-
-  const business = await prisma.business.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!business) return null;
-  const businessId = business.id;
+  const businessId = await getActiveBusinessId();
+  if (!businessId) return null;
 
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -261,17 +322,11 @@ export interface ConversationWithMessages extends DashboardConversation {
 }
 
 export async function getConversations(): Promise<ConversationWithMessages[]> {
-  const userId = await getSessionUserId();
-  if (!userId) return [];
-
-  const business = await prisma.business.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!business) return [];
+  const businessId = await getActiveBusinessId();
+  if (!businessId) return [];
 
   const rows = await prisma.conversation.findMany({
-    where: { businessId: business.id },
+    where: { businessId },
     include: {
       agent: { select: { name: true } },
       messages: { orderBy: { createdAt: "asc" }, select: { id: true, content: true, role: true, createdAt: true } },
@@ -302,20 +357,14 @@ export async function getConversations(): Promise<ConversationWithMessages[]> {
 // ─── Agents Page ───
 
 export async function getAgents(): Promise<DashboardAgent[]> {
-  const userId = await getSessionUserId();
-  if (!userId) return [];
-
-  const business = await prisma.business.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-  if (!business) return [];
+  const businessId = await getActiveBusinessId();
+  if (!businessId) return [];
 
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
   const rows = await prisma.agent.findMany({
-    where: { businessId: business.id },
+    where: { businessId },
     include: {
       _count: { select: { conversations: true } },
       conversations: {
@@ -353,24 +402,27 @@ export interface SettingsData {
 }
 
 export async function getSettings(): Promise<SettingsData | null> {
-  const userId = await getSessionUserId();
-  if (!userId) return null;
+  const ctx = await getSessionContext();
+  if (!ctx) return null;
+  const businessId = ctx.activeBusinessId ?? (await getActiveBusinessId());
+  if (!businessId) return null;
+
+  const business = await prisma.business.findUnique({
+    where: { id: businessId },
+    include: { smsNumbers: { select: { number: true, active: true } } },
+  });
+  if (!business) return null;
 
   const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      business: {
-        include: { smsNumbers: { select: { number: true, active: true } } },
-      },
-    },
+    where: { id: ctx.userId },
+    select: { email: true },
   });
-  if (!user || !user.business) return null;
 
   return {
-    businessName: user.business.name,
-    email: user.email,
-    timezone: user.business.timezone,
-    phone: user.business.phone,
-    smsNumbers: user.business.smsNumbers,
+    businessName: business.name,
+    email: user?.email ?? "",
+    timezone: business.timezone,
+    phone: business.phone,
+    smsNumbers: business.smsNumbers,
   };
 }

@@ -2,19 +2,31 @@
 
 import { prisma } from "./prisma";
 import { auth } from "@/auth";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { AgentTone } from "@/generated/prisma/enums";
 
 // ─── Helpers ───
 
-async function getBusinessId(): Promise<string> {
+async function getSessionUser() {
   const session = await auth();
-  const userId = (session?.user as { id?: string })?.id;
-  if (!userId) throw new Error("Not authenticated");
+  const user = session?.user as Record<string, unknown> | undefined;
+  if (!user?.id) throw new Error("Not authenticated");
+  return {
+    userId: user.id as string,
+    role: (user.role as string) ?? "USER",
+    activeBusinessId: (user.activeBusinessId as string) ?? null,
+    businessRole: (user.businessRole as string) ?? null,
+  };
+}
 
+async function getBusinessId(): Promise<string> {
+  const ctx = await getSessionUser();
+  if (ctx.activeBusinessId) return ctx.activeBusinessId;
+  // Fallback: legacy 1:1
   const business = await prisma.business.findUnique({
-    where: { userId },
+    where: { userId: ctx.userId },
     select: { id: true },
   });
   if (!business) throw new Error("No business found");
@@ -31,11 +43,9 @@ export async function completeOnboarding(data: {
   agentTone: string;
   phone: string;
 }) {
-  const session = await auth();
-  const userId = (session?.user as { id?: string })?.id;
-  if (!userId) throw new Error("Not authenticated");
+  const ctx = await getSessionUser();
 
-  const existing = await prisma.business.findUnique({ where: { userId } });
+  const existing = await prisma.business.findUnique({ where: { userId: ctx.userId } });
   if (existing) {
     redirect("/dashboard");
   }
@@ -47,8 +57,13 @@ export async function completeOnboarding(data: {
         industry: data.industry || "Other",
         website: data.website || null,
         phone: data.phone || null,
-        userId,
+        userId: ctx.userId,
       },
+    });
+
+    // Create owner membership
+    await tx.businessMember.create({
+      data: { userId: ctx.userId, businessId: business.id, role: "OWNER" },
     });
 
     if (data.agentName) {
@@ -64,7 +79,7 @@ export async function completeOnboarding(data: {
     }
 
     await tx.user.update({
-      where: { id: userId },
+      where: { id: ctx.userId },
       data: { onboarded: true },
     });
   });
@@ -140,3 +155,34 @@ export async function deleteAgent(id: string) {
   revalidatePath("/dashboard/agents");
   redirect("/dashboard/agents");
 }
+
+// ─── Tenant Switching ───
+
+export async function switchTenant(businessId: string) {
+  const ctx = await getSessionUser();
+
+  // Superadmin can switch to any business
+  if (ctx.role === "SUPERADMIN") {
+    const biz = await prisma.business.findUnique({ where: { id: businessId }, select: { id: true } });
+    if (!biz) throw new Error("Business not found");
+  } else {
+    // Regular users can only switch to businesses they're a member of
+    const membership = await prisma.businessMember.findUnique({
+      where: { userId_businessId: { userId: ctx.userId, businessId } },
+    });
+    if (!membership) throw new Error("Not a member of this business");
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set("pumai_active_business", businessId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+
+  revalidatePath("/dashboard", "layout");
+  redirect("/dashboard");
+}
+
