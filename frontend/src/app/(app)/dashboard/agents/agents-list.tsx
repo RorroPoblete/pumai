@@ -45,13 +45,13 @@ export default function AgentsList({ agents }: { agents: Agent[] }) {
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <input
               type="text"
               placeholder="Search agents..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-56 px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
+              className="w-full sm:w-56 px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
             />
             <div className="flex gap-1">
               {["all", "active", "paused", "draft"].map((s) => (
@@ -68,7 +68,7 @@ export default function AgentsList({ agents }: { agents: Agent[] }) {
                 </button>
               ))}
             </div>
-            <span className="text-xs text-[var(--text-muted)]">{filtered.length} of {agents.length}</span>
+            <span className="text-xs text-[var(--text-muted)] hidden sm:inline">{filtered.length} of {agents.length}</span>
           </div>
           <Link
             href="/dashboard/agents/new"

@@ -1,5 +1,7 @@
 import { getSessionContext } from "@/backend/auth-utils";
 import { buildSystemPrompt, streamChatResponse, analyzeConversation } from "@/backend/ai";
+import { rateLimit } from "@/backend/rate-limit";
+import { chatSchema } from "@/backend/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -9,11 +11,17 @@ export async function POST(req: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const rl = await rateLimit(`chat:${ctx.activeBusinessId ?? ctx.userId}`, 20, 60000);
+  if (!rl.ok) {
+    return Response.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+  }
+
   if (!process.env.OPENAI_API_KEY) {
     return Response.json({ error: "OPENAI_API_KEY not configured" }, { status: 500 });
   }
 
-  const { messages, systemPrompt, knowledgeBase, agentName, tone } = await req.json();
+  const body = await req.json();
+  const { messages, systemPrompt, knowledgeBase, agentName, tone } = chatSchema.parse(body);
 
   const systemContent = buildSystemPrompt({ agentName, tone, systemPrompt, knowledgeBase });
   const stream = await streamChatResponse(systemContent, messages);

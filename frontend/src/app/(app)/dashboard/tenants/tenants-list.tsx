@@ -125,7 +125,7 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
           return (
             <div key={b.id} className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl overflow-hidden">
               {/* Tenant row */}
-              <div className="flex items-center gap-4 px-5 py-4">
+              <div className="flex flex-wrap items-center gap-3 px-4 sm:px-5 py-4">
                 <button onClick={() => setExpandedId(isExpanded ? null : b.id)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
                   <svg className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -5,6 +5,7 @@ import { requireAuth, getActiveBusinessId } from "./auth-utils";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { AgentTone } from "@/generated/prisma/enums";
+import { onboardingSchema, agentSchema, settingsSchema } from "./validation";
 
 // ─── Helpers ───
 
@@ -16,7 +17,7 @@ async function getBusinessId(): Promise<string> {
 
 // ─── Onboarding ───
 
-export async function completeOnboarding(data: {
+export async function completeOnboarding(raw: {
   businessName: string;
   industry: string;
   website: string;
@@ -24,6 +25,7 @@ export async function completeOnboarding(data: {
   agentTone: string;
   phone: string;
 }) {
+  const data = onboardingSchema.parse(raw);
   const ctx = await requireAuth();
 
   const existing = await prisma.business.findUnique({ where: { userId: ctx.userId } });
@@ -69,17 +71,16 @@ export async function completeOnboarding(data: {
 
 export async function createAgent(formData: FormData) {
   const businessId = await getBusinessId();
+  const data = agentSchema.parse({
+    name: formData.get("name"),
+    tone: formData.get("tone") || "PROFESSIONAL",
+    industry: formData.get("industry") || null,
+    systemPrompt: formData.get("systemPrompt") || null,
+    knowledgeBase: formData.get("knowledgeBase") || null,
+  });
 
   const agent = await prisma.agent.create({
-    data: {
-      name: formData.get("name") as string,
-      tone: ((formData.get("tone") as string) || "PROFESSIONAL") as AgentTone,
-      industry: (formData.get("industry") as string) || null,
-      systemPrompt: (formData.get("systemPrompt") as string) || null,
-      knowledgeBase: (formData.get("knowledgeBase") as string) || null,
-      status: "DRAFT" as const,
-      businessId,
-    },
+    data: { ...data, tone: data.tone as AgentTone, status: "DRAFT", businessId },
   });
 
   redirect(`/dashboard/agents/${agent.id}`);
@@ -87,16 +88,17 @@ export async function createAgent(formData: FormData) {
 
 export async function updateAgent(id: string, formData: FormData) {
   const businessId = await getBusinessId();
+  const data = agentSchema.parse({
+    name: formData.get("name"),
+    tone: formData.get("tone") || "PROFESSIONAL",
+    industry: formData.get("industry") || null,
+    systemPrompt: formData.get("systemPrompt") || null,
+    knowledgeBase: formData.get("knowledgeBase") || null,
+  });
 
   await prisma.agent.update({
     where: { id, businessId },
-    data: {
-      name: formData.get("name") as string,
-      tone: ((formData.get("tone") as string) || "PROFESSIONAL") as AgentTone,
-      industry: (formData.get("industry") as string) || null,
-      systemPrompt: (formData.get("systemPrompt") as string) || null,
-      knowledgeBase: (formData.get("knowledgeBase") as string) || null,
-    },
+    data: { ...data, tone: data.tone as AgentTone },
   });
 
   revalidatePath("/dashboard/agents");
@@ -132,18 +134,13 @@ export async function deleteAgent(id: string) {
 
 // ─── Settings ───
 
-export async function updateSettings(data: {
-  businessName: string;
-  timezone: string;
-}) {
+export async function updateSettings(raw: { businessName: string; timezone: string }) {
+  const data = settingsSchema.parse(raw);
   const businessId = await getBusinessId();
 
   await prisma.business.update({
     where: { id: businessId },
-    data: {
-      name: data.businessName,
-      timezone: data.timezone,
-    },
+    data: { name: data.businessName, timezone: data.timezone },
   });
 
   revalidatePath("/dashboard/settings");

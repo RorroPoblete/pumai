@@ -1,4 +1,5 @@
 import { getSessionContext } from "@/backend/auth-utils";
+import { rateLimit } from "@/backend/rate-limit";
 import OpenAI from "openai";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +8,11 @@ export async function POST(req: Request) {
   const ctx = await getSessionContext();
   if (!ctx) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const rl = await rateLimit(`analyze:${ctx.activeBusinessId ?? ctx.userId}`, 10, 60000);
+  if (!rl.ok) {
+    return Response.json({ error: "Too many requests." }, { status: 429 });
   }
 
   if (!process.env.OPENAI_API_KEY) {
