@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import OpenAI from "openai";
+import { buildSystemPrompt, streamChatResponse, analyzeConversation } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -13,49 +13,44 @@ export async function POST(req: Request) {
     return Response.json({ error: "OPENAI_API_KEY not configured" }, { status: 500 });
   }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
   const { messages, systemPrompt, knowledgeBase, agentName, tone } = await req.json();
 
-  const toneInstruction =
-    tone === "CASUAL"
-      ? "Use a casual, laid-back Australian tone. Be relaxed and use informal language."
-      : tone === "FRIENDLY"
-        ? "Use a warm, friendly tone. Be approachable and personable."
-        : "Use a professional, polished tone. Be courteous and efficient.";
-
-  const systemContent = [
-    `You are ${agentName || "an AI assistant"} — an SMS/WhatsApp agent for an Australian business.`,
-    toneInstruction,
-    "Keep responses concise (1-3 sentences) since this is SMS/chat. Use Australian English (favourite, colour, etc).",
-    systemPrompt && `\n--- Agent Instructions ---\n${systemPrompt}`,
-    knowledgeBase && `\n--- Knowledge Base ---\n${knowledgeBase}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  const stream = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    stream: true,
-    max_tokens: 300,
-    messages: [
-      { role: "system", content: systemContent },
-      ...messages.map((m: { role: string; content: string }) => ({
-        role: m.role === "agent" ? "assistant" : ("user" as const),
-        content: m.content,
-      })),
-    ],
-  });
+  const systemContent = buildSystemPrompt({ agentName, tone, systemPrompt, knowledgeBase });
+  const stream = await streamChatResponse(systemContent, messages);
 
   const encoder = new TextEncoder();
+  let fullResponse = "";
+
   const readable = new ReadableStream({
     async start(controller) {
+      // Stream the AI response
       for await (const chunk of stream) {
         const text = chunk.choices[0]?.delta?.content;
         if (text) {
+          fullResponse += text;
           controller.enqueue(encoder.encode(text));
         }
       }
+
+      // After stream ends, analyze the full conversation for metadata
+      try {
+        const allMessages = [
+          ...messages,
+          { role: "agent", content: fullResponse },
+        ];
+        const meta = await analyzeConversation(allMessages);
+
+        // Check if AI flagged escalation in its response
+        if (fullResponse.includes("[ESCALATE]")) {
+          meta.escalation = true;
+        }
+
+        // Send metadata as a delimited JSON line
+        controller.enqueue(encoder.encode(`\n__META__${JSON.stringify(meta)}`));
+      } catch {
+        // Metadata analysis failed — still close stream gracefully
+      }
+
       controller.close();
     },
   });

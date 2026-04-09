@@ -142,6 +142,21 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [chatMeta, setChatMeta] = useState<{
+    sentiment: "positive" | "neutral" | "negative";
+    escalation: boolean;
+    language: string;
+  } | null>(null);
+  const [analysis, setAnalysis] = useState<{
+    sentiment: string;
+    sentimentScore: number;
+    escalation: boolean;
+    escalationReason: string | null;
+    language: string;
+    topics: string[];
+    summary: string;
+  } | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   function handleSave() {
     const fd = new FormData();
@@ -219,12 +234,22 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
         const { done, value } = await reader.read();
         if (done) break;
         agentReply += decoder.decode(value, { stream: true });
-        const current = agentReply;
+
+        // Strip metadata delimiter from visible text
+        const visible = agentReply.split("\n__META__")[0].replace("[ESCALATE]", "").trim();
         setChatMessages((prev) => [
           ...prev.slice(0, -1),
-          { role: "agent", content: current },
+          { role: "agent", content: visible },
         ]);
         scrollChat();
+      }
+
+      // Parse metadata if present
+      const metaMatch = agentReply.match(/__META__(.+)$/);
+      if (metaMatch) {
+        try {
+          setChatMeta(JSON.parse(metaMatch[1]));
+        } catch { /* ignore parse errors */ }
       }
     } catch {
       setChatMessages((prev) => [
@@ -233,6 +258,24 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
       ]);
     } finally {
       setChatLoading(false);
+    }
+  }
+
+  async function handleAnalyze() {
+    if (chatMessages.length === 0 || analyzing) return;
+    setAnalyzing(true);
+    try {
+      const res = await fetch("/api/chat/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: chatMessages }),
+      });
+      if (!res.ok) throw new Error();
+      setAnalysis(await res.json());
+    } catch {
+      setAnalysis(null);
+    } finally {
+      setAnalyzing(false);
     }
   }
 
@@ -439,24 +482,8 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
           {tab === "Test" && (
             <div className="space-y-4">
               <p className="text-sm text-[#A1A1AA]">
-                Test your agent by simulating a conversation. Responses are mocked until AI integration is connected.
+                Test your agent with a live conversation. Responses are powered by AI using your system prompt and knowledge base.
               </p>
-
-              {/* Channel selector visual */}
-              <div className="flex gap-3">
-                <div className="flex-1 card-gradient border border-[rgba(34,197,94,0.2)] rounded-xl p-3 text-center">
-                  <svg className="w-5 h-5 mx-auto mb-1 text-[#22c55e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                  <div className="text-xs font-semibold text-[#22c55e]">SMS Preview</div>
-                </div>
-                <div className="flex-1 card-gradient border border-[rgba(59,130,246,0.2)] rounded-xl p-3 text-center">
-                  <svg className="w-5 h-5 mx-auto mb-1 text-[#3b82f6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                  <div className="text-xs font-semibold text-[#3b82f6]">WhatsApp Preview</div>
-                </div>
-              </div>
 
               {/* Chat window */}
               <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl overflow-hidden">
@@ -467,13 +494,15 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-white">{name || "Agent"}</div>
-                    <div className="text-[10px] text-[#22c55e]">Online</div>
+                    <div className="text-[10px] text-[#22c55e]">
+                      {chatLoading ? "Typing..." : "Online"}
+                    </div>
                   </div>
                   <button
-                    onClick={() => setChatMessages([])}
+                    onClick={() => { setChatMessages([]); setChatMeta(null); setAnalysis(null); }}
                     className="ml-auto text-xs text-[#71717A] hover:text-[#A1A1AA] transition-colors"
                   >
-                    Clear chat
+                    Clear
                   </button>
                 </div>
 
@@ -509,6 +538,18 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                   <div ref={chatEndRef} />
                 </div>
 
+                {/* Escalation banner */}
+                {chatMeta?.escalation && (
+                  <div className="mx-3 mt-2 px-3 py-2 rounded-lg border border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.06)] flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[#ef4444] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <span className="text-xs text-[#ef4444]">
+                      <strong>Escalation detected</strong> — This conversation would be transferred to a human agent in production.
+                    </span>
+                  </div>
+                )}
+
                 {/* Input */}
                 <div className="border-t border-[rgba(255,255,255,0.06)] p-3 flex gap-2">
                   <input
@@ -532,9 +573,102 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                 </div>
               </div>
 
-              <div className="text-xs text-[#71717A] p-3 rounded-lg border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)]">
-                <strong className="text-[#22c55e]">AI connected:</strong> Responses powered by GPT-4o Mini using your system prompt and knowledge base.
-              </div>
+              {/* Analyze button */}
+              <button
+                onClick={handleAnalyze}
+                disabled={chatMessages.length === 0 || analyzing || chatLoading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[rgba(139,92,246,0.2)] bg-[rgba(139,92,246,0.06)] text-sm font-semibold text-[#A78BFA] hover:bg-[rgba(139,92,246,0.12)] hover:border-[rgba(139,92,246,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                {analyzing ? "Analyzing..." : "Analyze Sentiment"}
+              </button>
+
+              {/* Analysis results panel */}
+              {analysis && (
+                <div className="card-gradient border border-[rgba(139,92,246,0.15)] rounded-xl p-5 space-y-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-white">Conversation Analysis</h4>
+                    <button onClick={() => setAnalysis(null)} className="text-[#71717A] hover:text-[#A1A1AA] transition-colors">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Sentiment bar */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-[#A1A1AA]">Sentiment</span>
+                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                        analysis.sentiment === "positive" ? "bg-[rgba(34,197,94,0.12)] text-[#22c55e]"
+                        : analysis.sentiment === "negative" ? "bg-[rgba(239,68,68,0.12)] text-[#ef4444]"
+                        : "bg-[rgba(245,158,11,0.12)] text-[#f59e0b]"
+                      }`}>
+                        {analysis.sentiment.toUpperCase()} ({analysis.sentimentScore}/100)
+                      </span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${analysis.sentimentScore}%`,
+                          background: analysis.sentimentScore >= 60
+                            ? "#22c55e"
+                            : analysis.sentimentScore >= 40
+                              ? "#f59e0b"
+                              : "#ef4444",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Grid: Escalation, Language */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)]">
+                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-1">Escalation</div>
+                      {analysis.escalation ? (
+                        <div>
+                          <span className="text-xs font-semibold text-[#ef4444]">Required</span>
+                          {analysis.escalationReason && (
+                            <p className="text-[10px] text-[#71717A] mt-0.5">{analysis.escalationReason}</p>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs font-semibold text-[#22c55e]">Not needed</span>
+                      )}
+                    </div>
+                    <div className="p-3 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)]">
+                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-1">Language</div>
+                      <span className="text-xs font-semibold text-white uppercase">{analysis.language}</span>
+                    </div>
+                  </div>
+
+                  {/* Topics */}
+                  {analysis.topics.length > 0 && (
+                    <div>
+                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-2">Topics</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {analysis.topics.map((t, i) => (
+                          <span key={i} className="text-[10px] font-medium px-2 py-1 rounded-md bg-[rgba(139,92,246,0.1)] text-[#A78BFA]">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Summary */}
+                  {analysis.summary && (
+                    <div>
+                      <div className="text-[10px] text-[#71717A] uppercase tracking-wider mb-1">Summary</div>
+                      <p className="text-xs text-[#A1A1AA] leading-relaxed">{analysis.summary}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
