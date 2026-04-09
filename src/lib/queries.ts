@@ -249,7 +249,18 @@ export async function getDashboardOverview(): Promise<DashboardOverviewData | nu
 
 // ─── Conversations Page ───
 
-export async function getConversations(): Promise<DashboardConversation[]> {
+export interface ConversationMessage {
+  id: string;
+  content: string;
+  role: "user" | "agent" | "system";
+  createdAt: string;
+}
+
+export interface ConversationWithMessages extends DashboardConversation {
+  chatMessages: ConversationMessage[];
+}
+
+export async function getConversations(): Promise<ConversationWithMessages[]> {
   const userId = await getSessionUserId();
   if (!userId) return [];
 
@@ -263,7 +274,7 @@ export async function getConversations(): Promise<DashboardConversation[]> {
     where: { businessId: business.id },
     include: {
       agent: { select: { name: true } },
-      messages: { orderBy: { createdAt: "desc" }, take: 1, select: { content: true } },
+      messages: { orderBy: { createdAt: "asc" }, select: { id: true, content: true, role: true, createdAt: true } },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -275,10 +286,16 @@ export async function getConversations(): Promise<DashboardConversation[]> {
     agentId: c.agentId,
     agentName: c.agent.name,
     status: c.status.toLowerCase() as DashboardConversation["status"],
-    lastMessage: c.messages[0]?.content ?? "",
+    lastMessage: c.messages[c.messages.length - 1]?.content ?? "",
     updatedAt: timeAgo(c.updatedAt),
     messages: c.messagesCount,
     sentiment: c.sentiment.toLowerCase() as DashboardConversation["sentiment"],
+    chatMessages: c.messages.map((m) => ({
+      id: m.id,
+      content: m.content,
+      role: m.role.toLowerCase() as ConversationMessage["role"],
+      createdAt: m.createdAt.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" }),
+    })),
   }));
 }
 

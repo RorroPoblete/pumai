@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
+import { completeOnboarding } from "@/lib/actions";
 
 const industries = [
   "Healthcare",
@@ -39,9 +40,10 @@ export default function OnboardingPage() {
     if (step > 1) setStep(step - 1);
   }
 
+  const [pending, startTransition] = useTransition();
+
   function finish() {
-    // TODO: save onboarding data to DB
-    window.location.href = "/dashboard";
+    startTransition(() => completeOnboarding(data));
   }
 
   return (
@@ -266,9 +268,10 @@ export default function OnboardingPage() {
             ) : (
               <button
                 onClick={finish}
-                className="gradient-btn text-white font-semibold px-8 py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300"
+                disabled={pending}
+                className="gradient-btn text-white font-semibold px-8 py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50"
               >
-                Launch Dashboard &rarr;
+                {pending ? "Setting up..." : "Launch Dashboard \u2192"}
               </button>
             )}
           </div>

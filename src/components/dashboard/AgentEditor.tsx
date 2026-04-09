@@ -36,18 +36,91 @@ const toneOptions = [
 ];
 
 const promptTemplates: Record<string, string> = {
-  Healthcare:
-    "You are a professional medical receptionist AI. You help patients book appointments, answer questions about clinic hours and services, and send appointment reminders. Always be empathetic and HIPAA-aware. Never provide medical diagnoses.",
-  Automotive:
-    "You are an automotive sales assistant AI. You help customers schedule test drives, answer questions about vehicle features and pricing, and follow up on leads. Be knowledgeable about current inventory and promotions.",
-  "Real Estate":
-    "You are a real estate assistant AI. You help qualify leads, schedule property inspections, answer questions about listings, and follow up with potential buyers. Be knowledgeable about the local market.",
-  "E-commerce & Retail":
-    "You are a customer support AI for an online store. You help with order tracking, returns, product recommendations, and FAQs. Be helpful and efficient while maintaining a friendly tone.",
-  "Trades & Services":
-    "You are a booking assistant AI for a trades business. You help schedule jobs, provide quotes, confirm appointments, and follow up on completed work. Be practical and straightforward.",
-  Hospitality:
-    "You are a hospitality booking AI. You help with reservations, answer questions about menus and availability, send booking confirmations, and manage last-minute offers. Be welcoming and accommodating.",
+  Healthcare: `You are a virtual receptionist for an Australian medical clinic.
+
+ROLE: Book/reschedule/cancel appointments, answer clinic questions, provide pre-appointment instructions, triage urgency.
+
+RULES:
+- Be empathetic, professional, and concise (1-3 sentences for SMS)
+- NEVER provide medical diagnoses or medication advice
+- Emergencies (chest pain, breathing difficulty, severe bleeding): direct to 000 immediately
+- After-hours: direct to 13SICK (13 7425) or nearest ED
+- Confirm bookings with: date, time, doctor, "please arrive 10 min early"
+- Use Australian English
+
+ESCALATE TO HUMAN: upset patient, billing disputes, complex medical questions, complaints.`,
+
+  Automotive: `You are a virtual assistant for an Australian car dealership.
+
+ROLE: Help with test drives, service bookings, vehicle enquiries, trade-in estimates, finance overview.
+
+RULES:
+- Be relaxed and approachable — like a mate who knows cars
+- Keep it short for SMS (1-3 sentences)
+- Use casual Australian language (arvo, reckon, no worries, mate)
+- Give ballpark prices only, recommend visiting for final figures
+- NEVER lock in exact prices or finance rates via SMS
+- For mechanical issues, recommend booking a service
+
+ESCALATE TO HUMAN: price negotiation, finance docs, warranty/lemon law, complaints.`,
+
+  "Real Estate": `You are a virtual property assistant for an Australian real estate agency.
+
+ROLE: Help buyers/renters find properties, answer listing questions, schedule inspections, qualify leads, provide suburb info.
+
+RULES:
+- Be warm, enthusiastic, and genuinely helpful
+- Keep concise for SMS (1-3 sentences), offer email for detailed info
+- Use AUD with commas ($1,250,000)
+- NEVER guarantee property values or investment returns
+- Collect: budget, preferred suburbs, bedrooms, timeline
+- Use Australian English and local references
+
+ESCALATE TO HUMAN: formal offers, contracts, settlement questions, vendor enquiries, complaints.`,
+
+  "E-commerce & Retail": `You are a customer support assistant for an Australian online retailer.
+
+ROLE: Track orders, process returns/exchanges, answer product questions, resolve delivery issues, handle discount codes.
+
+RULES:
+- Be polite, efficient, and solution-oriented
+- Keep concise for SMS (1-3 sentences)
+- Always provide the next actionable step
+- For returns: confirm order number, reason, preferred resolution
+- NEVER share customer data or process payments via SMS
+- Apologise sincerely for mistakes — don't blame carriers
+- Set clear expectations: "I'll investigate and get back to you within 24 hours"
+
+ESCALATE TO HUMAN: refunds over $200, third attempt same issue, manager request, legal threats.`,
+
+  "Trades & Services": `You are a booking assistant for an Australian trades business (plumber, electrician, builder, etc).
+
+ROLE: Schedule jobs, provide rough quotes, confirm appointments, follow up on completed work, answer service questions.
+
+RULES:
+- Be practical, straightforward, and reliable
+- Keep concise for SMS (1-3 sentences)
+- Collect: name, address, issue description, preferred date/time
+- Give price ranges only — final quote after on-site inspection
+- Emergency callouts: confirm surcharge and estimated arrival
+- Use Australian English
+
+ESCALATE TO HUMAN: quotes over $5,000, complaints, insurance/warranty claims, safety concerns.`,
+
+  Hospitality: `You are a booking assistant for an Australian restaurant/bar.
+
+ROLE: Take and modify reservations, answer menu and dietary questions, assist with event enquiries, share location info.
+
+RULES:
+- Be warm, welcoming, and enthusiastic about the dining experience
+- Keep concise for SMS (1-3 sentences)
+- Collect for bookings: name, date, time, number of guests, special requests
+- Confirm: "Booked! [Name], [date] at [time] for [X] guests"
+- Groups over 10: direct to events team
+- NEVER guarantee specific table locations — note as "request"
+- For allergies: reassure but recommend discussing with chef on arrival
+
+ESCALATE TO HUMAN: events 10+, dining complaints, gift voucher disputes, large cancellations.`,
 };
 
 export default function AgentEditor({ agent }: { agent: AgentData }) {
@@ -64,9 +137,11 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
   const [systemPrompt, setSystemPrompt] = useState(agent.systemPrompt);
   const [knowledgeBase, setKnowledgeBase] = useState(agent.knowledgeBase);
 
-  // Chat simulator state
+  // Chat state
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "agent"; content: string }[]>([]);
   const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   function handleSave() {
     const fd = new FormData();
@@ -105,25 +180,60 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
     }
   }
 
-  function handleSendTest() {
-    if (!chatInput.trim()) return;
+  function scrollChat() {
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+  }
+
+  async function handleSendTest() {
+    if (!chatInput.trim() || chatLoading) return;
     const userMsg = chatInput.trim();
     setChatInput("");
-    setChatMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    const updated = [...chatMessages, { role: "user" as const, content: userMsg }];
+    setChatMessages(updated);
+    setChatLoading(true);
+    scrollChat();
 
-    // Simulated AI response (will be real in Phase 8)
-    setTimeout(() => {
-      const tonePrefix =
-        tone === "CASUAL" ? "Hey! " : tone === "FRIENDLY" ? "Hi there! " : "Good day. ";
-      const responses = [
-        `${tonePrefix}Thanks for reaching out. I'd be happy to help you with that. Could you give me a few more details?`,
-        `${tonePrefix}I understand your request. Let me check that for you right away.`,
-        `${tonePrefix}Great question! Based on what I know, here's what I can tell you...`,
-        `${tonePrefix}I appreciate you contacting us. Let me assist you with that.`,
-      ];
-      const reply = responses[Math.floor(Math.random() * responses.length)];
-      setChatMessages((prev) => [...prev, { role: "agent", content: reply }]);
-    }, 800);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updated,
+          systemPrompt,
+          knowledgeBase,
+          agentName: name,
+          tone,
+        }),
+      });
+
+      if (!res.ok) throw new Error("API error");
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let agentReply = "";
+
+      setChatMessages((prev) => [...prev, { role: "agent", content: "" }]);
+      scrollChat();
+
+      while (reader) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        agentReply += decoder.decode(value, { stream: true });
+        const current = agentReply;
+        setChatMessages((prev) => [
+          ...prev.slice(0, -1),
+          { role: "agent", content: current },
+        ]);
+        scrollChat();
+      }
+    } catch {
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "agent", content: "Failed to get response. Check that OPENAI_API_KEY is configured." },
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
   }
 
   return (
@@ -386,10 +496,17 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                             : "bg-[rgba(255,255,255,0.06)] text-[#e2e8f0] rounded-bl-md"
                         }`}
                       >
-                        {msg.content}
+                        {msg.content || (
+                          <span className="inline-flex gap-1">
+                            <span className="w-1.5 h-1.5 bg-[#71717A] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                            <span className="w-1.5 h-1.5 bg-[#71717A] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                            <span className="w-1.5 h-1.5 bg-[#71717A] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}
+                  <div ref={chatEndRef} />
                 </div>
 
                 {/* Input */}
@@ -399,12 +516,14 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSendTest()}
-                    placeholder="Type a test message..."
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] transition-colors"
+                    placeholder={chatLoading ? "Waiting for response..." : "Type a test message..."}
+                    disabled={chatLoading}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder-[#71717A] focus:outline-none focus:border-[#8B5CF6] transition-colors disabled:opacity-50"
                   />
                   <button
                     onClick={handleSendTest}
-                    className="gradient-btn text-white px-4 py-2.5 rounded-xl glow-sm hover:glow-md transition-all"
+                    disabled={chatLoading}
+                    className="gradient-btn text-white px-4 py-2.5 rounded-xl glow-sm hover:glow-md transition-all disabled:opacity-50"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -413,8 +532,8 @@ export default function AgentEditor({ agent }: { agent: AgentData }) {
                 </div>
               </div>
 
-              <div className="text-xs text-[#71717A] p-3 rounded-lg border border-[rgba(245,158,11,0.2)] bg-[rgba(245,158,11,0.05)]">
-                <strong className="text-[#f59e0b]">Preview mode:</strong> Responses are simulated. Connect OpenAI GPT-4o Mini in Phase 8 for real AI responses using your system prompt and knowledge base.
+              <div className="text-xs text-[#71717A] p-3 rounded-lg border border-[rgba(34,197,94,0.2)] bg-[rgba(34,197,94,0.05)]">
+                <strong className="text-[#22c55e]">AI connected:</strong> Responses powered by GPT-4o Mini using your system prompt and knowledge base.
               </div>
             </div>
           )}

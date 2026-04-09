@@ -20,6 +20,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Redirect non-onboarded users to onboarding
+  if (isLoggedIn && pathname.startsWith("/dashboard") && token?.onboarded === false) {
+    return NextResponse.redirect(new URL("/onboarding", req.url));
+  }
+
   return NextResponse.next();
 }
 

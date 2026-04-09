@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const navItems = [
   {
@@ -101,7 +102,16 @@ export default function Sidebar({
       </nav>
 
       {/* Bottom */}
-      <div className="px-3 pb-4">
+      <div className="px-3 pb-4 space-y-3">
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-[#71717A] hover:text-[#ef4444] hover:bg-[rgba(239,68,68,0.06)] transition-all duration-200"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Log out
+        </button>
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-4">
           <div className="text-xs font-semibold text-white mb-1">{plan.charAt(0) + plan.slice(1).toLowerCase()} Plan</div>
           <div className="text-xs text-[#71717A] mb-3">{conversationsUsed} / {conversationsLimit} conversations used</div>

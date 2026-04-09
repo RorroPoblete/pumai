@@ -21,6 +21,57 @@ async function getBusinessId(): Promise<string> {
   return business.id;
 }
 
+// ─── Onboarding ───
+
+export async function completeOnboarding(data: {
+  businessName: string;
+  industry: string;
+  website: string;
+  agentName: string;
+  agentTone: string;
+  phone: string;
+}) {
+  const session = await auth();
+  const userId = (session?.user as { id?: string })?.id;
+  if (!userId) throw new Error("Not authenticated");
+
+  const existing = await prisma.business.findUnique({ where: { userId } });
+  if (existing) {
+    redirect("/dashboard");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const business = await tx.business.create({
+      data: {
+        name: data.businessName || "My Business",
+        industry: data.industry || "Other",
+        website: data.website || null,
+        phone: data.phone || null,
+        userId,
+      },
+    });
+
+    if (data.agentName) {
+      await tx.agent.create({
+        data: {
+          name: data.agentName,
+          tone: (data.agentTone?.toUpperCase() || "PROFESSIONAL") as AgentTone,
+          industry: data.industry || null,
+          status: "ACTIVE",
+          businessId: business.id,
+        },
+      });
+    }
+
+    await tx.user.update({
+      where: { id: userId },
+      data: { onboarded: true },
+    });
+  });
+
+  redirect("/dashboard");
+}
+
 // ─── Agent CRUD ───
 
 export async function createAgent(formData: FormData) {
