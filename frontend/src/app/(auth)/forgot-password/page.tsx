@@ -1,25 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
+import { requestPasswordReset } from "@/backend/actions";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [pending, startTransition] = useTransition();
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    // TODO: integrate real password reset
-    await new Promise((r) => setTimeout(r, 1000));
-    setSent(true);
-    setLoading(false);
+    startTransition(async () => {
+      await requestPasswordReset(email);
+      setSent(true);
+    });
   }
 
   return (
     <div>
-      {/* Mobile logo */}
       <div className="lg:hidden flex items-center gap-2 mb-8">
         <span className="text-xl font-bold text-[var(--text-primary)]">
           Pum<span className="text-[#8B5CF6]">AI</span>
@@ -35,29 +34,22 @@ export default function ForgotPasswordPage() {
           </div>
           <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">Check your email</h1>
           <p className="text-sm text-[var(--text-secondary)] mb-8">
-            We sent a password reset link to <strong className="text-[var(--text-primary)]">{email}</strong>
+            If an account exists for <strong className="text-[var(--text-primary)]">{email}</strong>, we sent a password reset link.
           </p>
-          <Link
-            href="/login"
-            className="text-[#8B5CF6] font-medium hover:text-[#8B5CF6] transition-colors text-sm"
-          >
+          <Link href="/login" className="text-[#8B5CF6] font-medium hover:text-[#A78BFA] transition-colors text-sm">
             &larr; Back to sign in
           </Link>
         </div>
       ) : (
         <>
-          <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">
-            Reset your password
-          </h1>
+          <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">Reset your password</h1>
           <p className="text-sm text-[var(--text-secondary)] mb-8">
             Enter your email and we&apos;ll send you a reset link
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                Email
-              </label>
+              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
@@ -70,18 +62,15 @@ export default function ForgotPasswordPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full gradient-btn !text-white font-semibold py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={pending}
+              className="w-full gradient-btn !text-white font-semibold py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50"
             >
-              {loading ? "Sending..." : "Send Reset Link"}
+              {pending ? "Sending..." : "Send Reset Link"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
-            <Link
-              href="/login"
-              className="text-[#8B5CF6] font-medium hover:text-[#8B5CF6] transition-colors"
-            >
+            <Link href="/login" className="text-[#8B5CF6] font-medium hover:text-[#A78BFA] transition-colors">
               &larr; Back to sign in
             </Link>
           </p>

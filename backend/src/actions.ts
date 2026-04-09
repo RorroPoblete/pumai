@@ -129,3 +129,52 @@ export async function deleteAgent(id: string) {
   revalidatePath("/dashboard/agents");
   redirect("/dashboard/agents");
 }
+
+// ─── Settings ───
+
+export async function updateSettings(data: {
+  businessName: string;
+  timezone: string;
+}) {
+  const businessId = await getBusinessId();
+
+  await prisma.business.update({
+    where: { id: businessId },
+    data: {
+      name: data.businessName,
+      timezone: data.timezone,
+    },
+  });
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+}
+
+export async function updatePassword(currentPassword: string, newPassword: string) {
+  const ctx = await requireAuth();
+  const bcrypt = await import("bcryptjs");
+
+  const user = await prisma.user.findUnique({
+    where: { id: ctx.userId },
+    select: { password: true },
+  });
+  if (!user?.password) throw new Error("No password set");
+
+  const valid = await bcrypt.compare(currentPassword, user.password);
+  if (!valid) throw new Error("Current password is incorrect");
+
+  const hashed = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({
+    where: { id: ctx.userId },
+    data: { password: hashed },
+  });
+}
+
+export async function requestPasswordReset(email: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  // Always return success to prevent email enumeration
+  if (!user) return;
+  // In production: generate token, save to DB, send email via SendGrid/Resend
+  // For now: log the reset request
+  console.log(`Password reset requested for ${email}`);
+}
