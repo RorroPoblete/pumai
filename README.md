@@ -1,142 +1,215 @@
-# PumAI — SMS & WhatsApp AI Agents for Australian Businesses
+# PumAI — Omnichannel AI Agents for Australian Business
 
-AI-powered conversational agents that automate sales, support, and marketing for Australian SMEs via SMS (Cellcast) and WhatsApp Business API, powered by GPT-4o Mini.
+## Project Status
 
-## Tech Stack
+### Phase 1: Landing & Config ✅
+- [x] Next.js 16 + TypeScript + Tailwind v4 setup
+- [x] Design system (dark theme, violet #8B5CF6, glassmorphism, Inter font)
+- [x] Landing page (Navbar, Hero w/ particles, Features, How It Works, Dual-Channel Pricing, Industries, CTA, Footer)
+- [x] Scroll animations (Intersection Observer)
+- [x] Logo/integration carousel
+- [x] Smooth scroll + navbar scroll effect
+- [x] Custom SVG industry icons
+- [x] Brand: PumAI
 
-- **Framework:** Next.js 16 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS 4
-- **Database:** PostgreSQL + Prisma 7
-- **Auth:** NextAuth v5 (Credentials + Google)
-- **Runtime:** Node.js / React 19
+### Phase 2: Auth & Onboarding ✅
+- [x] NextAuth.js v5 (Credentials + Google OAuth)
+- [x] Login page (email/password + Google)
+- [x] Register page (auto sign-in after register)
+- [x] Forgot password page
+- [x] Auth layout (split-screen: branding left, form right)
+- [x] Onboarding wizard (4 steps: business info, industry, agent config, SMS number)
+- [x] Middleware (protected routes, auth redirects)
 
-## Project Structure
+### Phase 3: Dashboard ✅
+- [x] Sidebar navigation (Overview, Conversations, Agents, Analytics, Settings)
+- [x] Overview page (KPI cards, bar chart, sentiment breakdown, recent conversations table)
+- [x] Conversations page (filterable list, search, status badges, sentiment dots)
+- [x] AI Agents page (agent cards, status, tone, stats, hover actions)
+- [x] Analytics page (KPIs, daily chart, donut chart, agent performance table)
+- [x] Settings page (business info, SMS config, notification toggles, danger zone)
+- [x] Seed data (5 agents, 8 conversations, metrics)
 
-```
-app/
-├── prisma/
-│   ├── schema.prisma        # Data models (User, Business, Agent, Conversation, Message, SmsNumber)
-│   └── seed.ts              # Seed data for development
-├── src/
-│   ├── app/
-│   │   ├── page.tsx          # Landing page (public)
-│   │   ├── layout.tsx        # Root layout
-│   │   ├── (auth)/           # Auth pages (login, register, forgot-password)
-│   │   ├── (app)/
-│   │   │   ├── onboarding/   # 4-step onboarding flow
-│   │   │   └── dashboard/    # Main app (overview, conversations, agents, analytics, settings)
-│   │   └── api/auth/         # NextAuth API routes + registration endpoint
-│   ├── components/
-│   │   ├── Navbar.tsx        # Fixed navbar with smooth scroll
-│   │   ├── Hero.tsx          # Landing hero with particles
-│   │   ├── Features.tsx      # 6 feature cards (dual-channel, AI, integrations, etc.)
-│   │   ├── HowItWorks.tsx    # 4-step timeline
-│   │   ├── Pricing.tsx       # Dual-channel pricing (SMS + WhatsApp tabs, 6 plans)
-│   │   ├── Industries.tsx    # 6 target verticals with priority badges
-│   │   ├── LogoCarousel.tsx  # Infinite scroll integration logos
-│   │   ├── CTA.tsx           # Final call-to-action
-│   │   ├── Footer.tsx        # Links + compliance info
-│   │   ├── Particles.tsx     # Canvas particle animation
-│   │   ├── ScrollReveal.tsx  # Intersection Observer fade-in wrapper
-│   │   └── dashboard/        # Sidebar + TopBar for the dashboard
-│   ├── auth.ts               # NextAuth config (JWT, credentials, Google)
-│   ├── middleware.ts          # Route protection (dashboard, onboarding)
-│   ├── lib/
-│   │   ├── prisma.ts         # Prisma client singleton
-│   │   └── seed.ts           # Mock data for dashboard UI
-│   └── generated/prisma/     # Prisma generated client
-├── public/
-│   └── logo.png              # App logo
-└── package.json
-```
+### Phase 4: Database & Docker ✅
+- [x] Prisma v7 schema (User, Account, Session, Business, Agent, SmsNumber, Conversation, Message)
+- [x] Seed script (2 users, 2 businesses, 5 agents, 8 conversations with messages)
+- [x] Dockerfile (multi-stage build + tsconfig for tsx)
+- [x] docker-compose.yml (PostgreSQL 16, Redis 7, Next.js app)
+- [x] Seed auto-run in Docker (idempotent seed + `node --import tsx` loader + `--skip-generate`)
+- [x] Dashboard connected to real DB (Prisma queries replace static seed data in all 5 pages + sidebar)
 
-## Getting Started
+### Phase 5: Agent Builder ✅
+- [x] No-code agent configuration UI (create/edit/delete agents, industry selector)
+- [x] System prompt editor (monospace editor, per-industry templates, char counter)
+- [x] Knowledge base editor (FAQ/docs text area with placeholder guide)
+- [x] Conversation flow builder (funnels — agent CRUD with tone/industry config)
+- [x] Agent testing with live AI chat
+- [x] Tone & personality settings (Professional/Friendly/Casual selector)
+- [x] Server actions (createAgent, updateAgent, deleteAgent, toggleAgentStatus)
+- [x] Agents list wired up (New, Edit, Test, Pause/Activate buttons functional)
 
-### Prerequisites
+### Phase 6: AI Engine ✅
+- [x] OpenAI GPT-4o Mini integration (128K context, US$0.15/M input, US$0.60/M output)
+- [x] Context management per conversation (full chat history sent to model)
+- [x] System prompt injection with business data + knowledge base
+- [x] Streaming responses in agent test chat (real-time token rendering)
+- [x] Tone-aware prompt construction (Professional/Friendly/Casual)
+- [x] Escalation detection (AI flags `[ESCALATE]` + metadata analysis, visual banner in UI)
+- [x] Sentiment analysis (real-time per-conversation: positive/neutral/negative badge)
+- [x] Response generation pipeline (`lib/ai.ts`: buildSystemPrompt, streamChatResponse, analyzeConversation)
+- [x] Multilingual support (auto-detects language, responds in same language, language badge in UI)
 
-- Node.js 18+
-- PostgreSQL database
+### Phase 7: WhatsApp Integration ⬜
+- [ ] WhatsApp Business API setup (via 360dialog or Twilio)
+- [ ] Inbound message webhook handler
+- [ ] Rich media support (images, buttons, links, catalogues)
+- [ ] Service conversations (user-initiated, free 24hr window)
+- [ ] Marketing outbound (~US$0.04/msg, Rest of APAC rate)
+- [ ] WhatsApp Business profile management
+- [ ] Connect AI engine to WhatsApp inbound pipeline
 
-### Setup
+### Phase 8: SMS Integration (Cellcast) ⬜
+- [ ] Cellcast API integration (carrier directo: Telstra, Optus, Vodafone)
+- [ ] Inbound SMS webhook handler
+- [ ] Outbound SMS sending (2.8c AUD/SMS at 100K+ vol)
+- [ ] Virtual number provisioning (AU dedicated numbers, A$15/mo)
+- [ ] Delivery status tracking
+- [ ] Conversation routing (agent selection)
+- [ ] Connect AI engine to SMS inbound pipeline
 
+### Phase 9: Webchat Integration ⬜
+- [ ] Embeddable chat widget (JS snippet for any website)
+- [ ] Custom branding (colours, logo, position, welcome message)
+- [ ] Real-time WebSocket messaging
+- [ ] Visitor identification (name, email capture form)
+- [ ] File & image sharing
+- [ ] Typing indicators and read receipts
+- [ ] Offline mode (collect email, respond async)
+- [ ] Connect AI engine to webchat pipeline
+
+### Phase 10: Instagram DMs Integration ⬜
+- [ ] Meta Graph API setup (Instagram Business Account)
+- [ ] Inbound DM webhook handler (Instagram Messaging API)
+- [ ] Auto-reply to story mentions and comments
+- [ ] Rich media support (images, quick replies)
+- [ ] Product tag integration (Instagram Shopping)
+- [ ] 24-hour messaging window compliance
+- [ ] Connect AI engine to Instagram inbound pipeline
+
+### Phase 11: Facebook Messenger Integration ⬜
+- [ ] Meta Graph API setup (Facebook Page)
+- [ ] Inbound message webhook handler (Messenger Platform)
+- [ ] Rich templates (buttons, carousels, receipts)
+- [ ] Persistent menu configuration
+- [ ] Customer matching (phone number to Messenger ID)
+- [ ] Sponsored messages / marketing outbound
+- [ ] Connect AI engine to Messenger inbound pipeline
+
+### Phase 12: Integrations ⬜
+- [ ] HubSpot CRM sync
+- [ ] Shopify order/customer data
+- [ ] Xero invoicing
+- [ ] Stripe billing
+- [ ] Calendly booking
+- [ ] Google Calendar
+- [ ] Zapier webhooks
+
+### Phase 13: Billing & Plans ⬜
+- [ ] Stripe subscription integration
+- [ ] Per-channel plan management (SMS, WhatsApp, Webchat, Social)
+- [ ] Omnichannel upsell (+A$350/mo for all 5 channels)
+- [ ] Usage tracking (conversations per channel, agents, funnels)
+- [ ] Overage billing (per-plan rates: A$0.60 to A$0.05/conv)
+- [ ] Prepaid packs (SMS: 500 convs A$275, WA: 1,000 convs A$180)
+- [ ] Invoice generation
+
+### Phase 14: Compliance & Production ⬜
+- [ ] Spam Act 2003 compliance (opt-in/opt-out, sender ID, multas hasta A$2.2M)
+- [ ] Privacy Act 1988 (APPs, breach notification, data transparency)
+- [ ] AI transparency disclosure (mandatory in AU)
+- [ ] ACMA SMS Sender ID Register (mandatory before July 2026)
+- [ ] Register as EMSP with ACMA (wholesale SMS ~1.5c via MTMO/Symbio)
+- [ ] Cellcast compliance (ISO 27001, Industry Code C661:2022)
+- [ ] Meta Platform compliance (Instagram + Messenger API policies)
+- [ ] Rate limiting
+- [ ] Monitoring & logging
+- [ ] Production deployment (Vercel / AWS)
+
+---
+
+## Quick Start
+
+### Development
 ```bash
-# 1. Install dependencies
 cd app
 npm install
-
-# 2. Configure environment
-cp .env .env.local
-# Edit .env.local with your values:
-#   DATABASE_URL="postgresql://user:pass@localhost:5432/pumai"
-#   AUTH_SECRET="your-secret-key"
-#   GOOGLE_CLIENT_ID="..."       (optional, for Google OAuth)
-#   GOOGLE_CLIENT_SECRET="..."   (optional)
-
-# 3. Generate Prisma client & push schema
-npm run db:generate
-npm run db:push
-
-# 4. (Optional) Seed the database
-npm run db:seed
-
-# 5. Start development server
 npm run dev
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+### Docker (full stack)
+```bash
+docker compose up --build
+# App: http://localhost:3000
+# DB: localhost:5432 (pumai/pumai_secret/pumai_db)
+# Redis: localhost:6379
+```
 
-## Available Scripts
+### Database
+```bash
+cd app
+npm run db:generate   # Generate Prisma client
+npm run db:push       # Push schema to DB
+npm run db:seed       # Seed sample data
+npm run db:studio     # Open Prisma Studio
+```
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start dev server |
-| `npm run build` | Production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run db:generate` | Generate Prisma client |
-| `npm run db:push` | Push schema to database |
-| `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:seed` | Seed database with sample data |
-| `npm run db:studio` | Open Prisma Studio (visual DB editor) |
+### Demo Login
+- Email: `demo@pumai.com.au`
+- Password: `password123`
 
-## Data Models
+---
 
-- **User** — Auth, profile, onboarding state
-- **Business** — Company info, plan (Starter/Growth/Enterprise), timezone
-- **Agent** — AI agent config (name, tone, system prompt, knowledge base, status)
-- **SmsNumber** — Dedicated Australian virtual numbers
-- **Conversation** — Contact threads with status + sentiment tracking
-- **Message** — Individual messages (user/agent/system roles)
+## Tech Stack
+- **Frontend:** Next.js 16, TypeScript, Tailwind CSS v4
+- **Auth:** NextAuth.js v5 (Credentials + Google)
+- **Database:** PostgreSQL 16 + Prisma v7
+- **Cache:** Redis 7
+- **SMS:** Cellcast API (carrier directo AU, planned)
+- **WhatsApp:** WhatsApp Business API via 360dialog/Twilio (planned)
+- **Webchat:** Embeddable JS widget (planned)
+- **Social:** Instagram DMs + Facebook Messenger via Meta Graph API (planned)
+- **AI:** OpenAI GPT-4o Mini
+- **Deploy:** Docker / docker-compose
 
-## Pricing Model (Dual-Channel)
+## Pricing (5 Channels)
 
-**SMS Plans** (universal reach, 98% open rate):
-- Starter: A$299/mo (300 convs)
-- Growth: A$649/mo (1,000 convs)
-- Enterprise: A$1,499+/mo (4,000 convs)
+**SMS Plans** — Universal reach (98% open rate, 100% mobile coverage)
+| Plan | Price | Setup | Conversations | Extra |
+|------|-------|-------|---------------|-------|
+| SMS Starter | A$299/mo | A$500 | 300/mo | A$0.60/conv |
+| SMS Growth | A$649/mo | A$900 | 1,000/mo | A$0.55/conv |
+| SMS Enterprise | A$1,499+/mo | Custom | 4,000/mo | A$0.45/conv |
 
-**WhatsApp Plans** (rich media, buttons, catalogues):
-- Starter: A$199/mo (500 convs)
-- Growth: A$449/mo (2,000 convs)
-- Enterprise: A$999+/mo (unlimited)
+**WhatsApp Plans** — Rich conversations (buttons, images, catalogues)
+| Plan | Price | Setup | Conversations | Extra |
+|------|-------|-------|---------------|-------|
+| WA Starter | A$199/mo | A$500 | 500/mo | A$0.25/conv |
+| WA Growth | A$449/mo | A$900 | 2,000/mo | A$0.20/conv |
+| WA Enterprise | A$999+/mo | Custom | Unlimited | A$0.15/conv |
 
-**Omnichannel upgrade:** +A$200/mo for both channels.
+**Webchat Plans** — Instant support on your website
+| Plan | Price | Setup | Sessions | Extra |
+|------|-------|-------|----------|-------|
+| Webchat Starter | A$99/mo | Free | 500/mo | A$0.10/session |
+| Webchat Growth | A$249/mo | A$300 | 2,000/mo | A$0.08/session |
+| Webchat Enterprise | A$599+/mo | Custom | Unlimited | A$0.05/session |
 
-## App Flow
+**Instagram & Messenger Plans** — Social media engagement
+| Plan | Price | Setup | Conversations | Extra |
+|------|-------|-------|---------------|-------|
+| Social Starter | A$149/mo | A$400 | 500/mo | A$0.20/conv |
+| Social Growth | A$399/mo | A$700 | 2,000/mo | A$0.15/conv |
+| Social Enterprise | A$899+/mo | Custom | Unlimited | A$0.10/conv |
 
-1. **Landing page** (`/`) — Public marketing site with features, pricing, industries
-2. **Register** (`/register`) — Create account with email/password or Google
-3. **Onboarding** (`/onboarding`) — 4 steps: business info, industry, agent config, SMS number
-4. **Dashboard** (`/dashboard`) — KPIs, conversation chart, sentiment, recent conversations
-   - `/dashboard/conversations` — All conversation threads
-   - `/dashboard/agents` — Manage AI agents
-   - `/dashboard/analytics` — Performance metrics
-   - `/dashboard/settings` — Account & business settings
-
-## Compliance
-
-- Spam Act 2003 (consent, opt-out, sender ID)
-- Privacy Act 1988 (APPs, breach notification)
-- ACMA SMS Sender ID Register
-- AI disclosure to end users
+**Omnichannel:** +A$350/mo on any plan for all 5 channels

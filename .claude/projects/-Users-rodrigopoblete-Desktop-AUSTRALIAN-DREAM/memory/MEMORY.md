@@ -1,0 +1,2 @@
+- [Project Overview](project_overview.md) — SMS AI Agents SaaS for Australian SMEs (PumAI)
+- [Design System](project_design_system.md) — Dark theme, violet #8B5CF6 accents, glassmorphism, Inter font

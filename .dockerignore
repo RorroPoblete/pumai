@@ -1,9 +1,9 @@
-node_modules
-.next
-.git
-.gitignore
+frontend/node_modules
+frontend/.next
+frontend/.env.local
+.env
 *.md
-.env.local
-.env*.local
-Dockerfile
-docker-compose.yml
+LOGO.png
+style.md
+*.jsx
+.claude
