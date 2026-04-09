@@ -1,4 +1,4 @@
-import TopBar from "@/frontend/components/dashboard/TopBar";
+import TopBar from "@/components/dashboard/TopBar";
 import { getDashboardOverview } from "@/backend/queries";
 
 const statusColor = {

@@ -1,11 +1,11 @@
-import { auth } from "@/auth";
+import { getSessionContext } from "@/backend/auth-utils";
 import { buildSystemPrompt, streamChatResponse, analyzeConversation } from "@/backend/ai";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user) {
+  const ctx = await getSessionContext();
+  if (!ctx) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 

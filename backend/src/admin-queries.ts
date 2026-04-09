@@ -1,16 +1,5 @@
 import { prisma } from "./prisma";
-import { auth } from "@/auth";
-
-// ─── Auth Guard ───
-
-async function requireSuperadmin(): Promise<string> {
-  const session = await auth();
-  const user = session?.user as Record<string, unknown> | undefined;
-  if (!user?.id || user.role !== "SUPERADMIN") {
-    throw new Error("Unauthorized: superadmin required");
-  }
-  return user.id as string;
-}
+import { requireSuperadmin } from "./auth-utils";
 
 // ─── Admin Overview ───
 

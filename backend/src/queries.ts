@@ -1,6 +1,5 @@
 import { prisma } from "./prisma";
-import { auth } from "@/auth";
-import { cookies } from "next/headers";
+import { getSessionContext, getActiveBusinessId } from "./auth-utils";
 
 // ─── Helpers ───
 
@@ -21,52 +20,7 @@ const PLAN_LIMITS: Record<string, number> = {
   ENTERPRISE: 4000,
 };
 
-interface SessionContext {
-  userId: string;
-  role: string;
-  activeBusinessId: string | null;
-  businessRole: string | null;
-}
-
-async function getSessionContext(): Promise<SessionContext | null> {
-  const session = await auth();
-  const user = session?.user as Record<string, unknown> | undefined;
-  if (!user?.id) return null;
-  return {
-    userId: user.id as string,
-    role: (user.role as string) ?? "USER",
-    activeBusinessId: (user.activeBusinessId as string) ?? null,
-    businessRole: (user.businessRole as string) ?? null,
-  };
-}
-
-async function getActiveBusinessId(): Promise<string | null> {
-  const ctx = await getSessionContext();
-  if (!ctx) return null;
-
-  // Check cookie first (set by tenant switcher)
-  const cookieStore = await cookies();
-  const cookieBiz = cookieStore.get("pumai_active_business")?.value;
-  if (cookieBiz) {
-    // Superadmin can access any business
-    if (ctx.role === "SUPERADMIN") return cookieBiz;
-    // Regular user: verify membership
-    const member = await prisma.businessMember.findUnique({
-      where: { userId_businessId: { userId: ctx.userId, businessId: cookieBiz } },
-    });
-    if (member) return cookieBiz;
-  }
-
-  // Fallback: session activeBusinessId
-  if (ctx.activeBusinessId) return ctx.activeBusinessId;
-
-  // Fallback: legacy 1:1
-  const biz = await prisma.business.findUnique({
-    where: { userId: ctx.userId },
-    select: { id: true },
-  });
-  return biz?.id ?? null;
-}
+// ─── Tenant Helpers ───
 
 export async function getActiveBusiness(): Promise<{ id: string; name: string } | null> {
   const id = await getActiveBusinessId();
@@ -89,7 +43,6 @@ export async function getAvailableTenants(): Promise<{ id: string; name: string;
     where: { userId: ctx.userId },
     include: { business: { select: { id: true, name: true, industry: true, plan: true } } },
   });
-
   return memberships.map((m) => m.business);
 }
 

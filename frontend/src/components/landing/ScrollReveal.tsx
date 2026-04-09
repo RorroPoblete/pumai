@@ -1,6 +1,6 @@
 "use client";
 
-import { useScrollReveal } from "@/frontend/hooks/useScrollReveal";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export default function ScrollReveal({
   children,

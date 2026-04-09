@@ -1,4 +1,4 @@
-import AgentEditor from "@/frontend/components/dashboard/AgentEditor";
+import AgentEditor from "@/components/dashboard/AgentEditor";
 
 export default function NewAgentPage() {
   return (

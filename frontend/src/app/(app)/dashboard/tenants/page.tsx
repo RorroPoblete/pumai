@@ -1,13 +1,12 @@
 import { getAdminBusinesses, getAdminOverview } from "@/backend/admin-queries";
-import TopBar from "@/frontend/components/dashboard/TopBar";
+import TopBar from "@/components/dashboard/TopBar";
 import TenantsList from "./tenants-list";
-import { auth } from "@/auth";
+import { getSessionContext } from "@/backend/auth-utils";
 import { redirect } from "next/navigation";
 
 export default async function TenantsPage() {
-  const session = await auth();
-  const role = (session?.user as { role?: string })?.role;
-  if (role !== "SUPERADMIN") redirect("/dashboard");
+  const ctx = await getSessionContext();
+  if (ctx?.role !== "SUPERADMIN") redirect("/dashboard");
 
   const [businesses, overview] = await Promise.all([
     getAdminBusinesses(),
@@ -18,7 +17,6 @@ export default async function TenantsPage() {
     <>
       <TopBar title="Tenant Management" />
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {/* Platform KPIs */}
         {overview && (
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {[
@@ -35,7 +33,6 @@ export default async function TenantsPage() {
             ))}
           </div>
         )}
-
         <TenantsList businesses={businesses} />
       </div>
     </>

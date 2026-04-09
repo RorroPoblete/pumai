@@ -1,8 +1,7 @@
-import Sidebar from "@/frontend/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/Sidebar";
 import { getBusinessSummary, getActiveBusiness, getAvailableTenants } from "@/backend/queries";
-import { auth } from "@/auth";
+import { getSessionContext } from "@/backend/auth-utils";
 
-// Force dynamic - depends on cookies for tenant switching
 export const dynamic = "force-dynamic";
 
 export default async function DashboardLayout({
@@ -10,9 +9,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  const user = session?.user as { role?: string } | undefined;
-  const isSuperadmin = user?.role === "SUPERADMIN";
+  const ctx = await getSessionContext();
+  const isSuperadmin = ctx?.role === "SUPERADMIN";
 
   const [summary, tenants, activeBusiness] = await Promise.all([
     getBusinessSummary(),

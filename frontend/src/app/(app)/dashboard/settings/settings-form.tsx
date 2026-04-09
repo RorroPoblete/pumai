@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import TopBar from "@/frontend/components/dashboard/TopBar";
+import TopBar from "@/components/dashboard/TopBar";
 
 interface SettingsFormProps {
   initialBusinessName: string;

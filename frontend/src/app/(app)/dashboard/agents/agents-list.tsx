@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import Link from "next/link";
-import TopBar from "@/frontend/components/dashboard/TopBar";
+import TopBar from "@/components/dashboard/TopBar";
 import { toggleAgentStatus } from "@/backend/actions";
 
 interface Agent {

@@ -1,36 +1,17 @@
 "use server";
 
 import { prisma } from "./prisma";
-import { auth } from "@/auth";
-import { cookies } from "next/headers";
+import { requireAuth, getActiveBusinessId } from "./auth-utils";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { AgentTone } from "@/generated/prisma/enums";
 
 // ─── Helpers ───
 
-async function getSessionUser() {
-  const session = await auth();
-  const user = session?.user as Record<string, unknown> | undefined;
-  if (!user?.id) throw new Error("Not authenticated");
-  return {
-    userId: user.id as string,
-    role: (user.role as string) ?? "USER",
-    activeBusinessId: (user.activeBusinessId as string) ?? null,
-    businessRole: (user.businessRole as string) ?? null,
-  };
-}
-
 async function getBusinessId(): Promise<string> {
-  const ctx = await getSessionUser();
-  if (ctx.activeBusinessId) return ctx.activeBusinessId;
-  // Fallback: legacy 1:1
-  const business = await prisma.business.findUnique({
-    where: { userId: ctx.userId },
-    select: { id: true },
-  });
-  if (!business) throw new Error("No business found");
-  return business.id;
+  const id = await getActiveBusinessId();
+  if (!id) throw new Error("No active business");
+  return id;
 }
 
 // ─── Onboarding ───
@@ -43,12 +24,10 @@ export async function completeOnboarding(data: {
   agentTone: string;
   phone: string;
 }) {
-  const ctx = await getSessionUser();
+  const ctx = await requireAuth();
 
   const existing = await prisma.business.findUnique({ where: { userId: ctx.userId } });
-  if (existing) {
-    redirect("/dashboard");
-  }
+  if (existing) redirect("/dashboard");
 
   await prisma.$transaction(async (tx) => {
     const business = await tx.business.create({
@@ -61,7 +40,6 @@ export async function completeOnboarding(data: {
       },
     });
 
-    // Create owner membership
     await tx.businessMember.create({
       data: { userId: ctx.userId, businessId: business.id, role: "OWNER" },
     });
@@ -134,11 +112,9 @@ export async function toggleAgentStatus(id: string) {
   });
   if (!agent) throw new Error("Agent not found");
 
-  const newStatus = agent.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
-
   await prisma.agent.update({
     where: { id, businessId },
-    data: { status: newStatus },
+    data: { status: agent.status === "ACTIVE" ? "PAUSED" : "ACTIVE" },
   });
 
   revalidatePath("/dashboard/agents");
@@ -148,41 +124,8 @@ export async function toggleAgentStatus(id: string) {
 export async function deleteAgent(id: string) {
   const businessId = await getBusinessId();
 
-  await prisma.agent.delete({
-    where: { id, businessId },
-  });
+  await prisma.agent.delete({ where: { id, businessId } });
 
   revalidatePath("/dashboard/agents");
   redirect("/dashboard/agents");
 }
-
-// ─── Tenant Switching ───
-
-export async function switchTenant(businessId: string) {
-  const ctx = await getSessionUser();
-
-  // Superadmin can switch to any business
-  if (ctx.role === "SUPERADMIN") {
-    const biz = await prisma.business.findUnique({ where: { id: businessId }, select: { id: true } });
-    if (!biz) throw new Error("Business not found");
-  } else {
-    // Regular users can only switch to businesses they're a member of
-    const membership = await prisma.businessMember.findUnique({
-      where: { userId_businessId: { userId: ctx.userId, businessId } },
-    });
-    if (!membership) throw new Error("Not a member of this business");
-  }
-
-  const cookieStore = await cookies();
-  cookieStore.set("pumai_active_business", businessId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-  });
-
-  revalidatePath("/dashboard", "layout");
-  redirect("/dashboard");
-}
-

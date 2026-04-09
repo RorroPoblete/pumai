@@ -1,19 +1,10 @@
 "use server";
 
 import { prisma } from "./prisma";
-import { auth } from "@/auth";
+import { requireSuperadmin } from "./auth-utils";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
-async function requireSuperadmin(): Promise<string> {
-  const session = await auth();
-  const user = session?.user as Record<string, unknown> | undefined;
-  if (!user?.id || user.role !== "SUPERADMIN") {
-    throw new Error("Unauthorized: superadmin required");
-  }
-  return user.id as string;
-}
 
 export async function createTenant(formData: FormData) {
   await requireSuperadmin();
