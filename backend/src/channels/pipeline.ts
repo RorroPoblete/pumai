@@ -14,6 +14,8 @@ const SENTIMENT_MAP = {
   negative: "NEGATIVE",
 } as const;
 
+const CONTEXT_WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours
+
 function parseCredentials(raw: string): Record<string, string> {
   try {
     return JSON.parse(raw);
@@ -73,12 +75,27 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
       lastMessageAt: new Date(),
       ...(senderName ? { contactName: senderName } : {}),
     },
-    include: {
-      messages: { orderBy: { createdAt: "asc" }, take: 20 },
-    },
   });
 
-  // 5. Save inbound message
+  // 5. Load recent messages for context (last 2 hours, max 30)
+  const contextCutoff = new Date(Date.now() - CONTEXT_WINDOW_MS);
+
+  const recentMessages = await prisma.message.findMany({
+    where: {
+      conversationId: conversation.id,
+      createdAt: { gte: contextCutoff },
+    },
+    orderBy: { createdAt: "asc" },
+    take: 30,
+  });
+
+  // Also check if there are older messages (for context hint to AI)
+  const totalMessages = await prisma.message.count({
+    where: { conversationId: conversation.id },
+  });
+  const hasOlderHistory = totalMessages > recentMessages.length;
+
+  // 6. Save inbound message
   await prisma.$transaction([
     prisma.message.create({
       data: {
@@ -94,10 +111,10 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
     }),
   ]);
 
-  // 6. Skip AI if human takeover is active
+  // 7. Skip AI if human takeover is active
   if (!conversation.aiEnabled) return;
 
-  // 7. Generate AI response
+  // 8. Build conversation history for AI
   const { agent } = channelConfig;
   const systemContent = buildSystemPrompt({
     agentName: agent.name,
@@ -106,17 +123,25 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
     knowledgeBase: agent.knowledgeBase ?? "",
   });
 
-  const history = conversation.messages.map((m) => ({
-    role: m.role.toLowerCase(),
-    content: m.content,
-  }));
+  const history: { role: string; content: string }[] = [];
+
+  if (hasOlderHistory) {
+    history.push({
+      role: "system",
+      content: `This is a returning customer${senderName ? ` (${senderName})` : ""}. There are older messages in this conversation beyond the recent window. Continue naturally — don't re-introduce yourself or ask for information they already provided.`,
+    });
+  }
+
+  for (const m of recentMessages) {
+    history.push({ role: m.role.toLowerCase(), content: m.content });
+  }
   history.push({ role: "user", content: message.messageText });
 
   const aiResponse = await getChatResponse(systemContent, history);
   const isEscalated = aiResponse.includes("[ESCALATE]");
   const cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
 
-  // 7. Send outbound via channel adapter
+  // 9. Send outbound via channel adapter
   const adapter = getAdapter(message.channel);
   const configData: ChannelConfigData = {
     credentials,
@@ -128,7 +153,7 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
     text: cleanResponse,
   });
 
-  // 8. Save outbound message + update status
+  // 10. Save outbound message + update status
   await prisma.$transaction([
     prisma.message.create({
       data: {
@@ -148,7 +173,7 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
     }),
   ]);
 
-  // 9. Async sentiment analysis (fire-and-forget)
+  // 11. Async sentiment analysis (fire-and-forget)
   analyzeConversation([...history, { role: "agent", content: cleanResponse }])
     .then(async (meta) => {
       await prisma.conversation.update({
