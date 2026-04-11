@@ -42,6 +42,13 @@ export const addUserSchema = z.object({
   role: z.enum(["OWNER", "ADMIN", "MEMBER"]).default("MEMBER"),
 });
 
+export const channelConfigSchema = z.object({
+  channel: z.enum(["MESSENGER", "INSTAGRAM", "WEBCHAT", "WHATSAPP", "SMS"]),
+  externalId: z.string().min(1, "External ID is required"),
+  credentials: z.string().min(1, "Credentials are required"),
+  agentId: z.string().min(1, "Agent is required"),
+});
+
 export const chatSchema = z.object({
   messages: z.array(z.object({
     role: z.string(),

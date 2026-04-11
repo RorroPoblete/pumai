@@ -137,3 +137,64 @@ export async function deleteUser(userId: string) {
   await prisma.user.delete({ where: { id: userId } });
   revalidatePath("/dashboard/tenants");
 }
+
+// ─── Platform Config ───
+
+export async function savePlatformConfigs(configs: { key: string; value: string }[]) {
+  await requireSuperadmin();
+
+  await prisma.$transaction(
+    configs.map((c) =>
+      prisma.platformConfig.upsert({
+        where: { key: c.key },
+        create: { key: c.key, value: c.value },
+        update: { value: c.value },
+      }),
+    ),
+  );
+
+  revalidatePath("/dashboard/tenants/platform");
+}
+
+// ─── Admin Channel Management ───
+
+type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP" | "SMS";
+
+export async function adminConnectChannel(
+  businessId: string,
+  channel: string,
+  externalId: string,
+  credentials: string,
+  agentId: string,
+) {
+  await requireSuperadmin();
+
+  const ch = channel as ChannelEnum;
+  await prisma.channelConfig.upsert({
+    where: { businessId_channel: { businessId, channel: ch } },
+    create: { businessId, channel: ch, externalId, credentials, agentId, active: true },
+    update: { externalId, credentials, agentId, active: true },
+  });
+
+  revalidatePath("/dashboard/tenants/platform");
+}
+
+export async function adminDisconnectChannel(channelConfigId: string) {
+  await requireSuperadmin();
+  await prisma.channelConfig.delete({ where: { id: channelConfigId } });
+  revalidatePath("/dashboard/tenants/platform");
+}
+
+export async function adminToggleChannel(channelConfigId: string) {
+  await requireSuperadmin();
+
+  const config = await prisma.channelConfig.findUnique({ where: { id: channelConfigId } });
+  if (!config) throw new Error("Channel config not found");
+
+  await prisma.channelConfig.update({
+    where: { id: channelConfigId },
+    data: { active: !config.active },
+  });
+
+  revalidatePath("/dashboard/tenants/platform");
+}

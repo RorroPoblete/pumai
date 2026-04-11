@@ -7,6 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── Platform Config (global settings, managed by superadmin) ───
+
+model PlatformConfig {
+  key   String @id
+  value String @db.Text
+}
+
 // ─── Auth ───
 
 enum GlobalRole {
@@ -76,11 +83,12 @@ model Business {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  members       BusinessMember[]
-  invitations   Invitation[]
-  agents        Agent[]
-  conversations Conversation[]
-  smsNumbers    SmsNumber[]
+  members        BusinessMember[]
+  invitations    Invitation[]
+  agents         Agent[]
+  conversations  Conversation[]
+  smsNumbers     SmsNumber[]
+  channelConfigs ChannelConfig[]
 }
 
 // ─── Multi-tenancy ───
@@ -142,7 +150,8 @@ model Agent {
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  conversations Conversation[]
+  conversations  Conversation[]
+  channelConfigs ChannelConfig[]
 }
 
 enum AgentTone {
@@ -172,27 +181,60 @@ model SmsNumber {
   conversations Conversation[]
 }
 
+// ─── Channels ───
+
+enum Channel {
+  MESSENGER
+  INSTAGRAM
+  WEBCHAT
+  WHATSAPP
+  SMS
+}
+
+model ChannelConfig {
+  id          String   @id @default(cuid())
+  channel     Channel
+  active      Boolean  @default(true)
+  externalId  String
+  credentials String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agentId    String
+  agent      Agent    @relation(fields: [agentId], references: [id])
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, channel])
+  @@index([channel, externalId])
+}
+
 // ─── Conversations ───
 
 model Conversation {
-  id               String             @id @default(cuid())
-  contactName      String?
-  contactPhone     String
-  status           ConversationStatus @default(ACTIVE)
-  sentiment        Sentiment          @default(NEUTRAL)
-  messagesCount    Int                @default(0)
-  lastMessageAt    DateTime           @default(now())
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  id                String             @id @default(cuid())
+  channel           Channel            @default(SMS)
+  contactName       String?
+  contactPhone      String?
+  contactExternalId String?
+  status            ConversationStatus @default(ACTIVE)
+  sentiment         Sentiment          @default(NEUTRAL)
+  messagesCount     Int                @default(0)
+  lastMessageAt     DateTime           @default(now())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
-  businessId   String
-  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  agentId      String
-  agent        Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  smsNumberId  String?
-  smsNumber    SmsNumber? @relation(fields: [smsNumberId], references: [id])
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  smsNumberId String?
+  smsNumber   SmsNumber? @relation(fields: [smsNumberId], references: [id])
 
   messages Message[]
+
+  @@unique([businessId, channel, contactExternalId])
+  @@index([businessId, channel, status])
 }
 
 enum ConversationStatus {
@@ -210,11 +252,11 @@ enum Sentiment {
 // ─── Messages ───
 
 model Message {
-  id        String      @id @default(cuid())
-  content   String      @db.Text
-  role      MessageRole
-  smsId     String?
-  createdAt DateTime    @default(now())
+  id            String      @id @default(cuid())
+  content       String      @db.Text
+  role          MessageRole
+  externalMsgId String?
+  createdAt     DateTime    @default(now())
 
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)

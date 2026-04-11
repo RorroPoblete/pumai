@@ -59,23 +59,29 @@
 - [x] Response generation pipeline (`lib/ai.ts`: buildSystemPrompt, streamChatResponse, analyzeConversation)
 - [x] Multilingual support (auto-detects language, responds in same language, language badge in UI)
 
-### Phase 7: WhatsApp Integration ⬜
-- [ ] WhatsApp Business API setup (via 360dialog or Twilio)
-- [ ] Inbound message webhook handler
-- [ ] Rich media support (images, buttons, links, catalogues)
-- [ ] Service conversations (user-initiated, free 24hr window)
-- [ ] Marketing outbound (~US$0.04/msg, Rest of APAC rate)
-- [ ] WhatsApp Business profile management
-- [ ] Connect AI engine to WhatsApp inbound pipeline
+### Phase 7: Facebook Messenger Integration ✅
+- [x] Meta Graph API setup (Facebook Page)
+- [x] Inbound message webhook handler (Messenger Platform)
+- [x] Multi-channel architecture (Adapter + Pipeline pattern)
+- [x] ChannelConfig model (per-business, per-channel credentials + default agent)
+- [x] Webhook endpoint with HMAC-SHA256 signature verification
+- [x] Conversation upsert by contactExternalId (PSID)
+- [x] Message deduplication by externalMsgId
+- [x] Connect AI engine to Messenger inbound pipeline
+- [x] Superadmin Platform Settings (Meta credentials + channel management)
+- [x] Dashboard channel management UI + conversation channel badges
+- [ ] Rich templates (buttons, carousels, receipts)
+- [ ] Persistent menu configuration
+- [ ] Sponsored messages / marketing outbound
 
-### Phase 8: SMS Integration (Cellcast) ⬜
-- [ ] Cellcast API integration (carrier directo: Telstra, Optus, Vodafone)
-- [ ] Inbound SMS webhook handler
-- [ ] Outbound SMS sending (2.8c AUD/SMS at 100K+ vol)
-- [ ] Virtual number provisioning (AU dedicated numbers, A$15/mo)
-- [ ] Delivery status tracking
-- [ ] Conversation routing (agent selection)
-- [ ] Connect AI engine to SMS inbound pipeline
+### Phase 8: Instagram DMs Integration ⬜
+- [ ] Meta Graph API setup (Instagram Business Account)
+- [ ] Inbound DM webhook handler (Instagram Messaging API)
+- [ ] Auto-reply to story mentions and comments
+- [ ] Rich media support (images, quick replies)
+- [ ] Product tag integration (Instagram Shopping)
+- [ ] 24-hour messaging window compliance
+- [ ] Connect AI engine to Instagram inbound pipeline
 
 ### Phase 9: Webchat Integration ⬜
 - [ ] Embeddable chat widget (JS snippet for any website)
@@ -87,23 +93,23 @@
 - [ ] Offline mode (collect email, respond async)
 - [ ] Connect AI engine to webchat pipeline
 
-### Phase 10: Instagram DMs Integration ⬜
-- [ ] Meta Graph API setup (Instagram Business Account)
-- [ ] Inbound DM webhook handler (Instagram Messaging API)
-- [ ] Auto-reply to story mentions and comments
-- [ ] Rich media support (images, quick replies)
-- [ ] Product tag integration (Instagram Shopping)
-- [ ] 24-hour messaging window compliance
-- [ ] Connect AI engine to Instagram inbound pipeline
+### Phase 10: WhatsApp Integration ⬜
+- [ ] WhatsApp Business API setup (via 360dialog or Twilio)
+- [ ] Inbound message webhook handler
+- [ ] Rich media support (images, buttons, links, catalogues)
+- [ ] Service conversations (user-initiated, free 24hr window)
+- [ ] Marketing outbound (~US$0.04/msg, Rest of APAC rate)
+- [ ] WhatsApp Business profile management
+- [ ] Connect AI engine to WhatsApp inbound pipeline
 
-### Phase 11: Facebook Messenger Integration ⬜
-- [ ] Meta Graph API setup (Facebook Page)
-- [ ] Inbound message webhook handler (Messenger Platform)
-- [ ] Rich templates (buttons, carousels, receipts)
-- [ ] Persistent menu configuration
-- [ ] Customer matching (phone number to Messenger ID)
-- [ ] Sponsored messages / marketing outbound
-- [ ] Connect AI engine to Messenger inbound pipeline
+### Phase 11: SMS Integration (Cellcast) ⬜
+- [ ] Cellcast API integration (carrier directo: Telstra, Optus, Vodafone)
+- [ ] Inbound SMS webhook handler
+- [ ] Outbound SMS sending (2.8c AUD/SMS at 100K+ vol)
+- [ ] Virtual number provisioning (AU dedicated numbers, A$15/mo)
+- [ ] Delivery status tracking
+- [ ] Conversation routing (agent selection)
+- [ ] Connect AI engine to SMS inbound pipeline
 
 ### Phase 12: Integrations ⬜
 - [ ] HubSpot CRM sync

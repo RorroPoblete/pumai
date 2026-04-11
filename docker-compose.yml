@@ -49,6 +49,8 @@ services:
       AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID:-}
       AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      META_APP_SECRET: ${META_APP_SECRET:-}
+      META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN:-pumai_webhook_verify_2024}
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       AUTH_TRUST_HOST: "true"
     depends_on:

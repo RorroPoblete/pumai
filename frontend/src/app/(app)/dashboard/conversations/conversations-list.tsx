@@ -14,6 +14,7 @@ interface Conversation {
   id: string;
   contact: string;
   phone: string;
+  channel: string;
   agentName: string;
   status: "active" | "resolved" | "escalated";
   lastMessage: string;
@@ -37,11 +38,22 @@ const sentimentDot = {
   negative: "bg-[#ef4444]",
 };
 
-export default function ConversationsList({ conversations }: { conversations: Conversation[] }) {
+const channelLabel: Record<string, { label: string; color: string }> = {
+  messenger: { label: "Messenger", color: "bg-[rgba(66,133,244,0.12)] text-[#4285F4]" },
+  instagram: { label: "Instagram", color: "bg-[rgba(225,48,108,0.12)] text-[#E1306C]" },
+  webchat:   { label: "Webchat",   color: "bg-[rgba(139,92,246,0.12)] text-[#8B5CF6]" },
+  whatsapp:  { label: "WhatsApp",  color: "bg-[rgba(37,211,102,0.12)] text-[#25D366]" },
+  sms:       { label: "SMS",       color: "bg-[rgba(245,158,11,0.12)] text-[#f59e0b]" },
+};
+
+export default function ConversationsList({ conversations: initialConversations }: { conversations: Conversation[] }) {
+  const [conversations, setConversations] = useState(initialConversations);
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const perPage = 20;
 
@@ -57,7 +69,44 @@ export default function ConversationsList({ conversations }: { conversations: Co
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [selectedId]);
+  }, [selectedId, conversations]);
+
+  async function handleReply() {
+    if (!selectedId || !replyText.trim() || sending) return;
+    setSending(true);
+
+    try {
+      const res = await fetch("/api/conversations/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId: selectedId, message: replyText.trim() }),
+      });
+
+      if (res.ok) {
+        const now = new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" });
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === selectedId
+              ? {
+                  ...c,
+                  messages: c.messages + 1,
+                  lastMessage: replyText.trim(),
+                  chatMessages: [
+                    ...c.chatMessages,
+                    { id: `tmp-${Date.now()}`, content: replyText.trim(), role: "agent" as const, createdAt: now },
+                  ],
+                }
+              : c,
+          ),
+        );
+        setReplyText("");
+      }
+    } catch {
+      // silent
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <>
@@ -115,7 +164,12 @@ export default function ConversationsList({ conversations }: { conversations: Co
                   <span className="text-[10px] text-[var(--text-muted)] flex-shrink-0 ml-2">{c.updatedAt}</span>
                 </div>
                 <p className="text-xs text-[var(--text-muted)] truncate pl-4">{c.lastMessage}</p>
-                <div className="flex items-center gap-3 mt-1.5 pl-4 text-[10px] text-[var(--text-muted)]">
+                <div className="flex items-center gap-2 mt-1.5 pl-4 text-[10px] text-[var(--text-muted)]">
+                  {channelLabel[c.channel] && (
+                    <span className={`px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider text-[8px] ${channelLabel[c.channel].color}`}>
+                      {channelLabel[c.channel].label}
+                    </span>
+                  )}
                   <span>{c.agentName}</span>
                   <span>{c.messages} msgs</span>
                 </div>
@@ -163,7 +217,12 @@ export default function ConversationsList({ conversations }: { conversations: Co
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
-                  <span>{selected.phone}</span>
+                  {channelLabel[selected.channel] && (
+                    <span className={`px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider text-[9px] ${channelLabel[selected.channel].color}`}>
+                      {channelLabel[selected.channel].label}
+                    </span>
+                  )}
+                  {selected.phone && <span>{selected.phone}</span>}
                   <span>Agent: {selected.agentName}</span>
                 </div>
               </div>
@@ -195,6 +254,30 @@ export default function ConversationsList({ conversations }: { conversations: Co
                 </div>
               ))}
               <div ref={messagesEndRef} />
+            </div>
+
+            {/* Reply input */}
+            <div className="px-6 py-4 border-t border-[var(--border-subtle)]">
+              <form
+                onSubmit={(e) => { e.preventDefault(); handleReply(); }}
+                className="flex items-center gap-3"
+              >
+                <input
+                  type="text"
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Reply as human..."
+                  disabled={sending}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] transition-colors disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={sending || !replyText.trim()}
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium gradient-btn text-white hover:opacity-90 transition-all disabled:opacity-40"
+                >
+                  {sending ? "Sending..." : "Send"}
+                </button>
+              </form>
             </div>
           </div>
         ) : (

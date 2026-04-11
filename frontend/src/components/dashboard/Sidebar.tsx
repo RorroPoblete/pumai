@@ -45,6 +45,15 @@ const navItems = [
     ),
   },
   {
+    label: "Channels",
+    href: "/dashboard/channels",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+    ),
+  },
+  {
     label: "Settings",
     href: "/dashboard/settings",
     icon: (
@@ -56,15 +65,26 @@ const navItems = [
   },
 ];
 
-const adminNavItem = {
-  label: "Tenants",
-  href: "/dashboard/tenants",
-  icon: (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-    </svg>
-  ),
-};
+const adminNavItems = [
+  {
+    label: "Tenants",
+    href: "/dashboard/tenants",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+  },
+  {
+    label: "Platform",
+    href: "/dashboard/tenants/platform",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+      </svg>
+    ),
+  },
+];
 
 interface Tenant {
   id: string;
@@ -134,22 +154,25 @@ export default function Sidebar({
           </Link>
         ))}
 
-        {/* Superadmin: Tenants */}
+        {/* Superadmin */}
         {isSuperadmin && (
           <>
             <div className="pt-3 mt-3 border-t border-[var(--border-subtle)]" />
-            <Link
-              href={adminNavItem.href}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                isActive(adminNavItem.href)
-                  ? "bg-[rgba(239,68,68,0.1)] text-[var(--text-primary)]"
-                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-input)]"
-              }`}
-            >
-              <span className={isActive(adminNavItem.href) ? "text-[#ef4444]" : ""}>{adminNavItem.icon}</span>
-              {adminNavItem.label}
-            </Link>
+            {adminNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  isActive(item.href)
+                    ? "bg-[rgba(239,68,68,0.1)] text-[var(--text-primary)]"
+                    : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-input)]"
+                }`}
+              >
+                <span className={isActive(item.href) ? "text-[#ef4444]" : ""}>{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
           </>
         )}
       </nav>

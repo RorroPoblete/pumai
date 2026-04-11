@@ -185,3 +185,73 @@ export async function getAdminBusinesses(): Promise<AdminBusiness[]> {
   }));
 }
 
+// ─── Platform Config ───
+
+export async function getPlatformConfigs(): Promise<Record<string, string>> {
+  await requireSuperadmin();
+  const configs = await prisma.platformConfig.findMany();
+  return Object.fromEntries(configs.map((c) => [c.key, c.value]));
+}
+
+// ─── Admin Channel Configs (all tenants) ───
+
+export interface AdminChannelView {
+  id: string;
+  channel: string;
+  active: boolean;
+  externalId: string;
+  agentId: string;
+  agentName: string;
+  businessId: string;
+  businessName: string;
+}
+
+export async function getAdminChannelConfigs(): Promise<AdminChannelView[]> {
+  await requireSuperadmin();
+
+  const configs = await prisma.channelConfig.findMany({
+    include: {
+      agent: { select: { name: true } },
+      business: { select: { name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return configs.map((c) => ({
+    id: c.id,
+    channel: c.channel,
+    active: c.active,
+    externalId: c.externalId,
+    agentId: c.agentId,
+    agentName: c.agent.name,
+    businessId: c.businessId,
+    businessName: c.business.name,
+  }));
+}
+
+export interface AdminBusinessAgent {
+  businessId: string;
+  businessName: string;
+  agents: { id: string; name: string }[];
+}
+
+export async function getAdminBusinessesWithAgents(): Promise<AdminBusinessAgent[]> {
+  await requireSuperadmin();
+
+  const businesses = await prisma.business.findMany({
+    include: {
+      agents: {
+        where: { status: "ACTIVE" },
+        select: { id: true, name: true },
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  return businesses.map((b) => ({
+    businessId: b.id,
+    businessName: b.name,
+    agents: b.agents,
+  }));
+}
+

@@ -77,6 +77,7 @@ export interface DashboardConversation {
   id: string;
   contact: string;
   phone: string;
+  channel: string;
   agentId: string;
   agentName: string;
   status: "active" | "resolved" | "escalated";
@@ -210,7 +211,8 @@ export async function getDashboardOverview(): Promise<DashboardOverviewData | nu
   const conversations: DashboardConversation[] = recentConversations.map((c) => ({
     id: c.id,
     contact: c.contactName ?? "Unknown",
-    phone: c.contactPhone,
+    phone: c.contactPhone ?? "",
+    channel: c.channel.toLowerCase(),
     agentId: c.agentId,
     agentName: c.agent.name,
     status: c.status.toLowerCase() as DashboardConversation["status"],
@@ -290,7 +292,8 @@ export async function getConversations(): Promise<ConversationWithMessages[]> {
   return rows.map((c) => ({
     id: c.id,
     contact: c.contactName ?? "Unknown",
-    phone: c.contactPhone,
+    phone: c.contactPhone ?? "",
+    channel: c.channel.toLowerCase(),
     agentId: c.agentId,
     agentName: c.agent.name,
     status: c.status.toLowerCase() as DashboardConversation["status"],

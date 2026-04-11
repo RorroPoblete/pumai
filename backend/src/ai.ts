@@ -35,9 +35,9 @@ export function buildSystemPrompt(ctx: AgentContext): string {
   };
 
   return [
-    `You are ${ctx.agentName || "an AI assistant"} — an SMS/WhatsApp agent for an Australian business.`,
+    `You are ${ctx.agentName || "an AI assistant"} — a customer service agent for an Australian business.`,
     toneMap[ctx.tone] || toneMap.PROFESSIONAL,
-    "Keep responses concise (1-3 sentences max) since this is SMS/chat. Use Australian English (favourite, colour, organisation).",
+    "Keep responses concise (1-3 sentences max) since this is messaging/chat. Use Australian English (favourite, colour, organisation).",
     "If the customer speaks in a language other than English, respond in their language while maintaining the same tone and role.",
     "If the customer shows signs of needing human assistance (anger, complex issues beyond your scope, explicit request for a person, legal threats, emergencies), clearly state you are transferring them and include the phrase '[ESCALATE]' at the end of your response.",
     ctx.systemPrompt && `\n--- Agent Instructions ---\n${ctx.systemPrompt}`,
@@ -66,6 +66,27 @@ export async function streamChatResponse(
       })),
     ],
   });
+}
+
+// ─── Non-Streaming Chat Response (for webhook pipeline) ───
+
+export async function getChatResponse(
+  systemContent: string,
+  messages: { role: string; content: string }[],
+): Promise<string> {
+  const openai = getClient();
+  const res = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    max_tokens: 400,
+    messages: [
+      { role: "system", content: systemContent },
+      ...messages.map((m) => ({
+        role: (m.role === "agent" ? "assistant" : "user") as "assistant" | "user",
+        content: m.content,
+      })),
+    ],
+  });
+  return res.choices[0]?.message?.content?.trim() ?? "";
 }
 
 // ─── Sentiment & Metadata Analysis ───
