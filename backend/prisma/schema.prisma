@@ -219,6 +219,7 @@ model Conversation {
   contactExternalId String?
   status            ConversationStatus @default(ACTIVE)
   sentiment         Sentiment          @default(NEUTRAL)
+  aiEnabled         Boolean            @default(true)
   messagesCount     Int                @default(0)
   lastMessageAt     DateTime           @default(now())
   createdAt         DateTime           @default(now())

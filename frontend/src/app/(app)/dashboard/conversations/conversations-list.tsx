@@ -15,6 +15,7 @@ interface Conversation {
   contact: string;
   phone: string;
   channel: string;
+  aiEnabled: boolean;
   agentName: string;
   status: "active" | "resolved" | "escalated";
   lastMessage: string;
@@ -70,6 +71,25 @@ export default function ConversationsList({ conversations: initialConversations 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [selectedId, conversations]);
+
+  async function handleToggleAi() {
+    if (!selectedId) return;
+    try {
+      const res = await fetch("/api/conversations/toggle-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId: selectedId }),
+      });
+      if (res.ok) {
+        const { aiEnabled } = (await res.json()) as { aiEnabled: boolean };
+        setConversations((prev) =>
+          prev.map((c) => (c.id === selectedId ? { ...c, aiEnabled } : c)),
+        );
+      }
+    } catch {
+      // silent
+    }
+  }
 
   async function handleReply() {
     if (!selectedId || !replyText.trim() || sending) return;
@@ -226,7 +246,21 @@ export default function ConversationsList({ conversations: initialConversations 
                   <span>Agent: {selected.agentName}</span>
                 </div>
               </div>
-              <div className={`w-2.5 h-2.5 rounded-full ${sentimentDot[selected.sentiment]}`} />
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleToggleAi}
+                  className="flex items-center gap-2 group"
+                  title={selected.aiEnabled ? "AI is responding — click to take over" : "You are responding — click to enable AI"}
+                >
+                  <span className={`text-[10px] font-semibold transition-colors ${selected.aiEnabled ? "text-[#22c55e]" : "text-[#f59e0b]"}`}>
+                    {selected.aiEnabled ? "AI" : "Human"}
+                  </span>
+                  <div className={`relative w-9 h-5 rounded-full transition-colors ${selected.aiEnabled ? "bg-[#22c55e]" : "bg-[#f59e0b]"}`}>
+                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${selected.aiEnabled ? "left-[18px]" : "left-0.5"}`} />
+                  </div>
+                </button>
+                <div className={`w-2.5 h-2.5 rounded-full ${sentimentDot[selected.sentiment]}`} />
+              </div>
             </div>
 
             {/* Messages */}

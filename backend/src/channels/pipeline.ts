@@ -94,7 +94,10 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
     }),
   ]);
 
-  // 6. Generate AI response
+  // 6. Skip AI if human takeover is active
+  if (!conversation.aiEnabled) return;
+
+  // 7. Generate AI response
   const { agent } = channelConfig;
   const systemContent = buildSystemPrompt({
     agentName: agent.name,

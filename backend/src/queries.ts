@@ -78,6 +78,7 @@ export interface DashboardConversation {
   contact: string;
   phone: string;
   channel: string;
+  aiEnabled: boolean;
   agentId: string;
   agentName: string;
   status: "active" | "resolved" | "escalated";
@@ -213,6 +214,7 @@ export async function getDashboardOverview(): Promise<DashboardOverviewData | nu
     contact: c.contactName ?? "Unknown",
     phone: c.contactPhone ?? "",
     channel: c.channel.toLowerCase(),
+    aiEnabled: c.aiEnabled,
     agentId: c.agentId,
     agentName: c.agent.name,
     status: c.status.toLowerCase() as DashboardConversation["status"],
@@ -294,6 +296,7 @@ export async function getConversations(): Promise<ConversationWithMessages[]> {
     contact: c.contactName ?? "Unknown",
     phone: c.contactPhone ?? "",
     channel: c.channel.toLowerCase(),
+    aiEnabled: c.aiEnabled,
     agentId: c.agentId,
     agentName: c.agent.name,
     status: c.status.toLowerCase() as DashboardConversation["status"],
