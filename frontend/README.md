@@ -1,6 +1,6 @@
-# PumAI — SMS & WhatsApp AI Agents for Australian Businesses
+# PumAI — Omnichannel AI Agents for Australian Businesses
 
-AI-powered conversational agents that automate sales, support, and marketing for Australian SMEs via SMS (Cellcast) and WhatsApp Business API, powered by GPT-4o Mini.
+AI-powered conversational agents that automate sales, support, and marketing for Australian SMEs via Webchat, WhatsApp, Instagram DMs, and Facebook Messenger — powered by GPT-4o Mini.
 
 ## Tech Stack
 
@@ -16,7 +16,7 @@ AI-powered conversational agents that automate sales, support, and marketing for
 ```
 app/
 ├── prisma/
-│   ├── schema.prisma        # Data models (User, Business, Agent, Conversation, Message, SmsNumber)
+│   ├── schema.prisma        # Data models (User, Business, Agent, Conversation, Message, ChannelConfig)
 │   └── seed.ts              # Seed data for development
 ├── src/
 │   ├── app/
@@ -24,7 +24,7 @@ app/
 │   │   ├── layout.tsx        # Root layout
 │   │   ├── (auth)/           # Auth pages (login, register, forgot-password)
 │   │   ├── (app)/
-│   │   │   ├── onboarding/   # 4-step onboarding flow
+│   │   │   ├── onboarding/   # 3-step onboarding flow
 │   │   │   └── dashboard/    # Main app (overview, conversations, agents, analytics, settings)
 │   │   └── api/auth/         # NextAuth API routes + registration endpoint
 │   ├── components/
@@ -32,7 +32,7 @@ app/
 │   │   ├── Hero.tsx          # Landing hero with particles
 │   │   ├── Features.tsx      # 6 feature cards (dual-channel, AI, integrations, etc.)
 │   │   ├── HowItWorks.tsx    # 4-step timeline
-│   │   ├── Pricing.tsx       # Dual-channel pricing (SMS + WhatsApp tabs, 6 plans)
+│   │   ├── Pricing.tsx       # Multi-channel pricing (Webchat, WhatsApp, Social tabs)
 │   │   ├── Industries.tsx    # 6 target verticals with priority badges
 │   │   ├── LogoCarousel.tsx  # Infinite scroll integration logos
 │   │   ├── CTA.tsx           # Final call-to-action
@@ -105,38 +105,43 @@ Open [http://localhost:3000](http://localhost:3000).
 - **User** — Auth, profile, onboarding state
 - **Business** — Company info, plan (Starter/Growth/Enterprise), timezone
 - **Agent** — AI agent config (name, tone, system prompt, knowledge base, status)
-- **SmsNumber** — Dedicated Australian virtual numbers
+- **ChannelConfig** — Per-business, per-channel credentials + default agent
 - **Conversation** — Contact threads with status + sentiment tracking
-- **Message** — Individual messages (user/agent/system roles)
+- **Message** — Individual messages with optional attachment + read receipts
 
-## Pricing Model (Dual-Channel)
+## Pricing Model (Multi-Channel)
 
-**SMS Plans** (universal reach, 98% open rate):
-- Starter: A$299/mo (300 convs)
-- Growth: A$649/mo (1,000 convs)
-- Enterprise: A$1,499+/mo (4,000 convs)
+**Webchat Plans** (embeddable AI chat widget):
+- Starter: A$99/mo (500 sessions)
+- Growth: A$249/mo (2,000 sessions)
+- Enterprise: A$599+/mo (unlimited)
 
 **WhatsApp Plans** (rich media, buttons, catalogues):
 - Starter: A$199/mo (500 convs)
 - Growth: A$449/mo (2,000 convs)
 - Enterprise: A$999+/mo (unlimited)
 
-**Omnichannel upgrade:** +A$200/mo for both channels.
+**Social Plans** (Instagram DMs + Facebook Messenger):
+- Starter: A$149/mo (500 convs)
+- Growth: A$399/mo (2,000 convs)
+- Enterprise: A$899+/mo (unlimited)
+
+**Omnichannel upgrade:** +A$300/mo for all four channels.
 
 ## App Flow
 
 1. **Landing page** (`/`) — Public marketing site with features, pricing, industries
 2. **Register** (`/register`) — Create account with email/password or Google
-3. **Onboarding** (`/onboarding`) — 4 steps: business info, industry, agent config, SMS number
+3. **Onboarding** (`/onboarding`) — 3 steps: business info, industry, agent config
 4. **Dashboard** (`/dashboard`) — KPIs, conversation chart, sentiment, recent conversations
    - `/dashboard/conversations` — All conversation threads
    - `/dashboard/agents` — Manage AI agents
+   - `/dashboard/channels` — Connect Messenger, Instagram, WhatsApp, Webchat
    - `/dashboard/analytics` — Performance metrics
    - `/dashboard/settings` — Account & business settings
 
 ## Compliance
 
-- Spam Act 2003 (consent, opt-out, sender ID)
 - Privacy Act 1988 (APPs, breach notification)
-- ACMA SMS Sender ID Register
 - AI disclosure to end users
+- Meta Platform policies (Instagram + Messenger)

@@ -1,6 +1,6 @@
 // ─── Multi-Channel Types ───
 
-export type Channel = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP" | "SMS";
+export type Channel = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP";
 
 export interface InboundMessage {
   channel: Channel;

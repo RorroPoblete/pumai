@@ -9,7 +9,6 @@ export default async function SettingsPage() {
       initialBusinessName={settings?.businessName ?? ""}
       initialEmail={settings?.email ?? ""}
       initialTimezone={settings?.timezone ?? "Australia/Sydney"}
-      smsNumbers={settings?.smsNumbers ?? []}
     />
   );
 }

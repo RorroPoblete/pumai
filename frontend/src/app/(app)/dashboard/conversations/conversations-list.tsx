@@ -45,7 +45,6 @@ const channelLabel: Record<string, { label: string; color: string }> = {
   instagram: { label: "Instagram", color: "bg-[rgba(225,48,108,0.12)] text-[#E1306C]" },
   webchat:   { label: "Webchat",   color: "bg-[rgba(139,92,246,0.12)] text-[#8B5CF6]" },
   whatsapp:  { label: "WhatsApp",  color: "bg-[rgba(37,211,102,0.12)] text-[#25D366]" },
-  sms:       { label: "SMS",       color: "bg-[rgba(245,158,11,0.12)] text-[#f59e0b]" },
 };
 
 export default function ConversationsList({ conversations: initialConversations }: { conversations: Conversation[] }) {

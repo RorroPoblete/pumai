@@ -87,7 +87,6 @@ model Business {
   invitations    Invitation[]
   agents         Agent[]
   conversations  Conversation[]
-  smsNumbers     SmsNumber[]
   channelConfigs ChannelConfig[]
 }
 
@@ -166,21 +165,6 @@ enum AgentStatus {
   DRAFT
 }
 
-// ─── SMS Numbers ───
-
-model SmsNumber {
-  id         String   @id @default(cuid())
-  number     String   @unique
-  provider   String   @default("160.com.au")
-  active     Boolean  @default(true)
-  createdAt  DateTime @default(now())
-
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  conversations Conversation[]
-}
-
 // ─── Channels ───
 
 enum Channel {
@@ -188,7 +172,6 @@ enum Channel {
   INSTAGRAM
   WEBCHAT
   WHATSAPP
-  SMS
 }
 
 model ChannelConfig {
@@ -213,7 +196,7 @@ model ChannelConfig {
 
 model Conversation {
   id                String             @id @default(cuid())
-  channel           Channel            @default(SMS)
+  channel           Channel            @default(WEBCHAT)
   contactName       String?
   contactPhone      String?
   contactExternalId String?
@@ -229,8 +212,6 @@ model Conversation {
   business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   agentId     String
   agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  smsNumberId String?
-  smsNumber   SmsNumber? @relation(fields: [smsNumberId], references: [id])
 
   messages Message[]
 

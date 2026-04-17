@@ -43,7 +43,7 @@ export const addUserSchema = z.object({
 });
 
 export const channelConfigSchema = z.object({
-  channel: z.enum(["MESSENGER", "INSTAGRAM", "WEBCHAT", "WHATSAPP", "SMS"]),
+  channel: z.enum(["MESSENGER", "INSTAGRAM", "WEBCHAT", "WHATSAPP"]),
   externalId: z.string().min(1, "External ID is required"),
   credentials: z.string().min(1, "Credentials are required"),
   agentId: z.string().min(1, "Agent is required"),

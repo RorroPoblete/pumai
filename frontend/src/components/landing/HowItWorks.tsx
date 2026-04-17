@@ -3,25 +3,25 @@ const steps = [
     step: "01",
     title: "Connect Your Business",
     description:
-      "Sign up and connect your existing tools — CRM, calendar, e-commerce. We set up your dedicated Australian SMS number and WhatsApp Business profile.",
+      "Sign up and connect your existing tools — CRM, calendar, e-commerce. We set up your WhatsApp Business profile and embed the webchat widget on your site.",
   },
   {
     step: "02",
     title: "Choose Your Channel",
     description:
-      "Pick SMS for universal reach, WhatsApp for rich conversations, or go Omnichannel for both. Each plan is tailored to how your customers prefer to communicate.",
+      "Pick Webchat for instant website support, WhatsApp for rich conversations, Instagram for brand engagement, Messenger for Page leads — or go Omnichannel for full coverage.",
   },
   {
     step: "03",
     title: "Configure Your AI Agent",
     description:
-      "Set your agent's personality, knowledge base, and conversation flows. Train it on your FAQs, products, and policies — the same AI powers both channels.",
+      "Set your agent's personality, knowledge base, and conversation flows. Train it on your FAQs, products, and policies — the same AI powers every channel.",
   },
   {
     step: "04",
     title: "Go Live & Optimise",
     description:
-      "Your AI agent starts handling conversations across SMS and WhatsApp — qualifying leads, booking appointments, and answering questions 24/7. Track everything from your dashboard.",
+      "Your AI agent starts handling conversations across Webchat, WhatsApp, Instagram, and Messenger — qualifying leads, booking appointments, and answering questions 24/7.",
   },
 ];
 

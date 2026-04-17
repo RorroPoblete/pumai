@@ -15,9 +15,9 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
       </svg>
     ),
-    title: "5 Channels, One Platform",
+    title: "4 Channels, One Platform",
     description:
-      "SMS, WhatsApp, Webchat, Instagram DMs, and Facebook Messenger — all managed from a single dashboard. Meet your customers wherever they are.",
+      "WhatsApp, Webchat, Instagram DMs, and Facebook Messenger — all managed from a single dashboard. Meet your customers wherever they are.",
   },
   {
     icon: (

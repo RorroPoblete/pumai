@@ -28,11 +28,12 @@ export default function AuthLayout({
 
           <h2 className="text-3xl font-extrabold text-[var(--text-primary)] leading-tight mb-4">
             Your AI sales & support team,{" "}
-            <span className="gradient-text-violet">via SMS</span>
+            <span className="gradient-text-violet">on every channel</span>
           </h2>
           <p className="text-[var(--text-secondary)] leading-relaxed">
             AI-powered conversational agents that handle sales, support, and
-            marketing for Australian businesses — 24/7 over SMS.
+            marketing for Australian businesses — 24/7 across WhatsApp, Webchat,
+            Instagram DMs, and Messenger.
           </p>
 
           <div className="mt-10 grid grid-cols-3 gap-6">

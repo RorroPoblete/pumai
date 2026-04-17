@@ -32,7 +32,7 @@ const industries = [
   {
     name: "E-commerce & Retail",
     description:
-      "Shipping notifications, post-purchase support, product recommendations. 21-50% SMS conversion.",
+      "Shipping notifications, post-purchase support, product recommendations on WhatsApp and webchat. High conversion on both.",
     icon: <EcommerceIcon />,
     priority: "medium",
   },

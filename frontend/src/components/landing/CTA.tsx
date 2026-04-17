@@ -14,7 +14,7 @@ export default function CTA() {
             <span className="gradient-text-violet">on autopilot?</span>
           </h2>
           <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-10">
-            Join Australian businesses already using AI-powered SMS &amp; WhatsApp agents
+            Join Australian businesses already using AI-powered Webchat, WhatsApp &amp; social agents
             to close more deals, support more customers, and work less.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

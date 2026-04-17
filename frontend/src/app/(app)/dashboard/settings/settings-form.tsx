@@ -8,14 +8,12 @@ interface SettingsFormProps {
   initialBusinessName: string;
   initialEmail: string;
   initialTimezone: string;
-  smsNumbers: { number: string; active: boolean }[];
 }
 
 export default function SettingsForm({
   initialBusinessName,
   initialEmail,
   initialTimezone,
-  smsNumbers,
 }: SettingsFormProps) {
   const [businessName, setBusinessName] = useState(initialBusinessName);
   const [timezone, setTimezone] = useState(initialTimezone);
@@ -119,31 +117,6 @@ export default function SettingsForm({
             >
               {pending ? "Updating..." : "Update Password"}
             </button>
-          </div>
-        </div>
-
-        {/* SMS Configuration */}
-        <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-6">
-          <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-5">SMS Configuration</h3>
-          <div className="space-y-4">
-            {smsNumbers.map((sms) => (
-              <div key={sms.number} className="flex items-center justify-between p-4 rounded-xl bg-[var(--bg-input)] border border-[var(--border-subtle)]">
-                <div>
-                  <div className="text-sm font-medium text-[var(--text-primary)]">Virtual Number</div>
-                  <div className="text-xs text-[var(--text-muted)]">{sms.number}</div>
-                </div>
-                <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ${
-                  sms.active ? "bg-[rgba(34,197,94,0.12)] text-[#22c55e]" : "bg-[rgba(113,113,122,0.12)] text-[var(--text-muted)]"
-                }`}>
-                  {sms.active ? "Active" : "Inactive"}
-                </span>
-              </div>
-            ))}
-            {smsNumbers.length === 0 && (
-              <div className="p-4 rounded-xl bg-[var(--bg-input)] border border-[var(--border-subtle)] text-sm text-[var(--text-muted)]">
-                No SMS numbers configured yet.
-              </div>
-            )}
           </div>
         </div>
 

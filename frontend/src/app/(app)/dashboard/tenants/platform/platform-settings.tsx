@@ -28,7 +28,6 @@ const channelColors: Record<string, { bg: string; text: string }> = {
   INSTAGRAM: { bg: "rgba(225,48,108,0.12)", text: "#E1306C" },
   WEBCHAT: { bg: "rgba(139,92,246,0.12)", text: "#8B5CF6" },
   WHATSAPP: { bg: "rgba(37,211,102,0.12)", text: "#25D366" },
-  SMS: { bg: "rgba(245,158,11,0.12)", text: "#f59e0b" },
 };
 
 export default function PlatformSettings({
@@ -196,7 +195,6 @@ export default function PlatformSettings({
                   <option value="MESSENGER">Facebook Messenger</option>
                   <option value="INSTAGRAM">Instagram DMs</option>
                   <option value="WHATSAPP">WhatsApp</option>
-                  <option value="SMS">SMS</option>
                   <option value="WEBCHAT">Webchat</option>
                 </select>
               </div>

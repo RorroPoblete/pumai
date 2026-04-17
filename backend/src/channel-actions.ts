@@ -6,7 +6,7 @@ import { channelConfigSchema, webchatConfigSchema } from "./validation";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
 
-type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP" | "SMS";
+type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP";
 
 export async function connectChannel(raw: unknown) {
   const businessId = await getActiveBusinessId();

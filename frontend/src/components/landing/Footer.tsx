@@ -27,7 +27,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-              AI-powered SMS &amp; WhatsApp agents for Australian businesses. Built
+              AI-powered omnichannel agents for Australian businesses. Built
               with compliance in mind.
             </p>
           </div>

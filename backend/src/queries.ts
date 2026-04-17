@@ -371,7 +371,6 @@ export interface SettingsData {
   email: string;
   timezone: string;
   phone: string | null;
-  smsNumbers: { number: string; active: boolean }[];
 }
 
 export async function getSettings(): Promise<SettingsData | null> {
@@ -380,10 +379,7 @@ export async function getSettings(): Promise<SettingsData | null> {
   const businessId = ctx.activeBusinessId ?? (await getActiveBusinessId());
   if (!businessId) return null;
 
-  const business = await prisma.business.findUnique({
-    where: { id: businessId },
-    include: { smsNumbers: { select: { number: true, active: true } } },
-  });
+  const business = await prisma.business.findUnique({ where: { id: businessId } });
   if (!business) return null;
 
   const user = await prisma.user.findUnique({
@@ -396,6 +392,5 @@ export async function getSettings(): Promise<SettingsData | null> {
     email: user?.email ?? "",
     timezone: business.timezone,
     phone: business.phone,
-    smsNumbers: business.smsNumbers,
   };
 }

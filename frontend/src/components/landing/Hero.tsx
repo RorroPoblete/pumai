@@ -27,7 +27,7 @@ export default function Hero() {
 
         {/* Subtitle */}
         <p className="animate-fade-in-up-delay-2 text-lg sm:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed">
-          AI-powered agents that handle sales, support, and marketing 24/7 — via SMS, WhatsApp, Webchat, Instagram DMs, and Facebook Messenger. One platform, every conversation.
+          AI-powered agents that handle sales, support, and marketing 24/7 — via WhatsApp, Webchat, Instagram DMs, and Facebook Messenger. One platform, every conversation.
         </p>
 
         {/* CTAs */}
@@ -49,9 +49,9 @@ export default function Hero() {
         {/* Stats row */}
         <div className="animate-fade-in-up-delay-3 mt-16 grid grid-cols-3 gap-8 max-w-xl mx-auto">
           {[
-            { value: "98%", label: "SMS Open Rate" },
+            { value: "24/7", label: "Always On" },
             { value: "2.5M+", label: "SMEs in Australia" },
-            { value: "5", label: "Channels, One Platform" },
+            { value: "4", label: "Channels, One Platform" },
           ].map((s) => (
             <div key={s.label}>
               <div className="text-2xl sm:text-3xl font-black gradient-text-violet">

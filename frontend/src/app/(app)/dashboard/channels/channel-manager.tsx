@@ -74,20 +74,6 @@ const CHANNELS = [
     ),
     comingSoon: true,
   },
-  {
-    key: "SMS",
-    name: "SMS",
-    description: "Send and receive SMS via Australian carriers",
-    color: "#f59e0b",
-    bgColor: "rgba(245,158,11,0.12)",
-    icon: (
-      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10 3H6a2 2 0 00-2 2v14a2 2 0 002 2h8a2 2 0 002-2v-3M18 3h2a2 2 0 012 2v4M10 17h.01" />
-        <path strokeLinecap="round" d="M18 9l-6 4-6-4" />
-      </svg>
-    ),
-    comingSoon: true,
-  },
 ];
 
 export default function ChannelManager({

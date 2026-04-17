@@ -1,11 +1,20 @@
 # PumAI — Omnichannel AI Agents for Australian Business
 
+## Current state (2026-04-17)
+
+- **Webchat** is production-ready: streaming SSE, agent push via Redis pub/sub, Shadow DOM widget, vision-enabled image attachments, rate limiting, offline mode, read receipts, unread badge + polling in dashboard.
+- **Messenger** webhook + adapter + AI reply working end-to-end.
+- **Instagram** stalled in Meta Dev mode — code is ready, but Meta won't fire webhooks until the app is published. See `docs/integrations/instagram-status-2026-04-16.md`.
+- **WhatsApp** not started.
+- SMS has been removed from the product — Webchat, WhatsApp, Instagram and Messenger are the four supported channels.
+- See `TECHNICAL_DEBT.md` for outstanding items.
+
 ## Project Status
 
 ### Phase 1: Landing & Config ✅
 - [x] Next.js 16 + TypeScript + Tailwind v4 setup
 - [x] Design system (dark theme, violet #8B5CF6, glassmorphism, Inter font)
-- [x] Landing page (Navbar, Hero w/ particles, Features, How It Works, Dual-Channel Pricing, Industries, CTA, Footer)
+- [x] Landing page (Navbar, Hero w/ particles, Features, How It Works, Multi-Channel Pricing, Industries, CTA, Footer)
 - [x] Scroll animations (Intersection Observer)
 - [x] Logo/integration carousel
 - [x] Smooth scroll + navbar scroll effect
@@ -18,7 +27,7 @@
 - [x] Register page (auto sign-in after register)
 - [x] Forgot password page
 - [x] Auth layout (split-screen: branding left, form right)
-- [x] Onboarding wizard (4 steps: business info, industry, agent config, SMS number)
+- [x] Onboarding wizard (3 steps: business info, industry, agent config)
 - [x] Middleware (protected routes, auth redirects)
 
 ### Phase 3: Dashboard ✅
@@ -27,11 +36,11 @@
 - [x] Conversations page (filterable list, search, status badges, sentiment dots)
 - [x] AI Agents page (agent cards, status, tone, stats, hover actions)
 - [x] Analytics page (KPIs, daily chart, donut chart, agent performance table)
-- [x] Settings page (business info, SMS config, notification toggles, danger zone)
+- [x] Settings page (business info, notification toggles, danger zone)
 - [x] Seed data (5 agents, 8 conversations, metrics)
 
 ### Phase 4: Database & Docker ✅
-- [x] Prisma v7 schema (User, Account, Session, Business, Agent, SmsNumber, Conversation, Message)
+- [x] Prisma v7 schema (User, Account, Session, Business, Agent, Conversation, Message)
 - [x] Seed script (2 users, 2 businesses, 5 agents, 8 conversations with messages)
 - [x] Dockerfile (multi-stage build + tsconfig for tsx)
 - [x] docker-compose.yml (PostgreSQL 16, Redis 7, Next.js app)
@@ -74,24 +83,30 @@
 - [ ] Persistent menu configuration
 - [ ] Sponsored messages / marketing outbound
 
-### Phase 8: Instagram DMs Integration ⬜
-- [ ] Meta Graph API setup (Instagram Business Account)
-- [ ] Inbound DM webhook handler (Instagram Messaging API)
+### Phase 8: Instagram DMs Integration ⏸ (blocked on Meta App publish)
+- [x] Adapter (parses `messaging[]` and `changes[]` payload formats)
+- [x] Webhook verify + HMAC signature share with Messenger (`/api/webhooks/meta`)
+- [x] Pipeline integration (same `handleInbound` as Messenger)
+- [x] FB Login API flow (Page Access Token), graph.facebook.com v22.0 `/me/messages`
+- [x] Dashboard channel config for Instagram Business Account ID + token
+- [ ] Real DM deliveries fire webhook — **blocked until app is Live** (docs/integrations/instagram-status-2026-04-16.md)
 - [ ] Auto-reply to story mentions and comments
-- [ ] Rich media support (images, quick replies)
 - [ ] Product tag integration (Instagram Shopping)
 - [ ] 24-hour messaging window compliance
-- [ ] Connect AI engine to Instagram inbound pipeline
 
-### Phase 9: Webchat Integration ⬜
-- [ ] Embeddable chat widget (JS snippet for any website)
-- [ ] Custom branding (colours, logo, position, welcome message)
-- [ ] Real-time WebSocket messaging
-- [ ] Visitor identification (name, email capture form)
-- [ ] File & image sharing
-- [ ] Typing indicators and read receipts
-- [ ] Offline mode (collect email, respond async)
-- [ ] Connect AI engine to webchat pipeline
+### Phase 9: Webchat Integration ✅
+- [x] Embeddable chat widget (`/widget.js`, isolated in Shadow DOM)
+- [x] Custom branding (colour, title, welcome, position) + per-widget `widgetKey`
+- [x] Real-time token streaming via SSE (`/api/webchat/:key/stream`)
+- [x] Agent → visitor push via Redis pub/sub + EventSource (`/events` endpoint)
+- [x] Visitor name capture form (off / optional / required)
+- [x] File & image uploads (PNG/JPEG/WEBP/GIF, ≤2 MB, Docker volume storage)
+- [x] Typing indicators + read receipts (`Message.readAt`)
+- [x] Offline mode (name + message, creates conversation with `aiEnabled=false`)
+- [x] Connect AI engine via shared pipeline + buildSystemPrompt
+- [x] Vision model — `gpt-4o-mini` sees uploaded images via base64 data URLs
+- [x] Origin allowlist + per-key + per-IP rate limiting (Redis)
+- [x] Dashboard: branding form, embed snippet copy, conversation polling, unread badge, mark-read on click
 
 ### Phase 10: WhatsApp Integration ⬜
 - [ ] WhatsApp Business API setup (via 360dialog or Twilio)
@@ -101,15 +116,6 @@
 - [ ] Marketing outbound (~US$0.04/msg, Rest of APAC rate)
 - [ ] WhatsApp Business profile management
 - [ ] Connect AI engine to WhatsApp inbound pipeline
-
-### Phase 11: SMS Integration (Cellcast) ⬜
-- [ ] Cellcast API integration (carrier directo: Telstra, Optus, Vodafone)
-- [ ] Inbound SMS webhook handler
-- [ ] Outbound SMS sending (2.8c AUD/SMS at 100K+ vol)
-- [ ] Virtual number provisioning (AU dedicated numbers, A$15/mo)
-- [ ] Delivery status tracking
-- [ ] Conversation routing (agent selection)
-- [ ] Connect AI engine to SMS inbound pipeline
 
 ### Phase 12: Integrations ⬜
 - [ ] HubSpot CRM sync
@@ -122,20 +128,16 @@
 
 ### Phase 13: Billing & Plans ⬜
 - [ ] Stripe subscription integration
-- [ ] Per-channel plan management (SMS, WhatsApp, Webchat, Social)
-- [ ] Omnichannel upsell (+A$350/mo for all 5 channels)
+- [ ] Per-channel plan management (WhatsApp, Webchat, Social)
+- [ ] Omnichannel upsell (+A$300/mo for all 4 channels)
 - [ ] Usage tracking (conversations per channel, agents, funnels)
-- [ ] Overage billing (per-plan rates: A$0.60 to A$0.05/conv)
-- [ ] Prepaid packs (SMS: 500 convs A$275, WA: 1,000 convs A$180)
+- [ ] Overage billing (per-plan rates: A$0.25 to A$0.05/conv)
+- [ ] Prepaid packs (WA: 1,000 convs A$180)
 - [ ] Invoice generation
 
 ### Phase 14: Compliance & Production ⬜
-- [ ] Spam Act 2003 compliance (opt-in/opt-out, sender ID, multas hasta A$2.2M)
 - [ ] Privacy Act 1988 (APPs, breach notification, data transparency)
 - [ ] AI transparency disclosure (mandatory in AU)
-- [ ] ACMA SMS Sender ID Register (mandatory before July 2026)
-- [ ] Register as EMSP with ACMA (wholesale SMS ~1.5c via MTMO/Symbio)
-- [ ] Cellcast compliance (ISO 27001, Industry Code C661:2022)
 - [ ] Meta Platform compliance (Instagram + Messenger API policies)
 - [ ] Rate limiting
 - [ ] Monitoring & logging
@@ -181,21 +183,13 @@ npm run db:studio     # Open Prisma Studio
 - **Auth:** NextAuth.js v5 (Credentials + Google)
 - **Database:** PostgreSQL 16 + Prisma v7
 - **Cache:** Redis 7
-- **SMS:** Cellcast API (carrier directo AU, planned)
 - **WhatsApp:** WhatsApp Business API via 360dialog/Twilio (planned)
-- **Webchat:** Embeddable JS widget (planned)
-- **Social:** Instagram DMs + Facebook Messenger via Meta Graph API (planned)
-- **AI:** OpenAI GPT-4o Mini
+- **Webchat:** Embeddable JS widget (live)
+- **Social:** Instagram DMs + Facebook Messenger via Meta Graph API (live)
+- **AI:** OpenAI GPT-4o Mini (vision-enabled for image attachments)
 - **Deploy:** Docker / docker-compose
 
-## Pricing (5 Channels)
-
-**SMS Plans** — Universal reach (98% open rate, 100% mobile coverage)
-| Plan | Price | Setup | Conversations | Extra |
-|------|-------|-------|---------------|-------|
-| SMS Starter | A$299/mo | A$500 | 300/mo | A$0.60/conv |
-| SMS Growth | A$649/mo | A$900 | 1,000/mo | A$0.55/conv |
-| SMS Enterprise | A$1,499+/mo | Custom | 4,000/mo | A$0.45/conv |
+## Pricing (4 Channels)
 
 **WhatsApp Plans** — Rich conversations (buttons, images, catalogues)
 | Plan | Price | Setup | Conversations | Extra |
@@ -211,11 +205,27 @@ npm run db:studio     # Open Prisma Studio
 | Webchat Growth | A$249/mo | A$300 | 2,000/mo | A$0.08/session |
 | Webchat Enterprise | A$599+/mo | Custom | Unlimited | A$0.05/session |
 
-**Instagram & Messenger Plans** — Social media engagement
+**Instagram Plans** — DMs, story mentions, comment-to-DM, product tags
 | Plan | Price | Setup | Conversations | Extra |
 |------|-------|-------|---------------|-------|
-| Social Starter | A$149/mo | A$400 | 500/mo | A$0.20/conv |
-| Social Growth | A$399/mo | A$700 | 2,000/mo | A$0.15/conv |
-| Social Enterprise | A$899+/mo | Custom | Unlimited | A$0.10/conv |
+| Instagram Starter | A$129/mo | A$300 | 500/mo | A$0.20/conv |
+| Instagram Growth | A$349/mo | A$600 | 2,000/mo | A$0.15/conv |
+| Instagram Enterprise | A$799+/mo | Custom | Unlimited | A$0.10/conv |
 
-**Omnichannel:** +A$350/mo on any plan for all 5 channels
+**Messenger Plans** — Facebook Page messaging + sponsored campaigns
+| Plan | Price | Setup | Conversations | Extra |
+|------|-------|-------|---------------|-------|
+| Messenger Starter | A$119/mo | A$300 | 500/mo | A$0.20/conv |
+| Messenger Growth | A$329/mo | A$600 | 2,000/mo | A$0.15/conv |
+| Messenger Enterprise | A$749+/mo | Custom | Unlimited | A$0.10/conv |
+
+**Omnichannel:** +A$300/mo on any plan for all 4 channels
+
+---
+
+## Docs
+
+- `WEBCHAT.md` — full webchat integration guide (config, embed, API, troubleshooting)
+- `FACEBOOK_MESSENGER.md` — Messenger integration guide
+- `docs/integrations/instagram-status-2026-04-16.md` — Instagram status & blockers
+- `TECHNICAL_DEBT.md` — live list of pending work across infra, product, security, compliance

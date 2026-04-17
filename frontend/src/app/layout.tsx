@@ -12,10 +12,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "PumAI — Omnichannel AI Agents for Australian Business",
   description:
-    "AI-powered agents that automate sales, support, and marketing via SMS, WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation.",
+    "AI-powered agents that automate sales, support, and marketing via WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation.",
   keywords: [
     "AI agents Australia",
-    "SMS chatbot",
+    
     "WhatsApp business",
     "omnichannel AI",
     "conversational AI",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "PumAI — Omnichannel AI Agents for Australian Business",
-    description: "AI-powered agents for SMS, WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation.",
+    description: "AI-powered agents for WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation.",
     url: "https://pumai.com.au",
     siteName: "PumAI",
     locale: "en_AU",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PumAI — Omnichannel AI Agents",
-    description: "AI-powered agents for SMS, WhatsApp, Webchat, Instagram DMs, and Messenger.",
+    description: "AI-powered agents for WhatsApp, Webchat, Instagram DMs, and Messenger.",
   },
 };
 

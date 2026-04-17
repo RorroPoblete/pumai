@@ -69,15 +69,6 @@ async function main() {
 
   console.log("  ✓ Members created");
 
-  // ─── SMS Number ───
-  const smsNumber = await prisma.smsNumber.upsert({
-    where: { number: "+61280001234" },
-    update: {},
-    create: { number: "+61280001234", businessId: business.id },
-  });
-
-  console.log("  ✓ SMS number created");
-
   // ─── Agents ───
   const agentData = [
     {
@@ -95,7 +86,7 @@ ROLE & RESPONSIBILITIES:
 - Collect patient details (name, DOB, Medicare number, reason for visit)
 
 BEHAVIOUR RULES:
-- Always be empathetic, professional, and concise (SMS format: 1-3 sentences)
+- Always be empathetic, professional, and concise (chat format: 1-3 sentences)
 - NEVER provide medical diagnoses, medication advice, or interpret test results
 - If the patient describes an emergency (chest pain, difficulty breathing, severe bleeding), immediately say: "This sounds like an emergency. Please call 000 right away."
 - For after-hours queries, direct to 13SICK or nearest emergency department
@@ -153,7 +144,7 @@ ROLE & RESPONSIBILITIES:
 
 BEHAVIOUR RULES:
 - Be warm, enthusiastic, and genuinely helpful
-- Keep responses concise for SMS (1-3 sentences)
+- Keep responses concise for chat (1-3 sentences)
 - NEVER guarantee property values, investment returns, or auction outcomes
 - If asked for legal or financial advice, direct to their solicitor or mortgage broker
 
@@ -198,9 +189,9 @@ ROLE & RESPONSIBILITIES:
 
 BEHAVIOUR RULES:
 - Be relaxed, approachable, and down-to-earth — like a mate who knows cars
-- Keep it short for SMS (1-3 sentences), use casual Australian slang where natural
+- Keep it short for chat (1-3 sentences), use casual Australian slang where natural
 - Always recommend the customer comes in for final pricing and trade-in valuation
-- NEVER lock in exact prices or finance rates via SMS
+- NEVER lock in exact prices or finance rates via chat
 
 ESCALATION TRIGGERS (transfer to human):
 - Customer wants to negotiate final price or sign finance docs
@@ -243,9 +234,9 @@ ROLE & RESPONSIBILITIES:
 
 BEHAVIOUR RULES:
 - Be polite, efficient, and solution-oriented
-- Keep responses concise (SMS format, 1-3 sentences)
+- Keep responses concise (chat format, 1-3 sentences)
 - For returns: confirm order number, reason, and preferred resolution
-- NEVER share customer data or process payments via SMS
+- NEVER share customer data or process payments via chat
 
 ESCALATION TRIGGERS (transfer to human):
 - Refund over $200

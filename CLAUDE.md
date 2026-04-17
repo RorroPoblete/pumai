@@ -47,7 +47,7 @@ AUSTRALIAN_DREAM/
 
 **Pattern:** Adapter + Unified Pipeline
 
-Each messaging channel (Messenger, Instagram, Webchat, WhatsApp, SMS) follows the same pattern:
+Each messaging channel (Messenger, Instagram, Webchat, WhatsApp) follows the same pattern:
 
 1. **Adapter** (`backend/src/channels/<channel>.ts`) — Does only 2 things:
    - `parseInbound(body)` — Parses raw webhook payload into normalized `InboundMessage`
@@ -70,11 +70,11 @@ Each messaging channel (Messenger, Instagram, Webchat, WhatsApp, SMS) follows th
 
 ### Key Schema Decisions
 
-- **Channel enum:** MESSENGER, INSTAGRAM, WEBCHAT, WHATSAPP, SMS
+- **Channel enum:** MESSENGER, INSTAGRAM, WEBCHAT, WHATSAPP
 - **ChannelConfig model:** Per-business, per-channel credentials + default agent. `@@unique([businessId, channel])`
-- **Conversation.contactExternalId:** Platform-specific user ID (PSID for Messenger, IGSID for Instagram, phone for WhatsApp/SMS, session ID for Webchat)
+- **Conversation.contactExternalId:** Platform-specific user ID (PSID for Messenger, IGSID for Instagram, phone for WhatsApp, session ID for Webchat)
 - **Conversation lookup key:** `@@unique([businessId, channel, contactExternalId])`
-- **Message.externalMsgId:** Platform message ID for deduplication (replaces old `smsId`)
+- **Message.externalMsgId:** Platform message ID for deduplication
 - **Agent routing:** One default agent per channel per business via `ChannelConfig.agentId`
 
 ### Meta (Facebook + Instagram) Webhook
@@ -115,7 +115,6 @@ Each messaging channel (Messenger, Instagram, Webchat, WhatsApp, SMS) follows th
 2. Instagram DMs (Phase 8) — Reuses Meta webhook, similar adapter
 3. Webchat (Phase 9) — Embeddable widget, supports streaming
 4. WhatsApp (Phase 10) — Cloud API, different payload shape
-5. SMS (Phase 11) — Cellcast/160.com.au integration
 
 ## Environment Variables
 

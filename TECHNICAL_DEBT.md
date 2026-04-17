@@ -76,7 +76,7 @@ Ver `docs/integrations/instagram-status-2026-04-16.md` para detalle completo.
   - Fix: exportar `webchatConfigSchema.parse` con defaults, reutilizar.
 - [ ] **Fallback `"Visitor #" + sessionId.slice(-6).toUpperCase()`** inline en 3 endpoints (stream, message, offline).
   - Fix: función `generateVisitorFallback(sessionId)` compartida.
-- [ ] **Adapters WhatsApp + SMS no existen.** Phase 10-11 del README.
+- [ ] **Adapter WhatsApp no existe.** Phase 10 del README.
 - [ ] **Sin sistema de logs centralizado.** `console.log`/`console.error` a docker logs. Errores productivos se pierden.
   - Fix: Sentry o similar.
 

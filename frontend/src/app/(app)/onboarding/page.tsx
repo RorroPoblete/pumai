@@ -15,7 +15,7 @@ const industries = [
   "Other",
 ];
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 3;
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
@@ -191,56 +191,6 @@ export default function OnboardingPage() {
                     ))}
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: SMS Number */}
-          {step === 4 && (
-            <div className="animate-fade-in-up">
-              <h1 className="text-2xl font-extrabold text-[var(--text-primary)] mb-2">
-                Set up your SMS number
-              </h1>
-              <p className="text-sm text-[var(--text-secondary)] mb-8">
-                We&apos;ll assign you a dedicated Australian virtual number. You
-                can also port an existing number.
-              </p>
-
-              <div className="space-y-4">
-                <div className="card-gradient border border-[rgba(139,92,246,0.15)] rounded-2xl p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-[rgba(139,92,246,0.12)] flex items-center justify-center">
-                      <svg className="w-6 h-6 text-[#8B5CF6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--text-primary)]">
-                        New Australian number
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        We&apos;ll assign a +61 number — A$15/month
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                      Your mobile (for verification)
-                    </label>
-                    <input
-                      type="tel"
-                      value={data.phone}
-                      onChange={(e) => update("phone", e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
-                      placeholder="+61 4XX XXX XXX"
-                    />
-                  </div>
-                </div>
-
-                <p className="text-xs text-[var(--text-muted)] text-center">
-                  You can skip this and set up SMS later from your dashboard.
-                </p>
               </div>
             </div>
           )}

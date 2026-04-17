@@ -158,7 +158,7 @@ export async function savePlatformConfigs(configs: { key: string; value: string 
 
 // ─── Admin Channel Management ───
 
-type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP" | "SMS";
+type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP";
 
 export async function adminConnectChannel(
   businessId: string,
