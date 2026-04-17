@@ -1,13 +1,14 @@
 // ─── Webchat Config Endpoint ───
-// Returns public branding config for the widget to render (color, logo, welcome).
+// Returns public branding config for the widget to render (color, welcome, etc).
 // Does NOT return allowedOrigins or other non-public credentials fields.
 
 import { prisma } from "@/backend/prisma";
+import { corsOptions, json, safeParse } from "../../_shared";
 
 export const dynamic = "force-dynamic";
 
 export async function OPTIONS(req: Request) {
-  return new Response(null, { status: 204, headers: corsHeaders(req) });
+  return corsOptions(req);
 }
 
 export async function GET(
@@ -21,12 +22,15 @@ export async function GET(
     include: { business: { select: { name: true } } },
   });
 
-  if (!config) {
-    return json({ error: "Widget not found" }, 404, req);
-  }
+  if (!config) return json({ error: "Widget not found" }, 404, req);
 
   const credentials = safeParse(config.credentials);
   const branding = (credentials.branding ?? {}) as Record<string, string>;
+
+  const collect = branding.collectVisitor;
+  const collectVisitor: "off" | "optional" | "required" =
+    collect === "optional" || collect === "required" ? collect : "off";
+  const offlineMode: "off" | "always" = branding.offlineMode === "always" ? "always" : "off";
 
   return json(
     {
@@ -36,33 +40,10 @@ export async function GET(
       welcomeMessage: branding.welcomeMessage ?? "Hi! How can we help?",
       position: branding.position ?? "right",
       title: branding.title ?? config.business.name,
+      collectVisitor,
+      offlineMode,
     },
     200,
     req,
   );
-}
-
-function safeParse(raw: string): Record<string, unknown> {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
-
-function corsHeaders(req: Request): HeadersInit {
-  const origin = req.headers.get("origin") ?? "*";
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Max-Age": "86400",
-  };
-}
-
-function json(data: unknown, status: number, req: Request) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json", ...corsHeaders(req) },
-  });
 }

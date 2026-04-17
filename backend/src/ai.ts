@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import type { ChatCompletionContentPart, ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 // ─── Types ───
 
@@ -49,9 +50,29 @@ export function buildSystemPrompt(ctx: AgentContext): string {
 
 // ─── Streaming Chat Response ───
 
+export interface ChatMessage {
+  role: string;
+  content: string;
+  attachmentUrl?: string | null;
+  attachmentType?: string | null;
+}
+
+function buildMessage(m: ChatMessage): ChatCompletionMessageParam {
+  const role = m.role === "agent" ? "assistant" : "user";
+  if (role === "user" && m.attachmentUrl && m.attachmentType?.startsWith("image/")) {
+    const parts: ChatCompletionContentPart[] = [];
+    if (m.content && m.content.trim() && m.content !== "[image]") {
+      parts.push({ type: "text", text: m.content });
+    }
+    parts.push({ type: "image_url", image_url: { url: m.attachmentUrl } });
+    return { role: "user", content: parts };
+  }
+  return { role, content: m.content };
+}
+
 export async function streamChatResponse(
   systemContent: string,
-  messages: { role: string; content: string }[],
+  messages: ChatMessage[],
 ) {
   const openai = getClient();
   return openai.chat.completions.create({
@@ -59,11 +80,8 @@ export async function streamChatResponse(
     stream: true,
     max_tokens: 400,
     messages: [
-      { role: "system", content: systemContent },
-      ...messages.map((m) => ({
-        role: (m.role === "agent" ? "assistant" : "user") as "assistant" | "user",
-        content: m.content,
-      })),
+      { role: "system", content: systemContent } as ChatCompletionMessageParam,
+      ...messages.map(buildMessage),
     ],
   });
 }
@@ -72,18 +90,15 @@ export async function streamChatResponse(
 
 export async function getChatResponse(
   systemContent: string,
-  messages: { role: string; content: string }[],
+  messages: ChatMessage[],
 ): Promise<string> {
   const openai = getClient();
   const res = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     max_tokens: 400,
     messages: [
-      { role: "system", content: systemContent },
-      ...messages.map((m) => ({
-        role: (m.role === "agent" ? "assistant" : "user") as "assistant" | "user",
-        content: m.content,
-      })),
+      { role: "system", content: systemContent } as ChatCompletionMessageParam,
+      ...messages.map(buildMessage),
     ],
   });
   return res.choices[0]?.message?.content?.trim() ?? "";

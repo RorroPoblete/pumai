@@ -85,6 +85,7 @@ export interface DashboardConversation {
   lastMessage: string;
   updatedAt: string;
   messages: number;
+  unreadCount: number;
   sentiment: "positive" | "neutral" | "negative";
 }
 
@@ -208,6 +209,17 @@ export async function getDashboardOverview(): Promise<DashboardOverviewData | nu
     messagesChange,
   };
 
+  const unreadCounts = await prisma.message.groupBy({
+    by: ["conversationId"],
+    where: {
+      conversationId: { in: recentConversations.map((c) => c.id) },
+      role: "USER",
+      readAt: null,
+    },
+    _count: true,
+  });
+  const unreadMap = new Map(unreadCounts.map((u) => [u.conversationId, u._count]));
+
   // Conversations
   const conversations: DashboardConversation[] = recentConversations.map((c) => ({
     id: c.id,
@@ -221,6 +233,7 @@ export async function getDashboardOverview(): Promise<DashboardOverviewData | nu
     lastMessage: c.messages[0]?.content ?? "",
     updatedAt: timeAgo(c.updatedAt),
     messages: c.messagesCount,
+    unreadCount: unreadMap.get(c.id) ?? 0,
     sentiment: c.sentiment.toLowerCase() as DashboardConversation["sentiment"],
   }));
 
@@ -286,7 +299,7 @@ export async function getConversations(): Promise<ConversationWithMessages[]> {
     where: { businessId },
     include: {
       agent: { select: { name: true } },
-      messages: { orderBy: { createdAt: "asc" }, select: { id: true, content: true, role: true, createdAt: true } },
+      messages: { orderBy: { createdAt: "asc" }, select: { id: true, content: true, role: true, createdAt: true, readAt: true } },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -303,6 +316,7 @@ export async function getConversations(): Promise<ConversationWithMessages[]> {
     lastMessage: c.messages[c.messages.length - 1]?.content ?? "",
     updatedAt: timeAgo(c.updatedAt),
     messages: c.messagesCount,
+    unreadCount: c.messages.filter((m) => m.role === "USER" && m.readAt === null).length,
     sentiment: c.sentiment.toLowerCase() as DashboardConversation["sentiment"],
     chatMessages: c.messages.map((m) => ({
       id: m.id,

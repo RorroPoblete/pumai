@@ -49,6 +49,17 @@ export const channelConfigSchema = z.object({
   agentId: z.string().min(1, "Agent is required"),
 });
 
+export const webchatConfigSchema = z.object({
+  agentId: z.string().min(1, "Agent is required"),
+  primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Hex color like #8B5CF6").default("#8B5CF6"),
+  title: z.string().min(1).max(40).default("Chat"),
+  welcomeMessage: z.string().min(1).max(200).default("Hi! How can we help?"),
+  position: z.enum(["left", "right"]).default("right"),
+  collectVisitor: z.enum(["off", "optional", "required"]).default("off"),
+  offlineMode: z.enum(["off", "always"]).default("off"),
+  allowedOrigins: z.array(z.string().url()).default([]),
+});
+
 export const chatSchema = z.object({
   messages: z.array(z.object({
     role: z.string(),

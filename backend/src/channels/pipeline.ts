@@ -171,6 +171,10 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
         externalMsgId: outboundMsgId ?? null,
       },
     }),
+    prisma.message.updateMany({
+      where: { conversationId: conversation.id, role: "USER", readAt: null },
+      data: { readAt: new Date() },
+    }),
     prisma.conversation.update({
       where: { id: conversation.id },
       data: {

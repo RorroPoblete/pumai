@@ -2,8 +2,9 @@
 
 import { prisma } from "./prisma";
 import { getActiveBusinessId } from "./auth-utils";
-import { channelConfigSchema } from "./validation";
+import { channelConfigSchema, webchatConfigSchema } from "./validation";
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "crypto";
 
 type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP" | "SMS";
 
@@ -73,4 +74,49 @@ export async function updateChannelAgent(channelConfigId: string, agentId: strin
   });
 
   revalidatePath("/dashboard/channels");
+}
+
+export async function saveWebchat(raw: unknown) {
+  const businessId = await getActiveBusinessId();
+  if (!businessId) throw new Error("No active business");
+
+  const data = webchatConfigSchema.parse(raw);
+
+  const existing = await prisma.channelConfig.findUnique({
+    where: { businessId_channel: { businessId, channel: "WEBCHAT" } },
+  });
+
+  const widgetKey = existing?.externalId ?? "wk_" + randomBytes(12).toString("hex");
+
+  const credentials = JSON.stringify({
+    branding: {
+      primaryColor: data.primaryColor,
+      title: data.title,
+      welcomeMessage: data.welcomeMessage,
+      position: data.position,
+      collectVisitor: data.collectVisitor,
+      offlineMode: data.offlineMode,
+    },
+    allowedOrigins: data.allowedOrigins,
+  });
+
+  await prisma.channelConfig.upsert({
+    where: { businessId_channel: { businessId, channel: "WEBCHAT" } },
+    create: {
+      businessId,
+      channel: "WEBCHAT",
+      externalId: widgetKey,
+      credentials,
+      agentId: data.agentId,
+      active: true,
+    },
+    update: {
+      credentials,
+      agentId: data.agentId,
+      active: true,
+    },
+  });
+
+  revalidatePath("/dashboard/channels");
+  return { widgetKey };
 }

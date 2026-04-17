@@ -54,6 +54,9 @@ services:
       META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN:-pumai_webhook_verify_2024}
       NEXT_PUBLIC_APP_URL: http://localhost:3002
       AUTH_TRUST_HOST: "true"
+      UPLOADS_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,3 +66,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  uploads_data:

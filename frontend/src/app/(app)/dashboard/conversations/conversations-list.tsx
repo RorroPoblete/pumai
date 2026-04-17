@@ -21,6 +21,7 @@ interface Conversation {
   lastMessage: string;
   updatedAt: string;
   messages: number;
+  unreadCount: number;
   sentiment: "positive" | "neutral" | "negative";
   chatMessages: Message[];
 }
@@ -70,6 +71,41 @@ export default function ConversationsList({ conversations: initialConversations 
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedId, conversations]);
+
+  // Poll for new conversations every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/conversations");
+        if (!res.ok) return;
+        const data = (await res.json()) as { conversations: Conversation[] };
+        setConversations((prev) => {
+          const prevMap = new Map(prev.map((c) => [c.id, c]));
+          return data.conversations.map((incoming) => {
+            const local = prevMap.get(incoming.id);
+            if (local && local.id === selectedId) {
+              return { ...incoming, chatMessages: incoming.chatMessages, unreadCount: 0 };
+            }
+            return incoming;
+          });
+        });
+      } catch {
+        // silent
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [selectedId]);
+
+  // Mark conversation as read when selected
+  useEffect(() => {
+    if (!selectedId) return;
+    const conv = conversations.find((c) => c.id === selectedId);
+    if (!conv || conv.unreadCount === 0) return;
+    fetch(`/api/conversations/${selectedId}/read`, { method: "POST" }).catch(() => {});
+    setConversations((prev) =>
+      prev.map((c) => (c.id === selectedId ? { ...c, unreadCount: 0 } : c)),
+    );
   }, [selectedId, conversations]);
 
   async function handleToggleAi() {
@@ -176,10 +212,15 @@ export default function ConversationsList({ conversations: initialConversations 
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${sentimentDot[c.sentiment]}`} />
-                    <span className="text-sm font-semibold text-[var(--text-primary)] truncate">{c.contact}</span>
+                    <span className={`text-sm truncate ${c.unreadCount > 0 ? "font-bold text-[var(--text-primary)]" : "font-semibold text-[var(--text-primary)]"}`}>{c.contact}</span>
                     <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${statusColor[c.status]}`}>
                       {c.status}
                     </span>
+                    {c.unreadCount > 0 && (
+                      <span className="text-[10px] font-bold text-white bg-[#8B5CF6] rounded-full px-1.5 min-w-[18px] text-center">
+                        {c.unreadCount}
+                      </span>
+                    )}
                   </div>
                   <span className="text-[10px] text-[var(--text-muted)] flex-shrink-0 ml-2">{c.updatedAt}</span>
                 </div>

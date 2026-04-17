@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import TopBar from "@/components/dashboard/TopBar";
-import { connectChannel, disconnectChannel, toggleChannelActive } from "@/backend/channel-actions";
+import { connectChannel, disconnectChannel, toggleChannelActive, saveWebchat } from "@/backend/channel-actions";
+import type { WebchatBranding } from "@/backend/channel-queries";
+import WebchatForm from "./webchat-form";
 
 interface ChannelConfig {
   id: string;
@@ -13,6 +15,7 @@ interface ChannelConfig {
   agentId: string;
   agentName: string;
   createdAt: Date;
+  webchatBranding?: WebchatBranding;
 }
 
 interface Agent {
@@ -57,7 +60,6 @@ const CHANNELS = [
         <path strokeLinecap="round" d="M8 9h8M8 13h5" />
       </svg>
     ),
-    comingSoon: true,
   },
   {
     key: "WHATSAPP",
@@ -218,6 +220,17 @@ export default function ChannelManager({
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {config ? (
                       <>
+                        {ch.key === "WEBCHAT" && (
+                          <button
+                            onClick={() => {
+                              setConnectingChannel(isConnecting ? null : ch.key);
+                              setError("");
+                            }}
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--bg-input)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+                          >
+                            {isConnecting ? "Close" : "Configure"}
+                          </button>
+                        )}
                         <button
                           onClick={() => handleToggle(config.id)}
                           className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--bg-input)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
@@ -246,8 +259,27 @@ export default function ChannelManager({
                   </div>
                 </div>
 
+                {/* Webchat embed snippet (when connected) */}
+                {ch.key === "WEBCHAT" && config && !isConnecting && (
+                  <EmbedSnippet widgetKey={config.externalId} />
+                )}
+
                 {/* Connect Form */}
-                {isConnecting && (
+                {isConnecting && ch.key === "WEBCHAT" && (
+                  <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+                    <WebchatForm
+                      agents={agents}
+                      initial={config?.webchatBranding ?? null}
+                      initialAgentId={config?.agentId ?? null}
+                      onSaved={() => {
+                        setConnectingChannel(null);
+                        router.refresh();
+                      }}
+                    />
+                  </div>
+                )}
+
+                {isConnecting && ch.key !== "WEBCHAT" && (
                   <div className="mt-4 pt-4 border-t border-[var(--border-subtle)] space-y-3">
                     <div>
                       <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
@@ -322,5 +354,37 @@ export default function ChannelManager({
         </div>
       </div>
     </>
+  );
+}
+
+function EmbedSnippet({ widgetKey }: { widgetKey: string }) {
+  const [copied, setCopied] = useState(false);
+  const base = typeof window !== "undefined" ? window.location.origin : "";
+  const snippet = `<script src="${base}/widget.js" data-widget-key="${widgetKey}" async></script>`;
+
+  async function copy() {
+    await navigator.clipboard.writeText(snippet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-[var(--text-secondary)]">Embed snippet</span>
+        <button
+          onClick={copy}
+          className="text-xs font-medium text-[#8B5CF6] hover:text-[#A78BFA] transition-colors"
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
+      </div>
+      <pre className="text-[11px] text-[var(--text-primary)] bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg p-3 overflow-x-auto font-mono whitespace-pre-wrap break-all">
+        {snippet}
+      </pre>
+      <p className="text-[10px] text-[var(--text-muted)] mt-2">
+        Paste this before the closing <code>&lt;/body&gt;</code> tag of any page.
+      </p>
+    </div>
   );
 }

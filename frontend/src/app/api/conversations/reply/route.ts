@@ -5,6 +5,7 @@ import { getSessionContext } from "@/backend/auth-utils";
 import { prisma } from "@/backend/prisma";
 import { getAdapter } from "@/backend/channels/registry";
 import type { ChannelConfigData } from "@/backend/channels/types";
+import { publish } from "@/backend/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,10 @@ export async function POST(req: Request) {
         externalMsgId: externalMsgId ?? null,
       },
     }),
+    prisma.message.updateMany({
+      where: { conversationId: conversation.id, role: "USER", readAt: null },
+      data: { readAt: new Date() },
+    }),
     prisma.conversation.update({
       where: { id: conversation.id },
       data: {
@@ -85,6 +90,14 @@ export async function POST(req: Request) {
       },
     }),
   ]);
+
+  if (conversation.channel === "WEBCHAT") {
+    await publish(`webchat:${conversation.id}:events`, {
+      type: "agent_message",
+      content: text,
+      createdAt: new Date().toISOString(),
+    });
+  }
 
   return Response.json({ ok: true });
 }

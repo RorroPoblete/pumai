@@ -257,6 +257,9 @@ model Message {
   content       String      @db.Text
   role          MessageRole
   externalMsgId String?
+  attachmentUrl String?
+  attachmentType String?
+  readAt        DateTime?
   createdAt     DateTime    @default(now())
 
   conversationId String
