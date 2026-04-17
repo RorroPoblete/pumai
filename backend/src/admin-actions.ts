@@ -2,6 +2,7 @@
 
 import { prisma } from "./prisma";
 import { requireSuperadmin } from "./auth-utils";
+import type { Channel } from "./channels/types";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -158,8 +159,6 @@ export async function savePlatformConfigs(configs: { key: string; value: string 
 
 // ─── Admin Channel Management ───
 
-type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP";
-
 export async function adminConnectChannel(
   businessId: string,
   channel: string,
@@ -169,7 +168,7 @@ export async function adminConnectChannel(
 ) {
   await requireSuperadmin();
 
-  const ch = channel as ChannelEnum;
+  const ch = channel as Channel;
   await prisma.channelConfig.upsert({
     where: { businessId_channel: { businessId, channel: ch } },
     create: { businessId, channel: ch, externalId, credentials, agentId, active: true },

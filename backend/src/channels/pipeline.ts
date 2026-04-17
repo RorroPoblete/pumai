@@ -5,15 +5,8 @@
 import { prisma } from "../prisma";
 import { buildSystemPrompt, getChatResponse, analyzeConversation } from "../ai";
 import { getAdapter } from "./registry";
+import { CONTEXT_WINDOW_MS, SENTIMENT_MAP } from "./types";
 import type { InboundMessage, ChannelConfigData } from "./types";
-
-const SENTIMENT_MAP = {
-  positive: "POSITIVE",
-  neutral: "NEUTRAL",
-  negative: "NEGATIVE",
-} as const;
-
-const CONTEXT_WINDOW_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 function parseCredentials(raw: string): Record<string, string> {
   try {

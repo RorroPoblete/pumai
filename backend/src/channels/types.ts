@@ -2,6 +2,14 @@
 
 export type Channel = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP";
 
+export const CONTEXT_WINDOW_MS = 2 * 60 * 60 * 1000;
+
+export const SENTIMENT_MAP: Record<string, "POSITIVE" | "NEUTRAL" | "NEGATIVE"> = {
+  positive: "POSITIVE",
+  neutral: "NEUTRAL",
+  negative: "NEGATIVE",
+};
+
 export interface InboundMessage {
   channel: Channel;
   externalPageId: string;       // Maps to ChannelConfig.externalId

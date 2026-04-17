@@ -3,7 +3,7 @@
 // and forwards agent messages to the widget in real time.
 
 import { prisma } from "@/backend/prisma";
-import { createSubscriber } from "@/backend/rate-limit";
+import { createSubscriber } from "@/backend/redis";
 import { corsHeaders, corsOptions } from "../../_shared";
 
 export const dynamic = "force-dynamic";

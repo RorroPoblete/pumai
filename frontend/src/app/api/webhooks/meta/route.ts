@@ -48,8 +48,6 @@ export async function POST(req: Request) {
 
   const body = JSON.parse(rawBody) as { object?: string };
 
-  console.log(`[Meta Webhook] object=${body.object} body=${rawBody.slice(0, 400)}`);
-
   // Route to the correct adapter based on platform
   let messages: InboundMessage[] = [];
   if (body.object === "page") {
@@ -57,8 +55,6 @@ export async function POST(req: Request) {
   } else if (body.object === "instagram") {
     messages = instagramAdapter.parseInbound(body);
   }
-
-  console.log(`[Meta Webhook] Parsed ${messages.length} message(s)`);
 
   // Fire-and-forget — Meta expects a fast 200
   for (const msg of messages) {

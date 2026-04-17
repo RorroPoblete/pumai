@@ -5,7 +5,7 @@
 - **Webchat** is production-ready: streaming SSE, agent push via Redis pub/sub, Shadow DOM widget, vision-enabled image attachments, rate limiting, offline mode, read receipts, unread badge + polling in dashboard.
 - **Messenger** webhook + adapter + AI reply working end-to-end.
 - **Instagram** stalled in Meta Dev mode — code is ready, but Meta won't fire webhooks until the app is published. See `docs/integrations/instagram-status-2026-04-16.md`.
-- **WhatsApp** not started.
+- **WhatsApp** working end-to-end via Whapi.cloud — webhook, adapter, AI pipeline, dashboard channel config all live.
 - SMS has been removed from the product — Webchat, WhatsApp, Instagram and Messenger are the four supported channels.
 - See `TECHNICAL_DEBT.md` for outstanding items.
 
@@ -108,14 +108,15 @@
 - [x] Origin allowlist + per-key + per-IP rate limiting (Redis)
 - [x] Dashboard: branding form, embed snippet copy, conversation polling, unread badge, mark-read on click
 
-### Phase 10: WhatsApp Integration ⬜
-- [ ] WhatsApp Business API setup (via 360dialog or Twilio)
-- [ ] Inbound message webhook handler
-- [ ] Rich media support (images, buttons, links, catalogues)
-- [ ] Service conversations (user-initiated, free 24hr window)
-- [ ] Marketing outbound (~US$0.04/msg, Rest of APAC rate)
-- [ ] WhatsApp Business profile management
-- [ ] Connect AI engine to WhatsApp inbound pipeline
+### Phase 10: WhatsApp Integration ✅
+- [x] WhatsApp Business API setup via Whapi.cloud (QR-based session, no BSP approval needed)
+- [x] Inbound message webhook handler (`/api/webhooks/whatsapp`)
+- [x] Adapter: parses Whapi payload, sends via `gate.whapi.cloud/messages/text`
+- [x] Connect AI engine via shared pipeline (same `handleInbound` as Messenger/Instagram)
+- [x] Dashboard channel management UI (Channel ID + API Token)
+- [ ] Rich media support (images, buttons, catalogues)
+- [ ] Marketing outbound campaigns
+- [ ] See `WHATSAPP.md` for integration guide
 
 ### Phase 12: Integrations ⬜
 - [ ] HubSpot CRM sync
@@ -227,5 +228,6 @@ npm run db:studio     # Open Prisma Studio
 
 - `WEBCHAT.md` — full webchat integration guide (config, embed, API, troubleshooting)
 - `FACEBOOK_MESSENGER.md` — Messenger integration guide
+- `WHATSAPP.md` — WhatsApp integration guide (via Whapi.cloud)
 - `docs/integrations/instagram-status-2026-04-16.md` — Instagram status & blockers
 - `TECHNICAL_DEBT.md` — live list of pending work across infra, product, security, compliance

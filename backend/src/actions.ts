@@ -171,7 +171,5 @@ export async function requestPasswordReset(email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
   // Always return success to prevent email enumeration
   if (!user) return;
-  // In production: generate token, save to DB, send email via SendGrid/Resend
-  // For now: log the reset request
-  console.log(`Password reset requested for ${email}`);
+  // TODO: generate token, save to DB, send email via SendGrid/Resend
 }

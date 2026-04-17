@@ -3,6 +3,7 @@
 
 import { prisma } from "@/backend/prisma";
 import { buildSystemPrompt, streamChatResponse, analyzeConversation } from "@/backend/ai";
+import { CONTEXT_WINDOW_MS, SENTIMENT_MAP } from "@/backend/channels/types";
 import { readFile } from "fs/promises";
 import path from "path";
 import {
@@ -23,14 +24,6 @@ interface Body {
   visitor?: { name?: string };
   attachment?: { url?: string; type?: string };
 }
-
-const CONTEXT_WINDOW_MS = 2 * 60 * 60 * 1000;
-
-const SENTIMENT_MAP: Record<string, "POSITIVE" | "NEUTRAL" | "NEGATIVE"> = {
-  positive: "POSITIVE",
-  neutral: "NEUTRAL",
-  negative: "NEGATIVE",
-};
 
 export async function OPTIONS(req: Request) {
   return corsOptions(req);

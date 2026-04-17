@@ -3,7 +3,7 @@
 
 import type { ChannelAdapter, ChannelConfigData, InboundMessage, OutboundMessage } from "./types";
 
-const GRAPH_API = "https://graph.facebook.com/v21.0";
+const GRAPH_API = "https://graph.facebook.com/v22.0";
 
 // ─── Webhook Payload Types ───
 

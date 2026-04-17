@@ -1,34 +1,4 @@
-import Redis from "ioredis";
-
-let redis: Redis | null = null;
-
-function getRedis(): Redis {
-  if (!redis) {
-    redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
-      maxRetriesPerRequest: 1,
-      lazyConnect: true,
-    });
-    redis.connect().catch(() => {
-      redis = null;
-    });
-  }
-  return redis;
-}
-
-export async function publish(channel: string, payload: unknown): Promise<void> {
-  try {
-    const client = getRedis();
-    await client.publish(channel, JSON.stringify(payload));
-  } catch {
-    // Redis unavailable — skip (fail open)
-  }
-}
-
-export function createSubscriber(): Redis {
-  return new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
-    maxRetriesPerRequest: 1,
-  });
-}
+import { getRedis } from "./redis";
 
 export async function rateLimit(
   key: string,

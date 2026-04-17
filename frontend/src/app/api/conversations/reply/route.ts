@@ -5,7 +5,7 @@ import { getSessionContext } from "@/backend/auth-utils";
 import { prisma } from "@/backend/prisma";
 import { getAdapter } from "@/backend/channels/registry";
 import type { ChannelConfigData } from "@/backend/channels/types";
-import { publish } from "@/backend/rate-limit";
+import { publish } from "@/backend/redis";
 
 export const dynamic = "force-dynamic";
 

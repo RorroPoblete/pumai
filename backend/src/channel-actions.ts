@@ -3,10 +3,9 @@
 import { prisma } from "./prisma";
 import { getActiveBusinessId } from "./auth-utils";
 import { channelConfigSchema, webchatConfigSchema } from "./validation";
+import type { Channel } from "./channels/types";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
-
-type ChannelEnum = "MESSENGER" | "INSTAGRAM" | "WEBCHAT" | "WHATSAPP";
 
 export async function connectChannel(raw: unknown) {
   const businessId = await getActiveBusinessId();
@@ -15,10 +14,10 @@ export async function connectChannel(raw: unknown) {
   const data = channelConfigSchema.parse(raw);
 
   await prisma.channelConfig.upsert({
-    where: { businessId_channel: { businessId, channel: data.channel as ChannelEnum } },
+    where: { businessId_channel: { businessId, channel: data.channel as Channel } },
     create: {
       businessId,
-      channel: data.channel as ChannelEnum,
+      channel: data.channel as Channel,
       externalId: data.externalId,
       credentials: data.credentials,
       agentId: data.agentId,
