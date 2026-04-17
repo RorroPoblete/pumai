@@ -26,4 +26,5 @@ export interface ChannelAdapter {
   channel: Channel;
   parseInbound(body: unknown): InboundMessage[];
   sendMessage(config: ChannelConfigData, message: OutboundMessage): Promise<string | null>;
+  fetchSenderName?(senderId: string, config: ChannelConfigData): Promise<string | null>;
 }

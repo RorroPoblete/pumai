@@ -5,7 +5,6 @@
 import { prisma } from "../prisma";
 import { buildSystemPrompt, getChatResponse, analyzeConversation } from "../ai";
 import { getAdapter } from "./registry";
-import { fetchSenderName } from "./messenger";
 import type { InboundMessage, ChannelConfigData } from "./types";
 
 const SENTIMENT_MAP = {
@@ -24,7 +23,15 @@ function parseCredentials(raw: string): Record<string, string> {
   }
 }
 
-export async function handleInbound(message: InboundMessage): Promise<void> {
+export interface InboundResult {
+  aiResponse: string | null;
+  isEscalated: boolean;
+  conversationId: string | null;
+}
+
+export async function handleInbound(message: InboundMessage): Promise<InboundResult> {
+  const empty: InboundResult = { aiResponse: null, isEscalated: false, conversationId: null };
+
   // 1. Find ChannelConfig → identifies which business owns this page/account
   const channelConfig = await prisma.channelConfig.findFirst({
     where: {
@@ -35,22 +42,27 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
     include: { agent: true },
   });
 
-  if (!channelConfig) return;
+  if (!channelConfig) return empty;
 
   // 2. Deduplicate (Meta may retry webhook delivery)
   if (message.externalMsgId) {
     const exists = await prisma.message.findFirst({
       where: { externalMsgId: message.externalMsgId },
     });
-    if (exists) return;
+    if (exists) return empty;
   }
 
   const credentials = parseCredentials(channelConfig.credentials);
+  const adapter = getAdapter(message.channel);
+  const configData: ChannelConfigData = {
+    credentials,
+    externalId: channelConfig.externalId,
+  };
 
   // 3. Resolve sender name via platform API if not provided
   let senderName = message.senderName ?? null;
-  if (!senderName && message.channel === "MESSENGER") {
-    senderName = await fetchSenderName(message.senderExternalId, credentials.pageAccessToken);
+  if (!senderName && adapter.fetchSenderName) {
+    senderName = await adapter.fetchSenderName(message.senderExternalId, configData);
   }
 
   // 4. Find or create conversation
@@ -112,7 +124,9 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
   ]);
 
   // 7. Skip AI if human takeover is active
-  if (!conversation.aiEnabled) return;
+  if (!conversation.aiEnabled) {
+    return { aiResponse: null, isEscalated: false, conversationId: conversation.id };
+  }
 
   // 8. Build conversation history for AI
   const { agent } = channelConfig;
@@ -142,12 +156,6 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
   const cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
 
   // 9. Send outbound via channel adapter
-  const adapter = getAdapter(message.channel);
-  const configData: ChannelConfigData = {
-    credentials,
-    externalId: channelConfig.externalId,
-  };
-
   const outboundMsgId = await adapter.sendMessage(configData, {
     recipientExternalId: message.senderExternalId,
     text: cleanResponse,
@@ -185,4 +193,6 @@ export async function handleInbound(message: InboundMessage): Promise<void> {
       });
     })
     .catch((err) => console.error(`[Pipeline] Analysis failed for ${conversation.id}:`, err));
+
+  return { aiResponse: cleanResponse, isEscalated, conversationId: conversation.id };
 }

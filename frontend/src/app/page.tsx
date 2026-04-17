@@ -1,3 +1,4 @@
+import Script from "next/script";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
@@ -33,6 +34,11 @@ export default function Home() {
         <CTA />
       </ScrollReveal>
       <Footer />
+      <Script
+        src="/widget.js"
+        data-widget-key="wk_pumai_landing"
+        strategy="afterInteractive"
+      />
     </>
   );
 }

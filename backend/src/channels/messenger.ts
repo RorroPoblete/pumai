@@ -14,7 +14,7 @@ interface WebhookBody {
     messaging?: {
       sender: { id: string };
       timestamp: number;
-      message?: { mid: string; text?: string };
+      message?: { mid: string; text?: string; is_echo?: boolean };
     }[];
   }[];
 }
@@ -29,7 +29,8 @@ function parseInbound(body: unknown): InboundMessage[] {
 
   for (const entry of payload.entry) {
     for (const event of entry.messaging ?? []) {
-      if (!event.message?.text) continue; // Only text messages
+      if (event.message?.is_echo) continue; // Skip messages we sent
+      if (!event.message?.text) continue;   // Only text messages
 
       messages.push({
         channel: "MESSENGER",
@@ -72,9 +73,10 @@ async function sendMessage(config: ChannelConfigData, message: OutboundMessage):
 
 // ─── Fetch Sender Profile ───
 
-export async function fetchSenderName(psid: string, pageAccessToken: string): Promise<string | null> {
+async function fetchSenderName(psid: string, config: ChannelConfigData): Promise<string | null> {
   try {
-    const res = await fetch(`${GRAPH_API}/${psid}?fields=first_name,last_name&access_token=${pageAccessToken}`);
+    const token = config.credentials.pageAccessToken;
+    const res = await fetch(`${GRAPH_API}/${psid}?fields=first_name,last_name&access_token=${token}`);
     if (!res.ok) return null;
 
     const data = (await res.json()) as { first_name?: string; last_name?: string };
@@ -91,4 +93,5 @@ export const messengerAdapter: ChannelAdapter = {
   channel: "MESSENGER",
   parseInbound,
   sendMessage,
+  fetchSenderName,
 };

@@ -41,7 +41,7 @@ services:
     container_name: pumai-app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
       DATABASE_URL: postgresql://pumai:pumai_secret@postgres:5432/pumai_db
       REDIS_URL: redis://redis:6379
@@ -50,8 +50,9 @@ services:
       AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       META_APP_SECRET: ${META_APP_SECRET:-}
+      META_APP_SECRET_IG: ${META_APP_SECRET_IG:-}
       META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN:-pumai_webhook_verify_2024}
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3002
       AUTH_TRUST_HOST: "true"
     depends_on:
       postgres:

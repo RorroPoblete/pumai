@@ -4,6 +4,7 @@
 // POST: Inbound events with HMAC-SHA256 signature verification
 
 import { messengerAdapter } from "@/backend/channels/messenger";
+import { instagramAdapter } from "@/backend/channels/instagram";
 import { handleInbound } from "@/backend/channels/pipeline";
 import { getMetaCredentials } from "@/backend/channels/meta-config";
 import type { InboundMessage } from "@/backend/channels/types";
@@ -30,9 +31,9 @@ export async function GET(req: Request) {
 // ─── POST: Inbound Events ───
 
 export async function POST(req: Request) {
-  const { appSecret } = await getMetaCredentials();
-  if (!appSecret) {
-    console.error("[Meta Webhook] META_APP_SECRET not configured");
+  const { appSecrets } = await getMetaCredentials();
+  if (appSecrets.length === 0) {
+    console.error("[Meta Webhook] No META_APP_SECRET configured");
     return Response.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
@@ -40,20 +41,24 @@ export async function POST(req: Request) {
   const rawBody = await req.text();
   const signature = req.headers.get("x-hub-signature-256");
 
-  if (!verifySignature(rawBody, signature, appSecret)) {
+  const signatureOk = appSecrets.some((secret) => verifySignature(rawBody, signature, secret));
+  if (!signatureOk) {
     return new Response("Invalid signature", { status: 403 });
   }
 
   const body = JSON.parse(rawBody) as { object?: string };
 
+  console.log(`[Meta Webhook] object=${body.object} body=${rawBody.slice(0, 400)}`);
+
   // Route to the correct adapter based on platform
   let messages: InboundMessage[] = [];
   if (body.object === "page") {
     messages = messengerAdapter.parseInbound(body);
+  } else if (body.object === "instagram") {
+    messages = instagramAdapter.parseInbound(body);
   }
-  // else if (body.object === "instagram") {
-  //   messages = instagramAdapter.parseInbound(body);
-  // }
+
+  console.log(`[Meta Webhook] Parsed ${messages.length} message(s)`);
 
   // Fire-and-forget — Meta expects a fast 200
   for (const msg of messages) {

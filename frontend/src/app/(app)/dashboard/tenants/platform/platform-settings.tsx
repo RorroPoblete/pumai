@@ -74,9 +74,14 @@ export default function PlatformSettings({
     }
     setError("");
 
-    const creds = form.channel === "MESSENGER"
-      ? JSON.stringify({ pageAccessToken: form.credentials })
-      : form.credentials;
+    let creds: string;
+    if (form.channel === "MESSENGER") {
+      creds = JSON.stringify({ pageAccessToken: form.credentials });
+    } else if (form.channel === "INSTAGRAM") {
+      creds = JSON.stringify({ accessToken: form.credentials });
+    } else {
+      creds = form.credentials;
+    }
 
     startTransition(async () => {
       await adminConnectChannel(form.businessId, form.channel, form.externalId, creds, form.agentId);
@@ -197,19 +202,33 @@ export default function PlatformSettings({
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
-                  {form.channel === "MESSENGER" ? "Page ID" : "External ID"}
+                  {form.channel === "MESSENGER"
+                    ? "Page ID"
+                    : form.channel === "INSTAGRAM"
+                    ? "Instagram Business Account ID"
+                    : "External ID"}
                 </label>
                 <input
                   type="text"
                   value={form.externalId}
                   onChange={(e) => setForm({ ...form, externalId: e.target.value })}
-                  placeholder={form.channel === "MESSENGER" ? "e.g. 592289943976769" : "External identifier"}
+                  placeholder={
+                    form.channel === "MESSENGER"
+                      ? "e.g. 592289943976769"
+                      : form.channel === "INSTAGRAM"
+                      ? "e.g. 17841400000000000"
+                      : "External identifier"
+                  }
                   className={inputClass}
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
-                  {form.channel === "MESSENGER" ? "Page Access Token" : "Credentials"}
+                  {form.channel === "MESSENGER"
+                    ? "Page Access Token"
+                    : form.channel === "INSTAGRAM"
+                    ? "Instagram Access Token"
+                    : "Credentials"}
                 </label>
                 <input
                   type="password"
