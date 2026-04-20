@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  PlatformConfig: 'PlatformConfig',
   User: 'User',
   Account: 'Account',
   Session: 'Session',
@@ -391,7 +392,6 @@ export const ModelName = {
   BusinessMember: 'BusinessMember',
   Invitation: 'Invitation',
   Agent: 'Agent',
-  SmsNumber: 'SmsNumber',
   ChannelConfig: 'ChannelConfig',
   Conversation: 'Conversation',
   Message: 'Message'
@@ -410,10 +410,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "business" | "businessMember" | "invitation" | "agent" | "smsNumber" | "channelConfig" | "conversation" | "message"
+    modelProps: "platformConfig" | "user" | "account" | "session" | "business" | "businessMember" | "invitation" | "agent" | "channelConfig" | "conversation" | "message"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    PlatformConfig: {
+      payload: Prisma.$PlatformConfigPayload<ExtArgs>
+      fields: Prisma.PlatformConfigFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlatformConfigFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlatformConfigFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>
+        }
+        findFirst: {
+          args: Prisma.PlatformConfigFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlatformConfigFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>
+        }
+        findMany: {
+          args: Prisma.PlatformConfigFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>[]
+        }
+        create: {
+          args: Prisma.PlatformConfigCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>
+        }
+        createMany: {
+          args: Prisma.PlatformConfigCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PlatformConfigCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>[]
+        }
+        delete: {
+          args: Prisma.PlatformConfigDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>
+        }
+        update: {
+          args: Prisma.PlatformConfigUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>
+        }
+        deleteMany: {
+          args: Prisma.PlatformConfigDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlatformConfigUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PlatformConfigUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>[]
+        }
+        upsert: {
+          args: Prisma.PlatformConfigUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformConfigPayload>
+        }
+        aggregate: {
+          args: Prisma.PlatformConfigAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlatformConfig>
+        }
+        groupBy: {
+          args: Prisma.PlatformConfigGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformConfigGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlatformConfigCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformConfigCountAggregateOutputType> | number
+        }
+      }
+    }
     User: {
       payload: Prisma.$UserPayload<ExtArgs>
       fields: Prisma.UserFieldRefs
@@ -932,80 +1006,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    SmsNumber: {
-      payload: Prisma.$SmsNumberPayload<ExtArgs>
-      fields: Prisma.SmsNumberFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SmsNumberFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SmsNumberFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>
-        }
-        findFirst: {
-          args: Prisma.SmsNumberFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SmsNumberFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>
-        }
-        findMany: {
-          args: Prisma.SmsNumberFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>[]
-        }
-        create: {
-          args: Prisma.SmsNumberCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>
-        }
-        createMany: {
-          args: Prisma.SmsNumberCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SmsNumberCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>[]
-        }
-        delete: {
-          args: Prisma.SmsNumberDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>
-        }
-        update: {
-          args: Prisma.SmsNumberUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>
-        }
-        deleteMany: {
-          args: Prisma.SmsNumberDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SmsNumberUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SmsNumberUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>[]
-        }
-        upsert: {
-          args: Prisma.SmsNumberUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsNumberPayload>
-        }
-        aggregate: {
-          args: Prisma.SmsNumberAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSmsNumber>
-        }
-        groupBy: {
-          args: Prisma.SmsNumberGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SmsNumberGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SmsNumberCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SmsNumberCountAggregateOutputType> | number
-        }
-      }
-    }
     ChannelConfig: {
       payload: Prisma.$ChannelConfigPayload<ExtArgs>
       fields: Prisma.ChannelConfigFieldRefs
@@ -1267,6 +1267,14 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const PlatformConfigScalarFieldEnum = {
+  key: 'key',
+  value: 'value'
+} as const
+
+export type PlatformConfigScalarFieldEnum = (typeof PlatformConfigScalarFieldEnum)[keyof typeof PlatformConfigScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1321,6 +1329,10 @@ export const BusinessScalarFieldEnum = {
   plan: 'plan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  stripeStatus: 'stripeStatus',
   userId: 'userId'
 } as const
 
@@ -1369,18 +1381,6 @@ export const AgentScalarFieldEnum = {
 export type AgentScalarFieldEnum = (typeof AgentScalarFieldEnum)[keyof typeof AgentScalarFieldEnum]
 
 
-export const SmsNumberScalarFieldEnum = {
-  id: 'id',
-  number: 'number',
-  provider: 'provider',
-  active: 'active',
-  createdAt: 'createdAt',
-  businessId: 'businessId'
-} as const
-
-export type SmsNumberScalarFieldEnum = (typeof SmsNumberScalarFieldEnum)[keyof typeof SmsNumberScalarFieldEnum]
-
-
 export const ChannelConfigScalarFieldEnum = {
   id: 'id',
   channel: 'channel',
@@ -1404,13 +1404,13 @@ export const ConversationScalarFieldEnum = {
   contactExternalId: 'contactExternalId',
   status: 'status',
   sentiment: 'sentiment',
+  aiEnabled: 'aiEnabled',
   messagesCount: 'messagesCount',
   lastMessageAt: 'lastMessageAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   businessId: 'businessId',
-  agentId: 'agentId',
-  smsNumberId: 'smsNumberId'
+  agentId: 'agentId'
 } as const
 
 export type ConversationScalarFieldEnum = (typeof ConversationScalarFieldEnum)[keyof typeof ConversationScalarFieldEnum]
@@ -1421,6 +1421,9 @@ export const MessageScalarFieldEnum = {
   content: 'content',
   role: 'role',
   externalMsgId: 'externalMsgId',
+  attachmentUrl: 'attachmentUrl',
+  attachmentType: 'attachmentType',
+  readAt: 'readAt',
   createdAt: 'createdAt',
   conversationId: 'conversationId'
 } as const
@@ -1741,6 +1744,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
+  platformConfig?: Prisma.PlatformConfigOmit
   user?: Prisma.UserOmit
   account?: Prisma.AccountOmit
   session?: Prisma.SessionOmit
@@ -1748,7 +1752,6 @@ export type GlobalOmitConfig = {
   businessMember?: Prisma.BusinessMemberOmit
   invitation?: Prisma.InvitationOmit
   agent?: Prisma.AgentOmit
-  smsNumber?: Prisma.SmsNumberOmit
   channelConfig?: Prisma.ChannelConfigOmit
   conversation?: Prisma.ConversationOmit
   message?: Prisma.MessageOmit

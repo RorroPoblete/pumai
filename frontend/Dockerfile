@@ -3,7 +3,7 @@ FROM node:22-alpine AS deps
 WORKDIR /build
 
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN npm ci
 
 # ─── Stage 2: Build ───
 FROM node:22-alpine AS builder

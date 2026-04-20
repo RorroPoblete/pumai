@@ -57,8 +57,7 @@ export const Channel = {
   MESSENGER: 'MESSENGER',
   INSTAGRAM: 'INSTAGRAM',
   WEBCHAT: 'WEBCHAT',
-  WHATSAPP: 'WHATSAPP',
-  SMS: 'SMS'
+  WHATSAPP: 'WHATSAPP'
 } as const
 
 export type Channel = (typeof Channel)[keyof typeof Channel]

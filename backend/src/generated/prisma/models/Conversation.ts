@@ -42,13 +42,13 @@ export type ConversationMinAggregateOutputType = {
   contactExternalId: string | null
   status: $Enums.ConversationStatus | null
   sentiment: $Enums.Sentiment | null
+  aiEnabled: boolean | null
   messagesCount: number | null
   lastMessageAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   businessId: string | null
   agentId: string | null
-  smsNumberId: string | null
 }
 
 export type ConversationMaxAggregateOutputType = {
@@ -59,13 +59,13 @@ export type ConversationMaxAggregateOutputType = {
   contactExternalId: string | null
   status: $Enums.ConversationStatus | null
   sentiment: $Enums.Sentiment | null
+  aiEnabled: boolean | null
   messagesCount: number | null
   lastMessageAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   businessId: string | null
   agentId: string | null
-  smsNumberId: string | null
 }
 
 export type ConversationCountAggregateOutputType = {
@@ -76,13 +76,13 @@ export type ConversationCountAggregateOutputType = {
   contactExternalId: number
   status: number
   sentiment: number
+  aiEnabled: number
   messagesCount: number
   lastMessageAt: number
   createdAt: number
   updatedAt: number
   businessId: number
   agentId: number
-  smsNumberId: number
   _all: number
 }
 
@@ -103,13 +103,13 @@ export type ConversationMinAggregateInputType = {
   contactExternalId?: true
   status?: true
   sentiment?: true
+  aiEnabled?: true
   messagesCount?: true
   lastMessageAt?: true
   createdAt?: true
   updatedAt?: true
   businessId?: true
   agentId?: true
-  smsNumberId?: true
 }
 
 export type ConversationMaxAggregateInputType = {
@@ -120,13 +120,13 @@ export type ConversationMaxAggregateInputType = {
   contactExternalId?: true
   status?: true
   sentiment?: true
+  aiEnabled?: true
   messagesCount?: true
   lastMessageAt?: true
   createdAt?: true
   updatedAt?: true
   businessId?: true
   agentId?: true
-  smsNumberId?: true
 }
 
 export type ConversationCountAggregateInputType = {
@@ -137,13 +137,13 @@ export type ConversationCountAggregateInputType = {
   contactExternalId?: true
   status?: true
   sentiment?: true
+  aiEnabled?: true
   messagesCount?: true
   lastMessageAt?: true
   createdAt?: true
   updatedAt?: true
   businessId?: true
   agentId?: true
-  smsNumberId?: true
   _all?: true
 }
 
@@ -241,13 +241,13 @@ export type ConversationGroupByOutputType = {
   contactExternalId: string | null
   status: $Enums.ConversationStatus
   sentiment: $Enums.Sentiment
+  aiEnabled: boolean
   messagesCount: number
   lastMessageAt: Date
   createdAt: Date
   updatedAt: Date
   businessId: string
   agentId: string
-  smsNumberId: string | null
   _count: ConversationCountAggregateOutputType | null
   _avg: ConversationAvgAggregateOutputType | null
   _sum: ConversationSumAggregateOutputType | null
@@ -281,16 +281,15 @@ export type ConversationWhereInput = {
   contactExternalId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   status?: Prisma.EnumConversationStatusFilter<"Conversation"> | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFilter<"Conversation"> | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFilter<"Conversation"> | boolean
   messagesCount?: Prisma.IntFilter<"Conversation"> | number
   lastMessageAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   businessId?: Prisma.StringFilter<"Conversation"> | string
   agentId?: Prisma.StringFilter<"Conversation"> | string
-  smsNumberId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   agent?: Prisma.XOR<Prisma.AgentScalarRelationFilter, Prisma.AgentWhereInput>
-  smsNumber?: Prisma.XOR<Prisma.SmsNumberNullableScalarRelationFilter, Prisma.SmsNumberWhereInput> | null
   messages?: Prisma.MessageListRelationFilter
 }
 
@@ -302,16 +301,15 @@ export type ConversationOrderByWithRelationInput = {
   contactExternalId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
+  aiEnabled?: Prisma.SortOrder
   messagesCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   businessId?: Prisma.SortOrder
   agentId?: Prisma.SortOrder
-  smsNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
   business?: Prisma.BusinessOrderByWithRelationInput
   agent?: Prisma.AgentOrderByWithRelationInput
-  smsNumber?: Prisma.SmsNumberOrderByWithRelationInput
   messages?: Prisma.MessageOrderByRelationAggregateInput
 }
 
@@ -327,16 +325,15 @@ export type ConversationWhereUniqueInput = Prisma.AtLeast<{
   contactExternalId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   status?: Prisma.EnumConversationStatusFilter<"Conversation"> | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFilter<"Conversation"> | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFilter<"Conversation"> | boolean
   messagesCount?: Prisma.IntFilter<"Conversation"> | number
   lastMessageAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   businessId?: Prisma.StringFilter<"Conversation"> | string
   agentId?: Prisma.StringFilter<"Conversation"> | string
-  smsNumberId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   agent?: Prisma.XOR<Prisma.AgentScalarRelationFilter, Prisma.AgentWhereInput>
-  smsNumber?: Prisma.XOR<Prisma.SmsNumberNullableScalarRelationFilter, Prisma.SmsNumberWhereInput> | null
   messages?: Prisma.MessageListRelationFilter
 }, "id" | "businessId_channel_contactExternalId">
 
@@ -348,13 +345,13 @@ export type ConversationOrderByWithAggregationInput = {
   contactExternalId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
+  aiEnabled?: Prisma.SortOrder
   messagesCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   businessId?: Prisma.SortOrder
   agentId?: Prisma.SortOrder
-  smsNumberId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ConversationCountOrderByAggregateInput
   _avg?: Prisma.ConversationAvgOrderByAggregateInput
   _max?: Prisma.ConversationMaxOrderByAggregateInput
@@ -373,13 +370,13 @@ export type ConversationScalarWhereWithAggregatesInput = {
   contactExternalId?: Prisma.StringNullableWithAggregatesFilter<"Conversation"> | string | null
   status?: Prisma.EnumConversationStatusWithAggregatesFilter<"Conversation"> | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentWithAggregatesFilter<"Conversation"> | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolWithAggregatesFilter<"Conversation"> | boolean
   messagesCount?: Prisma.IntWithAggregatesFilter<"Conversation"> | number
   lastMessageAt?: Prisma.DateTimeWithAggregatesFilter<"Conversation"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Conversation"> | Date | string
   businessId?: Prisma.StringWithAggregatesFilter<"Conversation"> | string
   agentId?: Prisma.StringWithAggregatesFilter<"Conversation"> | string
-  smsNumberId?: Prisma.StringNullableWithAggregatesFilter<"Conversation"> | string | null
 }
 
 export type ConversationCreateInput = {
@@ -390,13 +387,13 @@ export type ConversationCreateInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutConversationsInput
   agent: Prisma.AgentCreateNestedOneWithoutConversationsInput
-  smsNumber?: Prisma.SmsNumberCreateNestedOneWithoutConversationsInput
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
 }
 
@@ -408,13 +405,13 @@ export type ConversationUncheckedCreateInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   businessId: string
   agentId: string
-  smsNumberId?: string | null
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
 }
 
@@ -426,13 +423,13 @@ export type ConversationUpdateInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutConversationsNestedInput
   agent?: Prisma.AgentUpdateOneRequiredWithoutConversationsNestedInput
-  smsNumber?: Prisma.SmsNumberUpdateOneWithoutConversationsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
 }
 
@@ -444,13 +441,13 @@ export type ConversationUncheckedUpdateInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   agentId?: Prisma.StringFieldUpdateOperationsInput | string
-  smsNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
 }
 
@@ -462,13 +459,13 @@ export type ConversationCreateManyInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   businessId: string
   agentId: string
-  smsNumberId?: string | null
 }
 
 export type ConversationUpdateManyMutationInput = {
@@ -479,6 +476,7 @@ export type ConversationUpdateManyMutationInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -493,13 +491,13 @@ export type ConversationUncheckedUpdateManyInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   agentId?: Prisma.StringFieldUpdateOperationsInput | string
-  smsNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConversationListRelationFilter = {
@@ -526,13 +524,13 @@ export type ConversationCountOrderByAggregateInput = {
   contactExternalId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
+  aiEnabled?: Prisma.SortOrder
   messagesCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   businessId?: Prisma.SortOrder
   agentId?: Prisma.SortOrder
-  smsNumberId?: Prisma.SortOrder
 }
 
 export type ConversationAvgOrderByAggregateInput = {
@@ -547,13 +545,13 @@ export type ConversationMaxOrderByAggregateInput = {
   contactExternalId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
+  aiEnabled?: Prisma.SortOrder
   messagesCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   businessId?: Prisma.SortOrder
   agentId?: Prisma.SortOrder
-  smsNumberId?: Prisma.SortOrder
 }
 
 export type ConversationMinOrderByAggregateInput = {
@@ -564,13 +562,13 @@ export type ConversationMinOrderByAggregateInput = {
   contactExternalId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sentiment?: Prisma.SortOrder
+  aiEnabled?: Prisma.SortOrder
   messagesCount?: Prisma.SortOrder
   lastMessageAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   businessId?: Prisma.SortOrder
   agentId?: Prisma.SortOrder
-  smsNumberId?: Prisma.SortOrder
 }
 
 export type ConversationSumOrderByAggregateInput = {
@@ -666,48 +664,6 @@ export type ConversationUncheckedUpdateManyWithoutAgentNestedInput = {
   deleteMany?: Prisma.ConversationScalarWhereInput | Prisma.ConversationScalarWhereInput[]
 }
 
-export type ConversationCreateNestedManyWithoutSmsNumberInput = {
-  create?: Prisma.XOR<Prisma.ConversationCreateWithoutSmsNumberInput, Prisma.ConversationUncheckedCreateWithoutSmsNumberInput> | Prisma.ConversationCreateWithoutSmsNumberInput[] | Prisma.ConversationUncheckedCreateWithoutSmsNumberInput[]
-  connectOrCreate?: Prisma.ConversationCreateOrConnectWithoutSmsNumberInput | Prisma.ConversationCreateOrConnectWithoutSmsNumberInput[]
-  createMany?: Prisma.ConversationCreateManySmsNumberInputEnvelope
-  connect?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-}
-
-export type ConversationUncheckedCreateNestedManyWithoutSmsNumberInput = {
-  create?: Prisma.XOR<Prisma.ConversationCreateWithoutSmsNumberInput, Prisma.ConversationUncheckedCreateWithoutSmsNumberInput> | Prisma.ConversationCreateWithoutSmsNumberInput[] | Prisma.ConversationUncheckedCreateWithoutSmsNumberInput[]
-  connectOrCreate?: Prisma.ConversationCreateOrConnectWithoutSmsNumberInput | Prisma.ConversationCreateOrConnectWithoutSmsNumberInput[]
-  createMany?: Prisma.ConversationCreateManySmsNumberInputEnvelope
-  connect?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-}
-
-export type ConversationUpdateManyWithoutSmsNumberNestedInput = {
-  create?: Prisma.XOR<Prisma.ConversationCreateWithoutSmsNumberInput, Prisma.ConversationUncheckedCreateWithoutSmsNumberInput> | Prisma.ConversationCreateWithoutSmsNumberInput[] | Prisma.ConversationUncheckedCreateWithoutSmsNumberInput[]
-  connectOrCreate?: Prisma.ConversationCreateOrConnectWithoutSmsNumberInput | Prisma.ConversationCreateOrConnectWithoutSmsNumberInput[]
-  upsert?: Prisma.ConversationUpsertWithWhereUniqueWithoutSmsNumberInput | Prisma.ConversationUpsertWithWhereUniqueWithoutSmsNumberInput[]
-  createMany?: Prisma.ConversationCreateManySmsNumberInputEnvelope
-  set?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  disconnect?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  delete?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  connect?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  update?: Prisma.ConversationUpdateWithWhereUniqueWithoutSmsNumberInput | Prisma.ConversationUpdateWithWhereUniqueWithoutSmsNumberInput[]
-  updateMany?: Prisma.ConversationUpdateManyWithWhereWithoutSmsNumberInput | Prisma.ConversationUpdateManyWithWhereWithoutSmsNumberInput[]
-  deleteMany?: Prisma.ConversationScalarWhereInput | Prisma.ConversationScalarWhereInput[]
-}
-
-export type ConversationUncheckedUpdateManyWithoutSmsNumberNestedInput = {
-  create?: Prisma.XOR<Prisma.ConversationCreateWithoutSmsNumberInput, Prisma.ConversationUncheckedCreateWithoutSmsNumberInput> | Prisma.ConversationCreateWithoutSmsNumberInput[] | Prisma.ConversationUncheckedCreateWithoutSmsNumberInput[]
-  connectOrCreate?: Prisma.ConversationCreateOrConnectWithoutSmsNumberInput | Prisma.ConversationCreateOrConnectWithoutSmsNumberInput[]
-  upsert?: Prisma.ConversationUpsertWithWhereUniqueWithoutSmsNumberInput | Prisma.ConversationUpsertWithWhereUniqueWithoutSmsNumberInput[]
-  createMany?: Prisma.ConversationCreateManySmsNumberInputEnvelope
-  set?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  disconnect?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  delete?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  connect?: Prisma.ConversationWhereUniqueInput | Prisma.ConversationWhereUniqueInput[]
-  update?: Prisma.ConversationUpdateWithWhereUniqueWithoutSmsNumberInput | Prisma.ConversationUpdateWithWhereUniqueWithoutSmsNumberInput[]
-  updateMany?: Prisma.ConversationUpdateManyWithWhereWithoutSmsNumberInput | Prisma.ConversationUpdateManyWithWhereWithoutSmsNumberInput[]
-  deleteMany?: Prisma.ConversationScalarWhereInput | Prisma.ConversationScalarWhereInput[]
-}
-
 export type EnumConversationStatusFieldUpdateOperationsInput = {
   set?: $Enums.ConversationStatus
 }
@@ -746,12 +702,12 @@ export type ConversationCreateWithoutBusinessInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   agent: Prisma.AgentCreateNestedOneWithoutConversationsInput
-  smsNumber?: Prisma.SmsNumberCreateNestedOneWithoutConversationsInput
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
 }
 
@@ -763,12 +719,12 @@ export type ConversationUncheckedCreateWithoutBusinessInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   agentId: string
-  smsNumberId?: string | null
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
 }
 
@@ -809,13 +765,13 @@ export type ConversationScalarWhereInput = {
   contactExternalId?: Prisma.StringNullableFilter<"Conversation"> | string | null
   status?: Prisma.EnumConversationStatusFilter<"Conversation"> | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFilter<"Conversation"> | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFilter<"Conversation"> | boolean
   messagesCount?: Prisma.IntFilter<"Conversation"> | number
   lastMessageAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   businessId?: Prisma.StringFilter<"Conversation"> | string
   agentId?: Prisma.StringFilter<"Conversation"> | string
-  smsNumberId?: Prisma.StringNullableFilter<"Conversation"> | string | null
 }
 
 export type ConversationCreateWithoutAgentInput = {
@@ -826,12 +782,12 @@ export type ConversationCreateWithoutAgentInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutConversationsInput
-  smsNumber?: Prisma.SmsNumberCreateNestedOneWithoutConversationsInput
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
 }
 
@@ -843,12 +799,12 @@ export type ConversationUncheckedCreateWithoutAgentInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   businessId: string
-  smsNumberId?: string | null
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
 }
 
@@ -878,66 +834,6 @@ export type ConversationUpdateManyWithWhereWithoutAgentInput = {
   data: Prisma.XOR<Prisma.ConversationUpdateManyMutationInput, Prisma.ConversationUncheckedUpdateManyWithoutAgentInput>
 }
 
-export type ConversationCreateWithoutSmsNumberInput = {
-  id?: string
-  channel?: $Enums.Channel
-  contactName?: string | null
-  contactPhone?: string | null
-  contactExternalId?: string | null
-  status?: $Enums.ConversationStatus
-  sentiment?: $Enums.Sentiment
-  messagesCount?: number
-  lastMessageAt?: Date | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  business: Prisma.BusinessCreateNestedOneWithoutConversationsInput
-  agent: Prisma.AgentCreateNestedOneWithoutConversationsInput
-  messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
-}
-
-export type ConversationUncheckedCreateWithoutSmsNumberInput = {
-  id?: string
-  channel?: $Enums.Channel
-  contactName?: string | null
-  contactPhone?: string | null
-  contactExternalId?: string | null
-  status?: $Enums.ConversationStatus
-  sentiment?: $Enums.Sentiment
-  messagesCount?: number
-  lastMessageAt?: Date | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  businessId: string
-  agentId: string
-  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
-}
-
-export type ConversationCreateOrConnectWithoutSmsNumberInput = {
-  where: Prisma.ConversationWhereUniqueInput
-  create: Prisma.XOR<Prisma.ConversationCreateWithoutSmsNumberInput, Prisma.ConversationUncheckedCreateWithoutSmsNumberInput>
-}
-
-export type ConversationCreateManySmsNumberInputEnvelope = {
-  data: Prisma.ConversationCreateManySmsNumberInput | Prisma.ConversationCreateManySmsNumberInput[]
-  skipDuplicates?: boolean
-}
-
-export type ConversationUpsertWithWhereUniqueWithoutSmsNumberInput = {
-  where: Prisma.ConversationWhereUniqueInput
-  update: Prisma.XOR<Prisma.ConversationUpdateWithoutSmsNumberInput, Prisma.ConversationUncheckedUpdateWithoutSmsNumberInput>
-  create: Prisma.XOR<Prisma.ConversationCreateWithoutSmsNumberInput, Prisma.ConversationUncheckedCreateWithoutSmsNumberInput>
-}
-
-export type ConversationUpdateWithWhereUniqueWithoutSmsNumberInput = {
-  where: Prisma.ConversationWhereUniqueInput
-  data: Prisma.XOR<Prisma.ConversationUpdateWithoutSmsNumberInput, Prisma.ConversationUncheckedUpdateWithoutSmsNumberInput>
-}
-
-export type ConversationUpdateManyWithWhereWithoutSmsNumberInput = {
-  where: Prisma.ConversationScalarWhereInput
-  data: Prisma.XOR<Prisma.ConversationUpdateManyMutationInput, Prisma.ConversationUncheckedUpdateManyWithoutSmsNumberInput>
-}
-
 export type ConversationCreateWithoutMessagesInput = {
   id?: string
   channel?: $Enums.Channel
@@ -946,13 +842,13 @@ export type ConversationCreateWithoutMessagesInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutConversationsInput
   agent: Prisma.AgentCreateNestedOneWithoutConversationsInput
-  smsNumber?: Prisma.SmsNumberCreateNestedOneWithoutConversationsInput
 }
 
 export type ConversationUncheckedCreateWithoutMessagesInput = {
@@ -963,13 +859,13 @@ export type ConversationUncheckedCreateWithoutMessagesInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   businessId: string
   agentId: string
-  smsNumberId?: string | null
 }
 
 export type ConversationCreateOrConnectWithoutMessagesInput = {
@@ -996,13 +892,13 @@ export type ConversationUpdateWithoutMessagesInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutConversationsNestedInput
   agent?: Prisma.AgentUpdateOneRequiredWithoutConversationsNestedInput
-  smsNumber?: Prisma.SmsNumberUpdateOneWithoutConversationsNestedInput
 }
 
 export type ConversationUncheckedUpdateWithoutMessagesInput = {
@@ -1013,13 +909,13 @@ export type ConversationUncheckedUpdateWithoutMessagesInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   agentId?: Prisma.StringFieldUpdateOperationsInput | string
-  smsNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConversationCreateManyBusinessInput = {
@@ -1030,12 +926,12 @@ export type ConversationCreateManyBusinessInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   agentId: string
-  smsNumberId?: string | null
 }
 
 export type ConversationUpdateWithoutBusinessInput = {
@@ -1046,12 +942,12 @@ export type ConversationUpdateWithoutBusinessInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   agent?: Prisma.AgentUpdateOneRequiredWithoutConversationsNestedInput
-  smsNumber?: Prisma.SmsNumberUpdateOneWithoutConversationsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
 }
 
@@ -1063,12 +959,12 @@ export type ConversationUncheckedUpdateWithoutBusinessInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   agentId?: Prisma.StringFieldUpdateOperationsInput | string
-  smsNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
 }
 
@@ -1080,12 +976,12 @@ export type ConversationUncheckedUpdateManyWithoutBusinessInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   agentId?: Prisma.StringFieldUpdateOperationsInput | string
-  smsNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ConversationCreateManyAgentInput = {
@@ -1096,12 +992,12 @@ export type ConversationCreateManyAgentInput = {
   contactExternalId?: string | null
   status?: $Enums.ConversationStatus
   sentiment?: $Enums.Sentiment
+  aiEnabled?: boolean
   messagesCount?: number
   lastMessageAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   businessId: string
-  smsNumberId?: string | null
 }
 
 export type ConversationUpdateWithoutAgentInput = {
@@ -1112,12 +1008,12 @@ export type ConversationUpdateWithoutAgentInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutConversationsNestedInput
-  smsNumber?: Prisma.SmsNumberUpdateOneWithoutConversationsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
 }
 
@@ -1129,12 +1025,12 @@ export type ConversationUncheckedUpdateWithoutAgentInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
-  smsNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
 }
 
@@ -1146,78 +1042,12 @@ export type ConversationUncheckedUpdateManyWithoutAgentInput = {
   contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
   sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
+  aiEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
-  smsNumberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
-export type ConversationCreateManySmsNumberInput = {
-  id?: string
-  channel?: $Enums.Channel
-  contactName?: string | null
-  contactPhone?: string | null
-  contactExternalId?: string | null
-  status?: $Enums.ConversationStatus
-  sentiment?: $Enums.Sentiment
-  messagesCount?: number
-  lastMessageAt?: Date | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  businessId: string
-  agentId: string
-}
-
-export type ConversationUpdateWithoutSmsNumberInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  channel?: Prisma.EnumChannelFieldUpdateOperationsInput | $Enums.Channel
-  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
-  sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
-  messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  business?: Prisma.BusinessUpdateOneRequiredWithoutConversationsNestedInput
-  agent?: Prisma.AgentUpdateOneRequiredWithoutConversationsNestedInput
-  messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
-}
-
-export type ConversationUncheckedUpdateWithoutSmsNumberInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  channel?: Prisma.EnumChannelFieldUpdateOperationsInput | $Enums.Channel
-  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
-  sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
-  messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  businessId?: Prisma.StringFieldUpdateOperationsInput | string
-  agentId?: Prisma.StringFieldUpdateOperationsInput | string
-  messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
-}
-
-export type ConversationUncheckedUpdateManyWithoutSmsNumberInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  channel?: Prisma.EnumChannelFieldUpdateOperationsInput | $Enums.Channel
-  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactExternalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumConversationStatusFieldUpdateOperationsInput | $Enums.ConversationStatus
-  sentiment?: Prisma.EnumSentimentFieldUpdateOperationsInput | $Enums.Sentiment
-  messagesCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  businessId?: Prisma.StringFieldUpdateOperationsInput | string
-  agentId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -1259,16 +1089,15 @@ export type ConversationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   contactExternalId?: boolean
   status?: boolean
   sentiment?: boolean
+  aiEnabled?: boolean
   messagesCount?: boolean
   lastMessageAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   businessId?: boolean
   agentId?: boolean
-  smsNumberId?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   agent?: boolean | Prisma.AgentDefaultArgs<ExtArgs>
-  smsNumber?: boolean | Prisma.Conversation$smsNumberArgs<ExtArgs>
   messages?: boolean | Prisma.Conversation$messagesArgs<ExtArgs>
   _count?: boolean | Prisma.ConversationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["conversation"]>
@@ -1281,16 +1110,15 @@ export type ConversationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   contactExternalId?: boolean
   status?: boolean
   sentiment?: boolean
+  aiEnabled?: boolean
   messagesCount?: boolean
   lastMessageAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   businessId?: boolean
   agentId?: boolean
-  smsNumberId?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   agent?: boolean | Prisma.AgentDefaultArgs<ExtArgs>
-  smsNumber?: boolean | Prisma.Conversation$smsNumberArgs<ExtArgs>
 }, ExtArgs["result"]["conversation"]>
 
 export type ConversationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1301,16 +1129,15 @@ export type ConversationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   contactExternalId?: boolean
   status?: boolean
   sentiment?: boolean
+  aiEnabled?: boolean
   messagesCount?: boolean
   lastMessageAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   businessId?: boolean
   agentId?: boolean
-  smsNumberId?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   agent?: boolean | Prisma.AgentDefaultArgs<ExtArgs>
-  smsNumber?: boolean | Prisma.Conversation$smsNumberArgs<ExtArgs>
 }, ExtArgs["result"]["conversation"]>
 
 export type ConversationSelectScalar = {
@@ -1321,32 +1148,29 @@ export type ConversationSelectScalar = {
   contactExternalId?: boolean
   status?: boolean
   sentiment?: boolean
+  aiEnabled?: boolean
   messagesCount?: boolean
   lastMessageAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   businessId?: boolean
   agentId?: boolean
-  smsNumberId?: boolean
 }
 
-export type ConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "channel" | "contactName" | "contactPhone" | "contactExternalId" | "status" | "sentiment" | "messagesCount" | "lastMessageAt" | "createdAt" | "updatedAt" | "businessId" | "agentId" | "smsNumberId", ExtArgs["result"]["conversation"]>
+export type ConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "channel" | "contactName" | "contactPhone" | "contactExternalId" | "status" | "sentiment" | "aiEnabled" | "messagesCount" | "lastMessageAt" | "createdAt" | "updatedAt" | "businessId" | "agentId", ExtArgs["result"]["conversation"]>
 export type ConversationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   agent?: boolean | Prisma.AgentDefaultArgs<ExtArgs>
-  smsNumber?: boolean | Prisma.Conversation$smsNumberArgs<ExtArgs>
   messages?: boolean | Prisma.Conversation$messagesArgs<ExtArgs>
   _count?: boolean | Prisma.ConversationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ConversationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   agent?: boolean | Prisma.AgentDefaultArgs<ExtArgs>
-  smsNumber?: boolean | Prisma.Conversation$smsNumberArgs<ExtArgs>
 }
 export type ConversationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   agent?: boolean | Prisma.AgentDefaultArgs<ExtArgs>
-  smsNumber?: boolean | Prisma.Conversation$smsNumberArgs<ExtArgs>
 }
 
 export type $ConversationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1354,7 +1178,6 @@ export type $ConversationPayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     business: Prisma.$BusinessPayload<ExtArgs>
     agent: Prisma.$AgentPayload<ExtArgs>
-    smsNumber: Prisma.$SmsNumberPayload<ExtArgs> | null
     messages: Prisma.$MessagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1365,13 +1188,13 @@ export type $ConversationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     contactExternalId: string | null
     status: $Enums.ConversationStatus
     sentiment: $Enums.Sentiment
+    aiEnabled: boolean
     messagesCount: number
     lastMessageAt: Date
     createdAt: Date
     updatedAt: Date
     businessId: string
     agentId: string
-    smsNumberId: string | null
   }, ExtArgs["result"]["conversation"]>
   composites: {}
 }
@@ -1768,7 +1591,6 @@ export interface Prisma__ConversationClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   agent<T extends Prisma.AgentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AgentDefaultArgs<ExtArgs>>): Prisma.Prisma__AgentClient<runtime.Types.Result.GetResult<Prisma.$AgentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  smsNumber<T extends Prisma.Conversation$smsNumberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Conversation$smsNumberArgs<ExtArgs>>): Prisma.Prisma__SmsNumberClient<runtime.Types.Result.GetResult<Prisma.$SmsNumberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   messages<T extends Prisma.Conversation$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Conversation$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1806,13 +1628,13 @@ export interface ConversationFieldRefs {
   readonly contactExternalId: Prisma.FieldRef<"Conversation", 'String'>
   readonly status: Prisma.FieldRef<"Conversation", 'ConversationStatus'>
   readonly sentiment: Prisma.FieldRef<"Conversation", 'Sentiment'>
+  readonly aiEnabled: Prisma.FieldRef<"Conversation", 'Boolean'>
   readonly messagesCount: Prisma.FieldRef<"Conversation", 'Int'>
   readonly lastMessageAt: Prisma.FieldRef<"Conversation", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Conversation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Conversation", 'DateTime'>
   readonly businessId: Prisma.FieldRef<"Conversation", 'String'>
   readonly agentId: Prisma.FieldRef<"Conversation", 'String'>
-  readonly smsNumberId: Prisma.FieldRef<"Conversation", 'String'>
 }
     
 
@@ -2211,25 +2033,6 @@ export type ConversationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many Conversations to delete.
    */
   limit?: number
-}
-
-/**
- * Conversation.smsNumber
- */
-export type Conversation$smsNumberArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the SmsNumber
-   */
-  select?: Prisma.SmsNumberSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the SmsNumber
-   */
-  omit?: Prisma.SmsNumberOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SmsNumberInclude<ExtArgs> | null
-  where?: Prisma.SmsNumberWhereInput
 }
 
 /**

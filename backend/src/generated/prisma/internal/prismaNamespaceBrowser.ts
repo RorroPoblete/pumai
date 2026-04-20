@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  PlatformConfig: 'PlatformConfig',
   User: 'User',
   Account: 'Account',
   Session: 'Session',
@@ -58,7 +59,6 @@ export const ModelName = {
   BusinessMember: 'BusinessMember',
   Invitation: 'Invitation',
   Agent: 'Agent',
-  SmsNumber: 'SmsNumber',
   ChannelConfig: 'ChannelConfig',
   Conversation: 'Conversation',
   Message: 'Message'
@@ -78,6 +78,14 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const PlatformConfigScalarFieldEnum = {
+  key: 'key',
+  value: 'value'
+} as const
+
+export type PlatformConfigScalarFieldEnum = (typeof PlatformConfigScalarFieldEnum)[keyof typeof PlatformConfigScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -134,6 +142,10 @@ export const BusinessScalarFieldEnum = {
   plan: 'plan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  stripeStatus: 'stripeStatus',
   userId: 'userId'
 } as const
 
@@ -182,18 +194,6 @@ export const AgentScalarFieldEnum = {
 export type AgentScalarFieldEnum = (typeof AgentScalarFieldEnum)[keyof typeof AgentScalarFieldEnum]
 
 
-export const SmsNumberScalarFieldEnum = {
-  id: 'id',
-  number: 'number',
-  provider: 'provider',
-  active: 'active',
-  createdAt: 'createdAt',
-  businessId: 'businessId'
-} as const
-
-export type SmsNumberScalarFieldEnum = (typeof SmsNumberScalarFieldEnum)[keyof typeof SmsNumberScalarFieldEnum]
-
-
 export const ChannelConfigScalarFieldEnum = {
   id: 'id',
   channel: 'channel',
@@ -217,13 +217,13 @@ export const ConversationScalarFieldEnum = {
   contactExternalId: 'contactExternalId',
   status: 'status',
   sentiment: 'sentiment',
+  aiEnabled: 'aiEnabled',
   messagesCount: 'messagesCount',
   lastMessageAt: 'lastMessageAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   businessId: 'businessId',
-  agentId: 'agentId',
-  smsNumberId: 'smsNumberId'
+  agentId: 'agentId'
 } as const
 
 export type ConversationScalarFieldEnum = (typeof ConversationScalarFieldEnum)[keyof typeof ConversationScalarFieldEnum]
@@ -234,6 +234,9 @@ export const MessageScalarFieldEnum = {
   content: 'content',
   role: 'role',
   externalMsgId: 'externalMsgId',
+  attachmentUrl: 'attachmentUrl',
+  attachmentType: 'attachmentType',
+  readAt: 'readAt',
   createdAt: 'createdAt',
   conversationId: 'conversationId'
 } as const

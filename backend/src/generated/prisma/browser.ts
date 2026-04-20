@@ -18,6 +18,11 @@ export { Prisma }
 export * as $Enums from './enums.ts'
 export * from './enums.ts';
 /**
+ * Model PlatformConfig
+ * 
+ */
+export type PlatformConfig = Prisma.PlatformConfigModel
+/**
  * Model User
  * 
  */
@@ -52,11 +57,6 @@ export type Invitation = Prisma.InvitationModel
  * 
  */
 export type Agent = Prisma.AgentModel
-/**
- * Model SmsNumber
- * 
- */
-export type SmsNumber = Prisma.SmsNumberModel
 /**
  * Model ChannelConfig
  * 
