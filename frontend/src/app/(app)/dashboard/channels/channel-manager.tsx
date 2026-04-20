@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import TopBar from "@/components/dashboard/TopBar";
 import { connectChannel, disconnectChannel, toggleChannelActive, saveWebchat } from "@/backend/channel-actions";
 import type { WebchatBranding } from "@/backend/channel-queries";
 import WebchatForm from "./webchat-form";
+import { useChannels } from "@/components/dashboard/SubscriptionContext";
+import type { ChannelKey } from "@/lib/stripe";
 
 interface ChannelConfig {
   id: string;
@@ -87,6 +90,7 @@ export default function ChannelManager({
   const [formData, setFormData] = useState({ externalId: "", credentials: "", agentId: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { channels: accessMap } = useChannels();
 
   const connectedMap = new Map(channels.map((c) => [c.channel, c]));
 
@@ -157,6 +161,8 @@ export default function ChannelManager({
           {CHANNELS.map((ch) => {
             const config = connectedMap.get(ch.key);
             const isConnecting = connectingChannel === ch.key;
+            const access = accessMap[ch.key as ChannelKey];
+            const canUse = access?.allowed ?? false;
 
             return (
               <div
@@ -227,7 +233,7 @@ export default function ChannelManager({
                           Disconnect
                         </button>
                       </>
-                    ) : (
+                    ) : canUse ? (
                       <button
                         onClick={() => {
                           setConnectingChannel(isConnecting ? null : ch.key);
@@ -237,6 +243,16 @@ export default function ChannelManager({
                       >
                         {isConnecting ? "Cancel" : "Connect"}
                       </button>
+                    ) : (
+                      <Link
+                        href="/dashboard/billing"
+                        className="px-4 py-1.5 rounded-lg text-xs font-medium border border-[rgba(139,92,246,0.4)] text-[#8B5CF6] hover:bg-[rgba(139,92,246,0.08)] transition-all flex items-center gap-1.5"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Upgrade
+                      </Link>
                     )}
                   </div>
                 </div>

@@ -26,13 +26,14 @@ export const BusinessRole = {
 export type BusinessRole = (typeof BusinessRole)[keyof typeof BusinessRole]
 
 
-export const Plan = {
+export const PlanTier = {
+  FREE: 'FREE',
   STARTER: 'STARTER',
   GROWTH: 'GROWTH',
   ENTERPRISE: 'ENTERPRISE'
 } as const
 
-export type Plan = (typeof Plan)[keyof typeof Plan]
+export type PlanTier = (typeof PlanTier)[keyof typeof PlanTier]
 
 
 export const AgentTone = {

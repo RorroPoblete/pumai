@@ -31,13 +31,9 @@ export type BusinessMinAggregateOutputType = {
   industry: string | null
   phone: string | null
   timezone: string | null
-  plan: $Enums.Plan | null
   createdAt: Date | null
   updatedAt: Date | null
   stripeCustomerId: string | null
-  stripeSubscriptionId: string | null
-  stripePriceId: string | null
-  stripeStatus: string | null
   userId: string | null
 }
 
@@ -48,13 +44,9 @@ export type BusinessMaxAggregateOutputType = {
   industry: string | null
   phone: string | null
   timezone: string | null
-  plan: $Enums.Plan | null
   createdAt: Date | null
   updatedAt: Date | null
   stripeCustomerId: string | null
-  stripeSubscriptionId: string | null
-  stripePriceId: string | null
-  stripeStatus: string | null
   userId: string | null
 }
 
@@ -65,13 +57,9 @@ export type BusinessCountAggregateOutputType = {
   industry: number
   phone: number
   timezone: number
-  plan: number
   createdAt: number
   updatedAt: number
   stripeCustomerId: number
-  stripeSubscriptionId: number
-  stripePriceId: number
-  stripeStatus: number
   userId: number
   _all: number
 }
@@ -84,13 +72,9 @@ export type BusinessMinAggregateInputType = {
   industry?: true
   phone?: true
   timezone?: true
-  plan?: true
   createdAt?: true
   updatedAt?: true
   stripeCustomerId?: true
-  stripeSubscriptionId?: true
-  stripePriceId?: true
-  stripeStatus?: true
   userId?: true
 }
 
@@ -101,13 +85,9 @@ export type BusinessMaxAggregateInputType = {
   industry?: true
   phone?: true
   timezone?: true
-  plan?: true
   createdAt?: true
   updatedAt?: true
   stripeCustomerId?: true
-  stripeSubscriptionId?: true
-  stripePriceId?: true
-  stripeStatus?: true
   userId?: true
 }
 
@@ -118,13 +98,9 @@ export type BusinessCountAggregateInputType = {
   industry?: true
   phone?: true
   timezone?: true
-  plan?: true
   createdAt?: true
   updatedAt?: true
   stripeCustomerId?: true
-  stripeSubscriptionId?: true
-  stripePriceId?: true
-  stripeStatus?: true
   userId?: true
   _all?: true
 }
@@ -208,13 +184,9 @@ export type BusinessGroupByOutputType = {
   industry: string
   phone: string | null
   timezone: string
-  plan: $Enums.Plan
   createdAt: Date
   updatedAt: Date
   stripeCustomerId: string | null
-  stripeSubscriptionId: string | null
-  stripePriceId: string | null
-  stripeStatus: string | null
   userId: string
   _count: BusinessCountAggregateOutputType | null
   _min: BusinessMinAggregateOutputType | null
@@ -246,13 +218,9 @@ export type BusinessWhereInput = {
   industry?: Prisma.StringFilter<"Business"> | string
   phone?: Prisma.StringNullableFilter<"Business"> | string | null
   timezone?: Prisma.StringFilter<"Business"> | string
-  plan?: Prisma.EnumPlanFilter<"Business"> | $Enums.Plan
   createdAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   stripeCustomerId?: Prisma.StringNullableFilter<"Business"> | string | null
-  stripeSubscriptionId?: Prisma.StringNullableFilter<"Business"> | string | null
-  stripePriceId?: Prisma.StringNullableFilter<"Business"> | string | null
-  stripeStatus?: Prisma.StringNullableFilter<"Business"> | string | null
   userId?: Prisma.StringFilter<"Business"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   members?: Prisma.BusinessMemberListRelationFilter
@@ -260,6 +228,7 @@ export type BusinessWhereInput = {
   agents?: Prisma.AgentListRelationFilter
   conversations?: Prisma.ConversationListRelationFilter
   channelConfigs?: Prisma.ChannelConfigListRelationFilter
+  subscriptions?: Prisma.SubscriptionListRelationFilter
 }
 
 export type BusinessOrderByWithRelationInput = {
@@ -269,13 +238,9 @@ export type BusinessOrderByWithRelationInput = {
   industry?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrder
-  plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripePriceId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   members?: Prisma.BusinessMemberOrderByRelationAggregateInput
@@ -283,6 +248,7 @@ export type BusinessOrderByWithRelationInput = {
   agents?: Prisma.AgentOrderByRelationAggregateInput
   conversations?: Prisma.ConversationOrderByRelationAggregateInput
   channelConfigs?: Prisma.ChannelConfigOrderByRelationAggregateInput
+  subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
 }
 
 export type BusinessWhereUniqueInput = Prisma.AtLeast<{
@@ -296,19 +262,16 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   industry?: Prisma.StringFilter<"Business"> | string
   phone?: Prisma.StringNullableFilter<"Business"> | string | null
   timezone?: Prisma.StringFilter<"Business"> | string
-  plan?: Prisma.EnumPlanFilter<"Business"> | $Enums.Plan
   createdAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   stripeCustomerId?: Prisma.StringNullableFilter<"Business"> | string | null
-  stripeSubscriptionId?: Prisma.StringNullableFilter<"Business"> | string | null
-  stripePriceId?: Prisma.StringNullableFilter<"Business"> | string | null
-  stripeStatus?: Prisma.StringNullableFilter<"Business"> | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   members?: Prisma.BusinessMemberListRelationFilter
   invitations?: Prisma.InvitationListRelationFilter
   agents?: Prisma.AgentListRelationFilter
   conversations?: Prisma.ConversationListRelationFilter
   channelConfigs?: Prisma.ChannelConfigListRelationFilter
+  subscriptions?: Prisma.SubscriptionListRelationFilter
 }, "id" | "userId">
 
 export type BusinessOrderByWithAggregationInput = {
@@ -318,13 +281,9 @@ export type BusinessOrderByWithAggregationInput = {
   industry?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrder
-  plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripePriceId?: Prisma.SortOrderInput | Prisma.SortOrder
-  stripeStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   _count?: Prisma.BusinessCountOrderByAggregateInput
   _max?: Prisma.BusinessMaxOrderByAggregateInput
@@ -341,13 +300,9 @@ export type BusinessScalarWhereWithAggregatesInput = {
   industry?: Prisma.StringWithAggregatesFilter<"Business"> | string
   phone?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
   timezone?: Prisma.StringWithAggregatesFilter<"Business"> | string
-  plan?: Prisma.EnumPlanWithAggregatesFilter<"Business"> | $Enums.Plan
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
-  stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
-  stripePriceId?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
-  stripeStatus?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
   userId?: Prisma.StringWithAggregatesFilter<"Business"> | string
 }
 
@@ -358,19 +313,16 @@ export type BusinessCreateInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   user: Prisma.UserCreateNestedOneWithoutBusinessInput
   members?: Prisma.BusinessMemberCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateInput = {
@@ -380,19 +332,16 @@ export type BusinessUncheckedCreateInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   userId: string
   members?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUpdateInput = {
@@ -402,19 +351,16 @@ export type BusinessUpdateInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutBusinessNestedInput
   members?: Prisma.BusinessMemberUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateInput = {
@@ -424,19 +370,16 @@ export type BusinessUncheckedUpdateInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.BusinessMemberUncheckedUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUncheckedUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateManyInput = {
@@ -446,13 +389,9 @@ export type BusinessCreateManyInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   userId: string
 }
 
@@ -463,13 +402,9 @@ export type BusinessUpdateManyMutationInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BusinessUncheckedUpdateManyInput = {
@@ -479,13 +414,9 @@ export type BusinessUncheckedUpdateManyInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -501,13 +432,9 @@ export type BusinessCountOrderByAggregateInput = {
   industry?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
-  plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
-  stripeSubscriptionId?: Prisma.SortOrder
-  stripePriceId?: Prisma.SortOrder
-  stripeStatus?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
@@ -518,13 +445,9 @@ export type BusinessMaxOrderByAggregateInput = {
   industry?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
-  plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
-  stripeSubscriptionId?: Prisma.SortOrder
-  stripePriceId?: Prisma.SortOrder
-  stripeStatus?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
@@ -535,13 +458,9 @@ export type BusinessMinOrderByAggregateInput = {
   industry?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
-  plan?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
-  stripeSubscriptionId?: Prisma.SortOrder
-  stripePriceId?: Prisma.SortOrder
-  stripeStatus?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
@@ -582,10 +501,6 @@ export type BusinessUncheckedUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutUserInput, Prisma.BusinessUpdateWithoutUserInput>, Prisma.BusinessUncheckedUpdateWithoutUserInput>
 }
 
-export type EnumPlanFieldUpdateOperationsInput = {
-  set?: $Enums.Plan
-}
-
 export type BusinessCreateNestedOneWithoutMembersInput = {
   create?: Prisma.XOR<Prisma.BusinessCreateWithoutMembersInput, Prisma.BusinessUncheckedCreateWithoutMembersInput>
   connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutMembersInput
@@ -612,6 +527,20 @@ export type BusinessUpdateOneRequiredWithoutInvitationsNestedInput = {
   upsert?: Prisma.BusinessUpsertWithoutInvitationsInput
   connect?: Prisma.BusinessWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutInvitationsInput, Prisma.BusinessUpdateWithoutInvitationsInput>, Prisma.BusinessUncheckedUpdateWithoutInvitationsInput>
+}
+
+export type BusinessCreateNestedOneWithoutSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscriptionsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscriptionsInput
+  upsert?: Prisma.BusinessUpsertWithoutSubscriptionsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSubscriptionsInput, Prisma.BusinessUpdateWithoutSubscriptionsInput>, Prisma.BusinessUncheckedUpdateWithoutSubscriptionsInput>
 }
 
 export type BusinessCreateNestedOneWithoutAgentsInput = {
@@ -663,18 +592,15 @@ export type BusinessCreateWithoutUserInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   members?: Prisma.BusinessMemberCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutUserInput = {
@@ -684,18 +610,15 @@ export type BusinessUncheckedCreateWithoutUserInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   members?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutUserInput = {
@@ -721,18 +644,15 @@ export type BusinessUpdateWithoutUserInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   members?: Prisma.BusinessMemberUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutUserInput = {
@@ -742,18 +662,15 @@ export type BusinessUncheckedUpdateWithoutUserInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   members?: Prisma.BusinessMemberUncheckedUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUncheckedUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutMembersInput = {
@@ -763,18 +680,15 @@ export type BusinessCreateWithoutMembersInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   user: Prisma.UserCreateNestedOneWithoutBusinessInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutMembersInput = {
@@ -784,18 +698,15 @@ export type BusinessUncheckedCreateWithoutMembersInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   userId: string
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutMembersInput = {
@@ -821,18 +732,15 @@ export type BusinessUpdateWithoutMembersInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutMembersInput = {
@@ -842,18 +750,15 @@ export type BusinessUncheckedUpdateWithoutMembersInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUncheckedUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutInvitationsInput = {
@@ -863,18 +768,15 @@ export type BusinessCreateWithoutInvitationsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   user: Prisma.UserCreateNestedOneWithoutBusinessInput
   members?: Prisma.BusinessMemberCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutInvitationsInput = {
@@ -884,18 +786,15 @@ export type BusinessUncheckedCreateWithoutInvitationsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   userId: string
   members?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutInvitationsInput = {
@@ -921,18 +820,15 @@ export type BusinessUpdateWithoutInvitationsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutBusinessNestedInput
   members?: Prisma.BusinessMemberUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutInvitationsInput = {
@@ -942,15 +838,100 @@ export type BusinessUncheckedUpdateWithoutInvitationsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.BusinessMemberUncheckedUpdateManyWithoutBusinessNestedInput
+  agents?: Prisma.AgentUncheckedUpdateManyWithoutBusinessNestedInput
+  conversations?: Prisma.ConversationUncheckedUpdateManyWithoutBusinessNestedInput
+  channelConfigs?: Prisma.ChannelConfigUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutSubscriptionsInput = {
+  id?: string
+  name: string
+  website?: string | null
+  industry: string
+  phone?: string | null
+  timezone?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stripeCustomerId?: string | null
+  user: Prisma.UserCreateNestedOneWithoutBusinessInput
+  members?: Prisma.BusinessMemberCreateNestedManyWithoutBusinessInput
+  invitations?: Prisma.InvitationCreateNestedManyWithoutBusinessInput
+  agents?: Prisma.AgentCreateNestedManyWithoutBusinessInput
+  conversations?: Prisma.ConversationCreateNestedManyWithoutBusinessInput
+  channelConfigs?: Prisma.ChannelConfigCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
+  id?: string
+  name: string
+  website?: string | null
+  industry: string
+  phone?: string | null
+  timezone?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stripeCustomerId?: string | null
+  userId: string
+  members?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutBusinessInput
+  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutBusinessInput
+  agents?: Prisma.AgentUncheckedCreateNestedManyWithoutBusinessInput
+  conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutBusinessInput
+  channelConfigs?: Prisma.ChannelConfigUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutSubscriptionsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+}
+
+export type BusinessUpsertWithoutSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscriptionsInput, Prisma.BusinessUncheckedUpdateWithoutSubscriptionsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutSubscriptionsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscriptionsInput, Prisma.BusinessUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type BusinessUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  user?: Prisma.UserUpdateOneRequiredWithoutBusinessNestedInput
+  members?: Prisma.BusinessMemberUpdateManyWithoutBusinessNestedInput
+  invitations?: Prisma.InvitationUpdateManyWithoutBusinessNestedInput
+  agents?: Prisma.AgentUpdateManyWithoutBusinessNestedInput
+  conversations?: Prisma.ConversationUpdateManyWithoutBusinessNestedInput
+  channelConfigs?: Prisma.ChannelConfigUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  industry?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  members?: Prisma.BusinessMemberUncheckedUpdateManyWithoutBusinessNestedInput
+  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUncheckedUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUncheckedUpdateManyWithoutBusinessNestedInput
@@ -963,18 +944,15 @@ export type BusinessCreateWithoutAgentsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   user: Prisma.UserCreateNestedOneWithoutBusinessInput
   members?: Prisma.BusinessMemberCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutAgentsInput = {
@@ -984,18 +962,15 @@ export type BusinessUncheckedCreateWithoutAgentsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   userId: string
   members?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutAgentsInput = {
@@ -1021,18 +996,15 @@ export type BusinessUpdateWithoutAgentsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutBusinessNestedInput
   members?: Prisma.BusinessMemberUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutAgentsInput = {
@@ -1042,18 +1014,15 @@ export type BusinessUncheckedUpdateWithoutAgentsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.BusinessMemberUncheckedUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutChannelConfigsInput = {
@@ -1063,18 +1032,15 @@ export type BusinessCreateWithoutChannelConfigsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   user: Prisma.UserCreateNestedOneWithoutBusinessInput
   members?: Prisma.BusinessMemberCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutChannelConfigsInput = {
@@ -1084,18 +1050,15 @@ export type BusinessUncheckedCreateWithoutChannelConfigsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   userId: string
   members?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutBusinessInput
   conversations?: Prisma.ConversationUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutChannelConfigsInput = {
@@ -1121,18 +1084,15 @@ export type BusinessUpdateWithoutChannelConfigsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutBusinessNestedInput
   members?: Prisma.BusinessMemberUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutChannelConfigsInput = {
@@ -1142,18 +1102,15 @@ export type BusinessUncheckedUpdateWithoutChannelConfigsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.BusinessMemberUncheckedUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUncheckedUpdateManyWithoutBusinessNestedInput
   conversations?: Prisma.ConversationUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutConversationsInput = {
@@ -1163,18 +1120,15 @@ export type BusinessCreateWithoutConversationsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   user: Prisma.UserCreateNestedOneWithoutBusinessInput
   members?: Prisma.BusinessMemberCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutConversationsInput = {
@@ -1184,18 +1138,15 @@ export type BusinessUncheckedCreateWithoutConversationsInput = {
   industry: string
   phone?: string | null
   timezone?: string
-  plan?: $Enums.Plan
   createdAt?: Date | string
   updatedAt?: Date | string
   stripeCustomerId?: string | null
-  stripeSubscriptionId?: string | null
-  stripePriceId?: string | null
-  stripeStatus?: string | null
   userId: string
   members?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutBusinessInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutBusinessInput
   agents?: Prisma.AgentUncheckedCreateNestedManyWithoutBusinessInput
   channelConfigs?: Prisma.ChannelConfigUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutConversationsInput = {
@@ -1221,18 +1172,15 @@ export type BusinessUpdateWithoutConversationsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutBusinessNestedInput
   members?: Prisma.BusinessMemberUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutConversationsInput = {
@@ -1242,18 +1190,15 @@ export type BusinessUncheckedUpdateWithoutConversationsInput = {
   industry?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripePriceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stripeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.BusinessMemberUncheckedUpdateManyWithoutBusinessNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutBusinessNestedInput
   agents?: Prisma.AgentUncheckedUpdateManyWithoutBusinessNestedInput
   channelConfigs?: Prisma.ChannelConfigUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 
@@ -1267,6 +1212,7 @@ export type BusinessCountOutputType = {
   agents: number
   conversations: number
   channelConfigs: number
+  subscriptions: number
 }
 
 export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1275,6 +1221,7 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   agents?: boolean | BusinessCountOutputTypeCountAgentsArgs
   conversations?: boolean | BusinessCountOutputTypeCountConversationsArgs
   channelConfigs?: boolean | BusinessCountOutputTypeCountChannelConfigsArgs
+  subscriptions?: boolean | BusinessCountOutputTypeCountSubscriptionsArgs
 }
 
 /**
@@ -1322,6 +1269,13 @@ export type BusinessCountOutputTypeCountChannelConfigsArgs<ExtArgs extends runti
   where?: Prisma.ChannelConfigWhereInput
 }
 
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SubscriptionWhereInput
+}
+
 
 export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1330,13 +1284,9 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   industry?: boolean
   phone?: boolean
   timezone?: boolean
-  plan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   stripeCustomerId?: boolean
-  stripeSubscriptionId?: boolean
-  stripePriceId?: boolean
-  stripeStatus?: boolean
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   members?: boolean | Prisma.Business$membersArgs<ExtArgs>
@@ -1344,6 +1294,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   agents?: boolean | Prisma.Business$agentsArgs<ExtArgs>
   conversations?: boolean | Prisma.Business$conversationsArgs<ExtArgs>
   channelConfigs?: boolean | Prisma.Business$channelConfigsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.Business$subscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
 
@@ -1354,13 +1305,9 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   industry?: boolean
   phone?: boolean
   timezone?: boolean
-  plan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   stripeCustomerId?: boolean
-  stripeSubscriptionId?: boolean
-  stripePriceId?: boolean
-  stripeStatus?: boolean
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
@@ -1372,13 +1319,9 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   industry?: boolean
   phone?: boolean
   timezone?: boolean
-  plan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   stripeCustomerId?: boolean
-  stripeSubscriptionId?: boolean
-  stripePriceId?: boolean
-  stripeStatus?: boolean
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
@@ -1390,17 +1333,13 @@ export type BusinessSelectScalar = {
   industry?: boolean
   phone?: boolean
   timezone?: boolean
-  plan?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   stripeCustomerId?: boolean
-  stripeSubscriptionId?: boolean
-  stripePriceId?: boolean
-  stripeStatus?: boolean
   userId?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "website" | "industry" | "phone" | "timezone" | "plan" | "createdAt" | "updatedAt" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "stripeStatus" | "userId", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "website" | "industry" | "phone" | "timezone" | "createdAt" | "updatedAt" | "stripeCustomerId" | "userId", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   members?: boolean | Prisma.Business$membersArgs<ExtArgs>
@@ -1408,6 +1347,7 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   agents?: boolean | Prisma.Business$agentsArgs<ExtArgs>
   conversations?: boolean | Prisma.Business$conversationsArgs<ExtArgs>
   channelConfigs?: boolean | Prisma.Business$channelConfigsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.Business$subscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BusinessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1426,6 +1366,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     agents: Prisma.$AgentPayload<ExtArgs>[]
     conversations: Prisma.$ConversationPayload<ExtArgs>[]
     channelConfigs: Prisma.$ChannelConfigPayload<ExtArgs>[]
+    subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1434,13 +1375,9 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     industry: string
     phone: string | null
     timezone: string
-    plan: $Enums.Plan
     createdAt: Date
     updatedAt: Date
     stripeCustomerId: string | null
-    stripeSubscriptionId: string | null
-    stripePriceId: string | null
-    stripeStatus: string | null
     userId: string
   }, ExtArgs["result"]["business"]>
   composites: {}
@@ -1842,6 +1779,7 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   agents<T extends Prisma.Business$agentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$agentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   conversations<T extends Prisma.Business$conversationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   channelConfigs<T extends Prisma.Business$channelConfigsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$channelConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChannelConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscriptions<T extends Prisma.Business$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1877,13 +1815,9 @@ export interface BusinessFieldRefs {
   readonly industry: Prisma.FieldRef<"Business", 'String'>
   readonly phone: Prisma.FieldRef<"Business", 'String'>
   readonly timezone: Prisma.FieldRef<"Business", 'String'>
-  readonly plan: Prisma.FieldRef<"Business", 'Plan'>
   readonly createdAt: Prisma.FieldRef<"Business", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Business", 'DateTime'>
   readonly stripeCustomerId: Prisma.FieldRef<"Business", 'String'>
-  readonly stripeSubscriptionId: Prisma.FieldRef<"Business", 'String'>
-  readonly stripePriceId: Prisma.FieldRef<"Business", 'String'>
-  readonly stripeStatus: Prisma.FieldRef<"Business", 'String'>
   readonly userId: Prisma.FieldRef<"Business", 'String'>
 }
     
@@ -2403,6 +2337,30 @@ export type Business$channelConfigsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ChannelConfigScalarFieldEnum | Prisma.ChannelConfigScalarFieldEnum[]
+}
+
+/**
+ * Business.subscriptions
+ */
+export type Business$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Subscription
+   */
+  select?: Prisma.SubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Subscription
+   */
+  omit?: Prisma.SubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SubscriptionInclude<ExtArgs> | null
+  where?: Prisma.SubscriptionWhereInput
+  orderBy?: Prisma.SubscriptionOrderByWithRelationInput | Prisma.SubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.SubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SubscriptionScalarFieldEnum | Prisma.SubscriptionScalarFieldEnum[]
 }
 
 /**

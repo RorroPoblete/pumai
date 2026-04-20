@@ -12,7 +12,6 @@ export async function createTenant(formData: FormData) {
 
   const name = formData.get("name") as string;
   const industry = formData.get("industry") as string;
-  const plan = (formData.get("plan") as string) || "STARTER";
   const ownerEmail = formData.get("ownerEmail") as string;
   const ownerName = formData.get("ownerName") as string;
 
@@ -34,7 +33,6 @@ export async function createTenant(formData: FormData) {
       data: {
         name,
         industry,
-        plan: plan as "STARTER" | "GROWTH" | "ENTERPRISE",
         userId: owner.id,
       },
     });
@@ -61,13 +59,25 @@ export async function deleteTenant(businessId: string) {
   revalidatePath("/dashboard/tenants");
 }
 
-export async function updateTenantPlan(businessId: string, plan: string) {
+export async function updateTenantPlan(businessId: string, tier: "FREE" | "STARTER" | "GROWTH" | "ENTERPRISE") {
   await requireSuperadmin();
 
-  await prisma.business.update({
-    where: { id: businessId },
-    data: { plan: plan as "STARTER" | "GROWTH" | "ENTERPRISE" },
-  });
+  const channels = ["WEBCHAT", "MESSENGER", "INSTAGRAM", "WHATSAPP"] as const;
+  for (const channel of channels) {
+    await prisma.subscription.upsert({
+      where: { businessId_channel: { businessId, channel } },
+      create: {
+        businessId,
+        channel,
+        tier,
+        stripeStatus: tier === "FREE" ? null : "active",
+      },
+      update: {
+        tier,
+        stripeStatus: tier === "FREE" ? null : "active",
+      },
+    });
+  }
 
   revalidatePath("/dashboard/tenants");
 }

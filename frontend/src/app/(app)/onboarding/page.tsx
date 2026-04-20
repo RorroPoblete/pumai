@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { completeOnboarding } from "@/backend/actions";
 
 const industries = [
@@ -41,9 +42,14 @@ export default function OnboardingPage() {
   }
 
   const [pending, startTransition] = useTransition();
+  const { update: refreshSession } = useSession();
 
   function finish() {
-    startTransition(() => completeOnboarding(data));
+    startTransition(async () => {
+      const { destination } = await completeOnboarding(data);
+      await refreshSession();
+      window.location.href = destination;
+    });
   }
 
   return (

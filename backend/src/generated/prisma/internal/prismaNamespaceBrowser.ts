@@ -58,10 +58,12 @@ export const ModelName = {
   Business: 'Business',
   BusinessMember: 'BusinessMember',
   Invitation: 'Invitation',
+  Subscription: 'Subscription',
   Agent: 'Agent',
   ChannelConfig: 'ChannelConfig',
   Conversation: 'Conversation',
-  Message: 'Message'
+  Message: 'Message',
+  ProcessedWebhookEvent: 'ProcessedWebhookEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -139,13 +141,9 @@ export const BusinessScalarFieldEnum = {
   industry: 'industry',
   phone: 'phone',
   timezone: 'timezone',
-  plan: 'plan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   stripeCustomerId: 'stripeCustomerId',
-  stripeSubscriptionId: 'stripeSubscriptionId',
-  stripePriceId: 'stripePriceId',
-  stripeStatus: 'stripeStatus',
   userId: 'userId'
 } as const
 
@@ -176,6 +174,22 @@ export const InvitationScalarFieldEnum = {
 } as const
 
 export type InvitationScalarFieldEnum = (typeof InvitationScalarFieldEnum)[keyof typeof InvitationScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  channel: 'channel',
+  tier: 'tier',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripeItemId: 'stripeItemId',
+  stripePriceId: 'stripePriceId',
+  stripeStatus: 'stripeStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  businessId: 'businessId'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
 
 
 export const AgentScalarFieldEnum = {
@@ -242,6 +256,15 @@ export const MessageScalarFieldEnum = {
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const ProcessedWebhookEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  processedAt: 'processedAt'
+} as const
+
+export type ProcessedWebhookEventScalarFieldEnum = (typeof ProcessedWebhookEventScalarFieldEnum)[keyof typeof ProcessedWebhookEventScalarFieldEnum]
 
 
 export const SortOrder = {

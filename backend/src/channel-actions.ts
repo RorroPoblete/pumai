@@ -6,12 +6,15 @@ import { channelConfigSchema, webchatConfigSchema } from "./validation";
 import type { Channel } from "./channels/types";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
+import { requireChannelAccess } from "./channel-gate";
+import type { ChannelKey } from "@/lib/stripe";
 
 export async function connectChannel(raw: unknown) {
   const businessId = await getActiveBusinessId();
   if (!businessId) throw new Error("No active business");
 
   const data = channelConfigSchema.parse(raw);
+  await requireChannelAccess(businessId, data.channel as ChannelKey, { allowAtLimit: true });
 
   await prisma.channelConfig.upsert({
     where: { businessId_channel: { businessId, channel: data.channel as Channel } },
@@ -78,6 +81,7 @@ export async function updateChannelAgent(channelConfigId: string, agentId: strin
 export async function saveWebchat(raw: unknown) {
   const businessId = await getActiveBusinessId();
   if (!businessId) throw new Error("No active business");
+  await requireChannelAccess(businessId, "WEBCHAT", { allowAtLimit: true });
 
   const data = webchatConfigSchema.parse(raw);
 

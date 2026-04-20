@@ -19,7 +19,7 @@ export default function CTA() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="#pricing"
+              href="/register"
               className="gradient-btn !text-white font-semibold text-lg px-8 py-4 rounded-xl glow-sm hover:glow-md hover:-translate-y-0.5 transition-all duration-300"
             >
               Get Started Today

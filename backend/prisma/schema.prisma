@@ -76,14 +76,10 @@ model Business {
   industry  String
   phone     String?
   timezone  String   @default("Australia/Sydney")
-  plan      Plan     @default(STARTER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  stripePriceId        String?
-  stripeStatus         String?
+  stripeCustomerId String?
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -93,6 +89,7 @@ model Business {
   agents         Agent[]
   conversations  Conversation[]
   channelConfigs ChannelConfig[]
+  subscriptions  Subscription[]
 }
 
 // ─── Multi-tenancy ───
@@ -132,10 +129,30 @@ model Invitation {
   @@unique([email, businessId])
 }
 
-enum Plan {
+enum PlanTier {
+  FREE
   STARTER
   GROWTH
   ENTERPRISE
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  channel              Channel
+  tier                 PlanTier @default(FREE)
+  stripeSubscriptionId String?
+  stripeItemId         String?  @unique
+  stripePriceId        String?
+  stripeStatus         String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, channel])
+  @@index([stripeSubscriptionId])
+  @@index([stripeStatus])
 }
 
 // ─── AI Agents ───
@@ -256,4 +273,14 @@ enum MessageRole {
   USER
   AGENT
   SYSTEM
+}
+
+// ─── Billing ───
+
+model ProcessedWebhookEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
+
+  @@index([processedAt])
 }

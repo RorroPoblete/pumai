@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { AgentTone } from "@/generated/prisma/enums";
 import { onboardingSchema, agentSchema, settingsSchema } from "./validation";
+import { hasAnyActiveSubscription } from "./channel-gate";
 
 // ─── Helpers ───
 
@@ -24,27 +25,46 @@ export async function completeOnboarding(raw: {
   agentName: string;
   agentTone: string;
   phone: string;
-}) {
+}): Promise<{ destination: string }> {
   const data = onboardingSchema.parse(raw);
   const ctx = await requireAuth();
 
+  const userExists = await prisma.user.findUnique({ where: { id: ctx.userId }, select: { id: true } });
+  if (!userExists) {
+    return { destination: "/api/auth/invalid-session" };
+  }
+
   const existing = await prisma.business.findUnique({ where: { userId: ctx.userId } });
-  if (existing) redirect("/dashboard");
 
   await prisma.$transaction(async (tx) => {
-    const business = await tx.business.create({
-      data: {
-        name: data.businessName || "My Business",
-        industry: data.industry || "Other",
-        website: data.website || null,
-        phone: data.phone || null,
-        userId: ctx.userId,
-      },
-    });
+    let businessId: string;
 
-    await tx.businessMember.create({
-      data: { userId: ctx.userId, businessId: business.id, role: "OWNER" },
-    });
+    if (existing) {
+      const updated = await tx.business.update({
+        where: { id: existing.id },
+        data: {
+          name: data.businessName || existing.name,
+          industry: data.industry || existing.industry,
+          website: data.website || existing.website,
+          phone: data.phone || existing.phone,
+        },
+      });
+      businessId = updated.id;
+    } else {
+      const business = await tx.business.create({
+        data: {
+          name: data.businessName || "My Business",
+          industry: data.industry || "Other",
+          website: data.website || null,
+          phone: data.phone || null,
+          userId: ctx.userId,
+        },
+      });
+      await tx.businessMember.create({
+        data: { userId: ctx.userId, businessId: business.id, role: "OWNER" },
+      });
+      businessId = business.id;
+    }
 
     if (data.agentName) {
       await tx.agent.create({
@@ -53,7 +73,7 @@ export async function completeOnboarding(raw: {
           tone: (data.agentTone?.toUpperCase() || "PROFESSIONAL") as AgentTone,
           industry: data.industry || null,
           status: "ACTIVE",
-          businessId: business.id,
+          businessId,
         },
       });
     }
@@ -64,13 +84,24 @@ export async function completeOnboarding(raw: {
     });
   });
 
-  redirect("/dashboard");
+  return { destination: await postOnboardingDestination() };
+}
+
+async function postOnboardingDestination(): Promise<string> {
+  return "/dashboard";
 }
 
 // ─── Agent CRUD ───
 
 export async function createAgent(formData: FormData) {
   const businessId = await getBusinessId();
+
+  const existingCount = await prisma.agent.count({ where: { businessId } });
+  const hasPaid = await hasAnyActiveSubscription(businessId);
+  if (!hasPaid && existingCount >= 1) {
+    throw new Error("Free tier allows 1 agent. Upgrade a channel to add more.");
+  }
+
   const data = agentSchema.parse({
     name: formData.get("name"),
     tone: formData.get("tone") || "PROFESSIONAL",

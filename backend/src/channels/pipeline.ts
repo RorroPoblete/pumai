@@ -7,6 +7,8 @@ import { buildSystemPrompt, getChatResponse, analyzeConversation } from "../ai";
 import { getAdapter } from "./registry";
 import { CONTEXT_WINDOW_MS, SENTIMENT_MAP } from "./types";
 import type { InboundMessage, ChannelConfigData } from "./types";
+import { getChannelAccess } from "../channel-gate";
+import type { ChannelKey } from "@/lib/stripe";
 
 function parseCredentials(raw: string): Record<string, string> {
   try {
@@ -36,6 +38,13 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
   });
 
   if (!channelConfig) return empty;
+
+  // Gate: check channel subscription + conversation limit for this month
+  const access = await getChannelAccess(channelConfig.businessId, channelConfig.channel as ChannelKey);
+  if (!access.allowed) {
+    console.warn(`[Pipeline] access_denied business=${channelConfig.businessId} channel=${channelConfig.channel} reason=${access.reason} used=${access.conversationsUsed} limit=${access.conversationsLimit}`);
+    return empty;
+  }
 
   // 2. Deduplicate (Meta may retry webhook delivery)
   if (message.externalMsgId) {

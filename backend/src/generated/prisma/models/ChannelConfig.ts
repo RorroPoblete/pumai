@@ -497,10 +497,6 @@ export type ChannelConfigUncheckedUpdateManyWithoutAgentNestedInput = {
   deleteMany?: Prisma.ChannelConfigScalarWhereInput | Prisma.ChannelConfigScalarWhereInput[]
 }
 
-export type EnumChannelFieldUpdateOperationsInput = {
-  set?: $Enums.Channel
-}
-
 export type ChannelConfigCreateWithoutBusinessInput = {
   id?: string
   channel: $Enums.Channel

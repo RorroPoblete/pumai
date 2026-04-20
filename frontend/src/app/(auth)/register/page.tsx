@@ -31,7 +31,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto sign-in after registration
       const signInRes = await signIn("credentials", {
         email,
         password,
@@ -42,7 +41,7 @@ export default function RegisterPage() {
         setError("Account created but sign-in failed. Please log in.");
         setLoading(false);
       } else {
-        window.location.href = "/onboarding";
+        window.location.href = signInRes?.url ?? "/onboarding";
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -63,10 +62,9 @@ export default function RegisterPage() {
         Create your account
       </h1>
       <p className="text-sm text-[var(--text-secondary)] mb-8">
-        Start automating customer conversations in minutes
+        Start free — upgrade anytime to unlock channels and agents.
       </p>
 
-      {/* Google */}
       <button
         onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
         className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[var(--border-input)] bg-[var(--bg-input)] hover:bg-[var(--bg-hover)] transition-colors text-sm font-medium text-[var(--text-primary)] mb-6"
@@ -80,7 +78,6 @@ export default function RegisterPage() {
         Continue with Google
       </button>
 
-      {/* Divider */}
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1 h-px bg-[var(--bg-hover)]" />
         <span className="text-xs text-[var(--text-muted)]">or</span>

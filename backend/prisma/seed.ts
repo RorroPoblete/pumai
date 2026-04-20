@@ -48,12 +48,22 @@ async function main() {
       website: "https://pumai.com.au",
       industry: "Healthcare",
       phone: "+61 400 000 000",
-      plan: "GROWTH",
       userId: demoUser.id,
     },
   });
 
   console.log("  ✓ Business created (PumAI Demo)");
+
+  // ─── Demo subscriptions — all 4 channels at GROWTH, active ───
+  const channels = ["WEBCHAT", "MESSENGER", "INSTAGRAM", "WHATSAPP"] as const;
+  for (const channel of channels) {
+    await prisma.subscription.upsert({
+      where: { businessId_channel: { businessId: business.id, channel } },
+      update: { tier: "GROWTH", stripeStatus: "active" },
+      create: { businessId: business.id, channel, tier: "GROWTH", stripeStatus: "active" },
+    });
+  }
+  console.log("  ✓ Demo subscriptions active (GROWTH × 4 channels)");
 
   // ─── Members ───
   for (const m of [

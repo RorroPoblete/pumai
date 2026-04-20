@@ -99,13 +99,12 @@ interface Tenant {
   id: string;
   name: string;
   industry: string;
-  plan: string;
 }
 
 interface SidebarProps {
   plan?: string;
   conversationsUsed?: number;
-  conversationsLimit?: number;
+  conversationsLimit?: number | null;
   tenants?: Tenant[];
   activeBusinessId?: string | null;
   activeBusinessName?: string | null;
@@ -113,9 +112,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({
-  plan = "STARTER",
+  plan = "FREE",
   conversationsUsed = 0,
-  conversationsLimit = 300,
+  conversationsLimit = 10,
   tenants = [],
   activeBusinessId = null,
   activeBusinessName = null,
@@ -199,11 +198,13 @@ export default function Sidebar({
         </button>
         <div className="card-gradient border border-[rgba(139,92,246,0.1)] rounded-xl p-4">
           <div className="text-xs font-semibold text-[var(--text-primary)] mb-1">{plan.charAt(0) + plan.slice(1).toLowerCase()} Plan</div>
-          <div className="text-xs text-[var(--text-muted)] mb-3">{conversationsUsed} / {conversationsLimit} conversations used</div>
+          <div className="text-xs text-[var(--text-muted)] mb-3">
+            {conversationsUsed} / {conversationsLimit ?? "∞"} conversations used
+          </div>
           <div className="h-1.5 rounded-full bg-[var(--bg-hover)] overflow-hidden">
             <div
               className="h-full gradient-btn rounded-full"
-              style={{ width: `${Math.min(conversationsUsed / conversationsLimit * 100, 100)}%` }}
+              style={{ width: conversationsLimit ? `${Math.min(conversationsUsed / conversationsLimit * 100, 100)}%` : "0%" }}
             />
           </div>
         </div>

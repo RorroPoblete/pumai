@@ -391,10 +391,12 @@ export const ModelName = {
   Business: 'Business',
   BusinessMember: 'BusinessMember',
   Invitation: 'Invitation',
+  Subscription: 'Subscription',
   Agent: 'Agent',
   ChannelConfig: 'ChannelConfig',
   Conversation: 'Conversation',
-  Message: 'Message'
+  Message: 'Message',
+  ProcessedWebhookEvent: 'ProcessedWebhookEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "platformConfig" | "user" | "account" | "session" | "business" | "businessMember" | "invitation" | "agent" | "channelConfig" | "conversation" | "message"
+    modelProps: "platformConfig" | "user" | "account" | "session" | "business" | "businessMember" | "invitation" | "subscription" | "agent" | "channelConfig" | "conversation" | "message" | "processedWebhookEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -932,6 +934,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Subscription: {
+      payload: Prisma.$SubscriptionPayload<ExtArgs>
+      fields: Prisma.SubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.SubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.SubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.SubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.SubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.SubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        update: {
+          args: Prisma.SubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.SubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubscription>
+        }
+        groupBy: {
+          args: Prisma.SubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
     Agent: {
       payload: Prisma.$AgentPayload<ExtArgs>
       fields: Prisma.AgentFieldRefs
@@ -1228,6 +1304,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProcessedWebhookEvent: {
+      payload: Prisma.$ProcessedWebhookEventPayload<ExtArgs>
+      fields: Prisma.ProcessedWebhookEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProcessedWebhookEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProcessedWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>
+        }
+        findFirst: {
+          args: Prisma.ProcessedWebhookEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProcessedWebhookEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>
+        }
+        findMany: {
+          args: Prisma.ProcessedWebhookEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>[]
+        }
+        create: {
+          args: Prisma.ProcessedWebhookEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>
+        }
+        createMany: {
+          args: Prisma.ProcessedWebhookEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProcessedWebhookEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>[]
+        }
+        delete: {
+          args: Prisma.ProcessedWebhookEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>
+        }
+        update: {
+          args: Prisma.ProcessedWebhookEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProcessedWebhookEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProcessedWebhookEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProcessedWebhookEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProcessedWebhookEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProcessedWebhookEventPayload>
+        }
+        aggregate: {
+          args: Prisma.ProcessedWebhookEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProcessedWebhookEvent>
+        }
+        groupBy: {
+          args: Prisma.ProcessedWebhookEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProcessedWebhookEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProcessedWebhookEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProcessedWebhookEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1326,13 +1476,9 @@ export const BusinessScalarFieldEnum = {
   industry: 'industry',
   phone: 'phone',
   timezone: 'timezone',
-  plan: 'plan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   stripeCustomerId: 'stripeCustomerId',
-  stripeSubscriptionId: 'stripeSubscriptionId',
-  stripePriceId: 'stripePriceId',
-  stripeStatus: 'stripeStatus',
   userId: 'userId'
 } as const
 
@@ -1363,6 +1509,22 @@ export const InvitationScalarFieldEnum = {
 } as const
 
 export type InvitationScalarFieldEnum = (typeof InvitationScalarFieldEnum)[keyof typeof InvitationScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  channel: 'channel',
+  tier: 'tier',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripeItemId: 'stripeItemId',
+  stripePriceId: 'stripePriceId',
+  stripeStatus: 'stripeStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  businessId: 'businessId'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
 
 
 export const AgentScalarFieldEnum = {
@@ -1429,6 +1591,15 @@ export const MessageScalarFieldEnum = {
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const ProcessedWebhookEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  processedAt: 'processedAt'
+} as const
+
+export type ProcessedWebhookEventScalarFieldEnum = (typeof ProcessedWebhookEventScalarFieldEnum)[keyof typeof ProcessedWebhookEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1525,20 +1696,6 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Plan'
- */
-export type EnumPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Plan'>
-    
-
-
-/**
- * Reference to a field of type 'Plan[]'
- */
-export type ListEnumPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Plan[]'>
-    
-
-
-/**
  * Reference to a field of type 'BusinessRole'
  */
 export type EnumBusinessRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessRole'>
@@ -1549,6 +1706,34 @@ export type EnumBusinessRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'BusinessRole[]'
  */
 export type ListEnumBusinessRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessRole[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Channel'
+ */
+export type EnumChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Channel'>
+    
+
+
+/**
+ * Reference to a field of type 'Channel[]'
+ */
+export type ListEnumChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Channel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PlanTier'
+ */
+export type EnumPlanTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlanTier'>
+    
+
+
+/**
+ * Reference to a field of type 'PlanTier[]'
+ */
+export type ListEnumPlanTierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlanTier[]'>
     
 
 
@@ -1577,20 +1762,6 @@ export type EnumAgentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'AgentStatus[]'
  */
 export type ListEnumAgentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Channel'
- */
-export type EnumChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Channel'>
-    
-
-
-/**
- * Reference to a field of type 'Channel[]'
- */
-export type ListEnumChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Channel[]'>
     
 
 
@@ -1751,10 +1922,12 @@ export type GlobalOmitConfig = {
   business?: Prisma.BusinessOmit
   businessMember?: Prisma.BusinessMemberOmit
   invitation?: Prisma.InvitationOmit
+  subscription?: Prisma.SubscriptionOmit
   agent?: Prisma.AgentOmit
   channelConfig?: Prisma.ChannelConfigOmit
   conversation?: Prisma.ConversationOmit
   message?: Prisma.MessageOmit
+  processedWebhookEvent?: Prisma.ProcessedWebhookEventOmit
 }
 
 /* Types for Logging */

@@ -208,7 +208,7 @@ export default function Pricing() {
               </ul>
 
               <a
-                href="#"
+                href={p.cta === "Contact Sales" ? "/contact" : "/register"}
                 className={`block text-center font-semibold py-3 rounded-xl transition-all duration-300 ${
                   p.popular
                     ? "gradient-btn !text-white glow-sm hover:glow-md"

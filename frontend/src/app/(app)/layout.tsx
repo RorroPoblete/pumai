@@ -1,7 +1,9 @@
+import AuthSessionProvider from "@/components/AuthSessionProvider";
+
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <AuthSessionProvider>{children}</AuthSessionProvider>;
 }

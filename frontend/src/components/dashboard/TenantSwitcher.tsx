@@ -4,7 +4,6 @@ interface Tenant {
   id: string;
   name: string;
   industry: string;
-  plan: string;
 }
 
 export default function TenantSwitcher({
@@ -52,7 +51,7 @@ export default function TenantSwitcher({
         {!activeId && <option value="">Select a business...</option>}
         {tenants.map((t) => (
           <option key={t.id} value={t.id}>
-            {t.name} ({t.plan})
+            {t.name} ({t.industry})
           </option>
         ))}
       </select>

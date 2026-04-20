@@ -29,7 +29,8 @@ interface Business {
 const planColor: Record<string, string> = {
   ENTERPRISE: "bg-[rgba(139,92,246,0.12)] text-[#8B5CF6]",
   GROWTH: "bg-[rgba(59,130,246,0.12)] text-[#3b82f6]",
-  STARTER: "bg-[var(--bg-hover)] text-[var(--text-muted)]",
+  STARTER: "bg-[rgba(34,197,94,0.12)] text-[#22c55e]",
+  FREE: "bg-[var(--bg-hover)] text-[var(--text-muted)]",
 };
 
 const roleColor: Record<string, string> = {
@@ -149,9 +150,10 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
                 <div className="flex items-center gap-2">
                   <select
                     value={b.plan}
-                    onChange={(e) => startTransition(() => updateTenantPlan(b.id, e.target.value))}
+                    onChange={(e) => startTransition(() => updateTenantPlan(b.id, e.target.value as "FREE" | "STARTER" | "GROWTH" | "ENTERPRISE"))}
                     className="text-[10px] font-semibold px-2 py-1 rounded-md bg-[var(--bg-input)] border border-[var(--border-subtle)] text-[var(--text-secondary)] cursor-pointer"
                   >
+                    <option value="FREE">Free</option>
                     <option value="STARTER">Starter</option>
                     <option value="GROWTH">Growth</option>
                     <option value="ENTERPRISE">Enterprise</option>

@@ -5,28 +5,29 @@ import { getToken } from "next-auth/jwt";
 const protectedRoutes = ["/dashboard", "/onboarding"];
 const authRoutes = ["/login", "/register", "/forgot-password"];
 
+function appBase(req: NextRequest): string {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  if (envUrl) return envUrl;
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const forwardedProto = req.headers.get("x-forwarded-proto") ?? "http";
+  if (forwardedHost) return `${forwardedProto}://${forwardedHost}`;
+  return req.nextUrl.origin;
+}
+
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.AUTH_SECRET });
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!token;
+  const base = appBase(req);
 
   if (authRoutes.some((r) => pathname.startsWith(r)) && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(`${base}/dashboard`);
   }
 
   if (protectedRoutes.some((r) => pathname.startsWith(r)) && !isLoggedIn) {
-    const loginUrl = new URL("/login", req.url);
+    const loginUrl = new URL(`${base}/login`);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  if (
-    isLoggedIn &&
-    pathname.startsWith("/dashboard") &&
-    token?.onboarded === false &&
-    token?.role !== "SUPERADMIN"
-  ) {
-    return NextResponse.redirect(new URL("/onboarding", req.url));
   }
 
   return NextResponse.next();

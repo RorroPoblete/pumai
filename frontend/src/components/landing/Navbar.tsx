@@ -81,8 +81,13 @@ export default function Navbar() {
             )}
           </button>
           <a
-            href="#pricing"
-            onClick={(e) => handleClick(e, "#pricing")}
+            href="/login"
+            className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            Log in
+          </a>
+          <a
+            href="/register"
             className="gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition-all duration-300 glow-sm"
           >
             Get Started
@@ -151,8 +156,13 @@ export default function Navbar() {
                 {theme === "dark" ? "Light mode" : "Dark mode"}
               </button>
               <a
-                href="#pricing"
-                onClick={(e) => handleClick(e, "#pricing")}
+                href="/login"
+                className="px-4 py-2.5 rounded-xl text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
+              >
+                Log in
+              </a>
+              <a
+                href="/register"
                 className="flex-1 gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl text-center"
               >
                 Get Started

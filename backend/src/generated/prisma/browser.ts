@@ -53,6 +53,11 @@ export type BusinessMember = Prisma.BusinessMemberModel
  */
 export type Invitation = Prisma.InvitationModel
 /**
+ * Model Subscription
+ * 
+ */
+export type Subscription = Prisma.SubscriptionModel
+/**
  * Model Agent
  * 
  */
@@ -72,3 +77,8 @@ export type Conversation = Prisma.ConversationModel
  * 
  */
 export type Message = Prisma.MessageModel
+/**
+ * Model ProcessedWebhookEvent
+ * 
+ */
+export type ProcessedWebhookEvent = Prisma.ProcessedWebhookEventModel

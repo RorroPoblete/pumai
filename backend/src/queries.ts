@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { getSessionContext, getActiveBusinessId } from "./auth-utils";
+import { CHANNEL_CATALOG, getConversationsLimit, type ChannelKey, type PlanTier } from "@/lib/stripe";
 
 // ─── Helpers ───
 
@@ -14,12 +15,6 @@ function timeAgo(date: Date): string {
   return `${days}d ago`;
 }
 
-const PLAN_LIMITS: Record<string, number> = {
-  STARTER: 300,
-  GROWTH: 1000,
-  ENTERPRISE: 4000,
-};
-
 // ─── Tenant Helpers ───
 
 export async function getActiveBusiness(): Promise<{ id: string; name: string } | null> {
@@ -28,20 +23,20 @@ export async function getActiveBusiness(): Promise<{ id: string; name: string } 
   return prisma.business.findUnique({ where: { id }, select: { id: true, name: true } });
 }
 
-export async function getAvailableTenants(): Promise<{ id: string; name: string; industry: string; plan: string }[]> {
+export async function getAvailableTenants(): Promise<{ id: string; name: string; industry: string }[]> {
   const ctx = await getSessionContext();
   if (!ctx) return [];
 
   if (ctx.role === "SUPERADMIN") {
     return prisma.business.findMany({
-      select: { id: true, name: true, industry: true, plan: true },
+      select: { id: true, name: true, industry: true },
       orderBy: { name: "asc" },
     });
   }
 
   const memberships = await prisma.businessMember.findMany({
     where: { userId: ctx.userId },
-    include: { business: { select: { id: true, name: true, industry: true, plan: true } } },
+    include: { business: { select: { id: true, name: true, industry: true } } },
   });
   return memberships.map((m) => m.business);
 }
@@ -49,26 +44,52 @@ export async function getAvailableTenants(): Promise<{ id: string; name: string;
 // ─── Business Summary (for Sidebar) ───
 
 export interface BusinessSummary {
-  plan: string;
+  topTier: PlanTier;
   conversationsUsed: number;
-  conversationsLimit: number;
+  conversationsLimit: number | null;
+}
+
+const TIER_ORDER: PlanTier[] = ["FREE", "STARTER", "GROWTH", "ENTERPRISE"];
+
+function startOfMonth(): Date {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
 export async function getBusinessSummary(): Promise<BusinessSummary | null> {
   const businessId = await getActiveBusinessId();
   if (!businessId) return null;
 
-  const business = await prisma.business.findUnique({
-    where: { id: businessId },
-    select: { plan: true, _count: { select: { conversations: true } } },
-  });
-  if (!business) return null;
+  const [subs, conversationsUsed] = await Promise.all([
+    prisma.subscription.findMany({
+      where: { businessId },
+      select: { channel: true, tier: true, stripeStatus: true },
+    }),
+    prisma.conversation.count({
+      where: { businessId, createdAt: { gte: startOfMonth() } },
+    }),
+  ]);
 
-  return {
-    plan: business.plan,
-    conversationsUsed: business._count.conversations,
-    conversationsLimit: PLAN_LIMITS[business.plan] ?? 300,
-  };
+  let topTier: PlanTier = "FREE";
+  let totalLimit: number | null = 0;
+  let anyUnlimited = false;
+
+  for (const s of subs) {
+    if (s.stripeStatus !== "active" && s.stripeStatus !== "trialing") continue;
+    if (TIER_ORDER.indexOf(s.tier as PlanTier) > TIER_ORDER.indexOf(topTier)) {
+      topTier = s.tier as PlanTier;
+    }
+    const limit = getConversationsLimit(s.channel as ChannelKey, s.tier as PlanTier);
+    if (limit === null) anyUnlimited = true;
+    else if (totalLimit !== null) totalLimit += limit;
+  }
+
+  if (anyUnlimited) totalLimit = null;
+  if (topTier === "FREE") {
+    totalLimit = CHANNEL_CATALOG.WEBCHAT.free?.conversationsLimit ?? 10;
+  }
+
+  return { topTier, conversationsUsed, conversationsLimit: totalLimit };
 }
 
 // ─── Dashboard Overview ───

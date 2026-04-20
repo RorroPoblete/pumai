@@ -30,7 +30,7 @@ export async function getAdminOverview(): Promise<AdminOverview | null> {
     totalMessages,
     totalAgents,
     totalUsers,
-    planGroups,
+    tierGroups,
     recentBiz,
   ] = await Promise.all([
     prisma.business.count(),
@@ -38,12 +38,17 @@ export async function getAdminOverview(): Promise<AdminOverview | null> {
     prisma.message.count(),
     prisma.agent.count(),
     prisma.user.count(),
-    prisma.business.groupBy({ by: ["plan"], _count: true }),
+    prisma.subscription.groupBy({
+      by: ["tier"],
+      _count: true,
+      where: { stripeStatus: { in: ["active", "trialing"] } },
+    }),
     prisma.business.findMany({
       orderBy: { createdAt: "desc" },
       take: 10,
       include: {
         _count: { select: { conversations: true, agents: true } },
+        subscriptions: { where: { stripeStatus: { in: ["active", "trialing"] } }, select: { tier: true } },
       },
     }),
   ]);
@@ -54,17 +59,26 @@ export async function getAdminOverview(): Promise<AdminOverview | null> {
     totalMessages,
     totalAgents,
     totalUsers,
-    planBreakdown: planGroups.map((g) => ({ plan: g.plan, count: g._count })),
+    planBreakdown: tierGroups.map((g) => ({ plan: g.tier, count: g._count })),
     recentBusinesses: recentBiz.map((b) => ({
       id: b.id,
       name: b.name,
-      plan: b.plan,
+      plan: topTier(b.subscriptions.map((s) => s.tier)),
       industry: b.industry,
       conversations: b._count.conversations,
       agents: b._count.agents,
       createdAt: b.createdAt.toLocaleDateString("en-AU"),
     })),
   };
+}
+
+const TIER_ORDER = ["FREE", "STARTER", "GROWTH", "ENTERPRISE"];
+function topTier(tiers: string[]): string {
+  let top = "FREE";
+  for (const t of tiers) {
+    if (TIER_ORDER.indexOf(t) > TIER_ORDER.indexOf(top)) top = t;
+  }
+  return top;
 }
 
 // ─── All Businesses List ───
@@ -100,6 +114,7 @@ export async function getAdminBusinessesWithMembers(): Promise<AdminBusinessWith
     orderBy: { createdAt: "desc" },
     include: {
       _count: { select: { conversations: true, agents: true, members: true } },
+      subscriptions: { where: { stripeStatus: { in: ["active", "trialing"] } }, select: { tier: true } },
       members: {
         include: { user: { select: { id: true, name: true, email: true, role: true } } },
         orderBy: { createdAt: "asc" },
@@ -110,7 +125,7 @@ export async function getAdminBusinessesWithMembers(): Promise<AdminBusinessWith
   return rows.map((b) => ({
     id: b.id,
     name: b.name,
-    plan: b.plan,
+    plan: topTier(b.subscriptions.map((s) => s.tier)),
     industry: b.industry,
     phone: b.phone,
     conversations: b._count.conversations,
@@ -169,13 +184,14 @@ export async function getAdminBusinesses(): Promise<AdminBusiness[]> {
     orderBy: { createdAt: "desc" },
     include: {
       _count: { select: { conversations: true, agents: true, members: true } },
+      subscriptions: { where: { stripeStatus: { in: ["active", "trialing"] } }, select: { tier: true } },
     },
   });
 
   return rows.map((b) => ({
     id: b.id,
     name: b.name,
-    plan: b.plan,
+    plan: topTier(b.subscriptions.map((s) => s.tier)),
     industry: b.industry,
     phone: b.phone,
     conversations: b._count.conversations,
