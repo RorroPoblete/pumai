@@ -1,0 +1,5 @@
+Contact: mailto:security@pumai.com.au
+Expires: 2027-04-22T00:00:00.000Z
+Preferred-Languages: en, es
+Policy: https://pumai.com.au/security
+Canonical: https://pumai.com.au/.well-known/security.txt

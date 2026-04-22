@@ -4,25 +4,44 @@
 
 import { prisma } from "@/backend/prisma";
 import { rateLimit } from "@/backend/rate-limit";
+import { decryptSecret } from "@/backend/crypto";
 
-export function corsHeaders(req: Request): HeadersInit {
-  const origin = req.headers.get("origin") ?? "*";
+// Public CORS — only for endpoints that must serve any origin (e.g. /config returns
+// public branding before the widget knows its allowlist).
+export function publicCorsHeaders(): HeadersInit {
   return {
-    "Access-Control-Allow-Origin": origin,
+    "Vary": "Origin",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
   };
 }
 
-export function corsOptions(req: Request): Response {
-  return new Response(null, { status: 204, headers: corsHeaders(req) });
+// Scoped CORS — reflect Origin only when it's in the widget's allowlist.
+// Empty allowlist = no Allow-Origin header emitted (browser blocks cross-origin).
+export function corsHeaders(req: Request, allowed: string[] = []): HeadersInit {
+  const headers: Record<string, string> = {
+    "Vary": "Origin",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+  };
+  const origin = req.headers.get("origin");
+  if (origin && allowed.includes(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
 }
 
-export function json(data: unknown, status: number, req: Request): Response {
+export function corsOptions(req: Request, allowed: string[] = []): Response {
+  return new Response(null, { status: 204, headers: corsHeaders(req, allowed) });
+}
+
+export function json(data: unknown, status: number, req: Request, allowed: string[] = []): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json", ...corsHeaders(req) },
+    headers: { "Content-Type": "application/json", ...corsHeaders(req, allowed) },
   });
 }
 
@@ -52,7 +71,8 @@ export async function resolveWebchatConfig(widgetKey: string): Promise<ResolvedC
   });
   if (!config) return null;
 
-  const credentials = safeParse(config.credentials);
+  const decrypted = decryptSecret(config.credentials);
+  const credentials = safeParse(decrypted);
   const raw = credentials.allowedOrigins;
   const allowedOrigins: string[] = Array.isArray(raw)
     ? raw.filter((v): v is string => typeof v === "string")
@@ -62,13 +82,17 @@ export async function resolveWebchatConfig(widgetKey: string): Promise<ResolvedC
     id: config.id,
     businessId: config.businessId,
     agentId: config.agentId,
-    credentials: config.credentials,
+    credentials: decrypted,
     allowedOrigins,
   };
 }
 
+// Default-deny: empty allowlist means no cross-origin access.
+// To allow same-origin we still rely on the origin header check; same-origin
+// requests typically don't send Origin so they bypass this gate.
 export function originAllowed(origin: string, allowed: string[]): boolean {
-  return allowed.length === 0 || allowed.includes(origin);
+  if (!origin) return true; // same-origin (no Origin header)
+  return allowed.includes(origin);
 }
 
 export function clientIP(req: Request): string {

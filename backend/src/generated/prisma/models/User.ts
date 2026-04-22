@@ -33,6 +33,11 @@ export type UserMinAggregateOutputType = {
   image: string | null
   onboarded: boolean | null
   role: $Enums.GlobalRole | null
+  consentedAt: Date | null
+  consentVersion: string | null
+  totpSecret: string | null
+  totpEnabled: boolean | null
+  totpVerifiedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +51,11 @@ export type UserMaxAggregateOutputType = {
   image: string | null
   onboarded: boolean | null
   role: $Enums.GlobalRole | null
+  consentedAt: Date | null
+  consentVersion: string | null
+  totpSecret: string | null
+  totpEnabled: boolean | null
+  totpVerifiedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +69,11 @@ export type UserCountAggregateOutputType = {
   image: number
   onboarded: number
   role: number
+  consentedAt: number
+  consentVersion: number
+  totpSecret: number
+  totpEnabled: number
+  totpVerifiedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +89,11 @@ export type UserMinAggregateInputType = {
   image?: true
   onboarded?: true
   role?: true
+  consentedAt?: true
+  consentVersion?: true
+  totpSecret?: true
+  totpEnabled?: true
+  totpVerifiedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +107,11 @@ export type UserMaxAggregateInputType = {
   image?: true
   onboarded?: true
   role?: true
+  consentedAt?: true
+  consentVersion?: true
+  totpSecret?: true
+  totpEnabled?: true
+  totpVerifiedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +125,11 @@ export type UserCountAggregateInputType = {
   image?: true
   onboarded?: true
   role?: true
+  consentedAt?: true
+  consentVersion?: true
+  totpSecret?: true
+  totpEnabled?: true
+  totpVerifiedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +216,11 @@ export type UserGroupByOutputType = {
   image: string | null
   onboarded: boolean
   role: $Enums.GlobalRole
+  consentedAt: Date | null
+  consentVersion: string | null
+  totpSecret: string | null
+  totpEnabled: boolean
+  totpVerifiedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -220,12 +255,18 @@ export type UserWhereInput = {
   image?: Prisma.StringNullableFilter<"User"> | string | null
   onboarded?: Prisma.BoolFilter<"User"> | boolean
   role?: Prisma.EnumGlobalRoleFilter<"User"> | $Enums.GlobalRole
+  consentedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  consentVersion?: Prisma.StringNullableFilter<"User"> | string | null
+  totpSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  totpEnabled?: Prisma.BoolFilter<"User"> | boolean
+  totpVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   business?: Prisma.XOR<Prisma.BusinessNullableScalarRelationFilter, Prisma.BusinessWhereInput> | null
   memberships?: Prisma.BusinessMemberListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -237,12 +278,18 @@ export type UserOrderByWithRelationInput = {
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   onboarded?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  consentedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  consentVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpEnabled?: Prisma.SortOrder
+  totpVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   business?: Prisma.BusinessOrderByWithRelationInput
   memberships?: Prisma.BusinessMemberOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -257,12 +304,18 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   image?: Prisma.StringNullableFilter<"User"> | string | null
   onboarded?: Prisma.BoolFilter<"User"> | boolean
   role?: Prisma.EnumGlobalRoleFilter<"User"> | $Enums.GlobalRole
+  consentedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  consentVersion?: Prisma.StringNullableFilter<"User"> | string | null
+  totpSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  totpEnabled?: Prisma.BoolFilter<"User"> | boolean
+  totpVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   business?: Prisma.XOR<Prisma.BusinessNullableScalarRelationFilter, Prisma.BusinessWhereInput> | null
   memberships?: Prisma.BusinessMemberListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -274,6 +327,11 @@ export type UserOrderByWithAggregationInput = {
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   onboarded?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  consentedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  consentVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  totpEnabled?: Prisma.SortOrder
+  totpVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -293,6 +351,11 @@ export type UserScalarWhereWithAggregatesInput = {
   image?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   onboarded?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   role?: Prisma.EnumGlobalRoleWithAggregatesFilter<"User"> | $Enums.GlobalRole
+  consentedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  consentVersion?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  totpSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  totpEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  totpVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -306,12 +369,18 @@ export type UserCreateInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessCreateNestedOneWithoutUserInput
   memberships?: Prisma.BusinessMemberCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -323,12 +392,18 @@ export type UserUncheckedCreateInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -340,12 +415,18 @@ export type UserUpdateInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneWithoutUserNestedInput
   memberships?: Prisma.BusinessMemberUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -357,12 +438,18 @@ export type UserUncheckedUpdateInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.BusinessMemberUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -374,6 +461,11 @@ export type UserCreateManyInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -387,6 +479,11 @@ export type UserUpdateManyMutationInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -400,6 +497,11 @@ export type UserUncheckedUpdateManyInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -413,6 +515,11 @@ export type UserCountOrderByAggregateInput = {
   image?: Prisma.SortOrder
   onboarded?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  consentedAt?: Prisma.SortOrder
+  consentVersion?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabled?: Prisma.SortOrder
+  totpVerifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,6 +533,11 @@ export type UserMaxOrderByAggregateInput = {
   image?: Prisma.SortOrder
   onboarded?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  consentedAt?: Prisma.SortOrder
+  consentVersion?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabled?: Prisma.SortOrder
+  totpVerifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -439,6 +551,11 @@ export type UserMinOrderByAggregateInput = {
   image?: Prisma.SortOrder
   onboarded?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  consentedAt?: Prisma.SortOrder
+  consentVersion?: Prisma.SortOrder
+  totpSecret?: Prisma.SortOrder
+  totpEnabled?: Prisma.SortOrder
+  totpVerifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -466,6 +583,20 @@ export type EnumGlobalRoleFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type UserCreateNestedOneWithoutTotpRecoveryCodesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTotpRecoveryCodesInput, Prisma.UserUncheckedCreateWithoutTotpRecoveryCodesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTotpRecoveryCodesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTotpRecoveryCodesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTotpRecoveryCodesInput, Prisma.UserUncheckedCreateWithoutTotpRecoveryCodesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTotpRecoveryCodesInput
+  upsert?: Prisma.UserUpsertWithoutTotpRecoveryCodesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTotpRecoveryCodesInput, Prisma.UserUpdateWithoutTotpRecoveryCodesInput>, Prisma.UserUncheckedUpdateWithoutTotpRecoveryCodesInput>
 }
 
 export type UserCreateNestedOneWithoutAccountsInput = {
@@ -524,6 +655,110 @@ export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMembershipsInput, Prisma.UserUpdateWithoutMembershipsInput>, Prisma.UserUncheckedUpdateWithoutMembershipsInput>
 }
 
+export type UserCreateWithoutTotpRecoveryCodesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  onboarded?: boolean
+  role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  business?: Prisma.BusinessCreateNestedOneWithoutUserInput
+  memberships?: Prisma.BusinessMemberCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutTotpRecoveryCodesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  onboarded?: boolean
+  role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  business?: Prisma.BusinessUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutTotpRecoveryCodesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTotpRecoveryCodesInput, Prisma.UserUncheckedCreateWithoutTotpRecoveryCodesInput>
+}
+
+export type UserUpsertWithoutTotpRecoveryCodesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTotpRecoveryCodesInput, Prisma.UserUncheckedUpdateWithoutTotpRecoveryCodesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTotpRecoveryCodesInput, Prisma.UserUncheckedCreateWithoutTotpRecoveryCodesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTotpRecoveryCodesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTotpRecoveryCodesInput, Prisma.UserUncheckedUpdateWithoutTotpRecoveryCodesInput>
+}
+
+export type UserUpdateWithoutTotpRecoveryCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  business?: Prisma.BusinessUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.BusinessMemberUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTotpRecoveryCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  business?: Prisma.BusinessUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.BusinessMemberUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutAccountsInput = {
   id?: string
   name: string
@@ -533,11 +768,17 @@ export type UserCreateWithoutAccountsInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessCreateNestedOneWithoutUserInput
   memberships?: Prisma.BusinessMemberCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -549,11 +790,17 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -581,11 +828,17 @@ export type UserUpdateWithoutAccountsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneWithoutUserNestedInput
   memberships?: Prisma.BusinessMemberUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -597,11 +850,17 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.BusinessMemberUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -613,11 +872,17 @@ export type UserCreateWithoutSessionsInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessCreateNestedOneWithoutUserInput
   memberships?: Prisma.BusinessMemberCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -629,11 +894,17 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessUncheckedCreateNestedOneWithoutUserInput
   memberships?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -661,11 +932,17 @@ export type UserUpdateWithoutSessionsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneWithoutUserNestedInput
   memberships?: Prisma.BusinessMemberUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -677,11 +954,17 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUncheckedUpdateOneWithoutUserNestedInput
   memberships?: Prisma.BusinessMemberUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBusinessInput = {
@@ -693,11 +976,17 @@ export type UserCreateWithoutBusinessInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BusinessMemberCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBusinessInput = {
@@ -709,11 +998,17 @@ export type UserUncheckedCreateWithoutBusinessInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.BusinessMemberUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBusinessInput = {
@@ -741,11 +1036,17 @@ export type UserUpdateWithoutBusinessInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BusinessMemberUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBusinessInput = {
@@ -757,11 +1058,17 @@ export type UserUncheckedUpdateWithoutBusinessInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.BusinessMemberUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -773,11 +1080,17 @@ export type UserCreateWithoutMembershipsInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessCreateNestedOneWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -789,11 +1102,17 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   image?: string | null
   onboarded?: boolean
   role?: $Enums.GlobalRole
+  consentedAt?: Date | string | null
+  consentVersion?: string | null
+  totpSecret?: string | null
+  totpEnabled?: boolean
+  totpVerifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business?: Prisma.BusinessUncheckedCreateNestedOneWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -821,11 +1140,17 @@ export type UserUpdateWithoutMembershipsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -837,11 +1162,17 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+  consentedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consentVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totpEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  totpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUncheckedUpdateOneWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  totpRecoveryCodes?: Prisma.TotpRecoveryCodeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -853,12 +1184,14 @@ export type UserCountOutputType = {
   memberships: number
   accounts: number
   sessions: number
+  totpRecoveryCodes: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | UserCountOutputTypeCountMembershipsArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+  totpRecoveryCodes?: boolean | UserCountOutputTypeCountTotpRecoveryCodesArgs
 }
 
 /**
@@ -892,6 +1225,13 @@ export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.SessionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTotpRecoveryCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TotpRecoveryCodeWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -902,12 +1242,18 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   image?: boolean
   onboarded?: boolean
   role?: boolean
+  consentedAt?: boolean
+  consentVersion?: boolean
+  totpSecret?: boolean
+  totpEnabled?: boolean
+  totpVerifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   business?: boolean | Prisma.User$businessArgs<ExtArgs>
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  totpRecoveryCodes?: boolean | Prisma.User$totpRecoveryCodesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -920,6 +1266,11 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   image?: boolean
   onboarded?: boolean
   role?: boolean
+  consentedAt?: boolean
+  consentVersion?: boolean
+  totpSecret?: boolean
+  totpEnabled?: boolean
+  totpVerifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -933,6 +1284,11 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   image?: boolean
   onboarded?: boolean
   role?: boolean
+  consentedAt?: boolean
+  consentVersion?: boolean
+  totpSecret?: boolean
+  totpEnabled?: boolean
+  totpVerifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -946,16 +1302,22 @@ export type UserSelectScalar = {
   image?: boolean
   onboarded?: boolean
   role?: boolean
+  consentedAt?: boolean
+  consentVersion?: boolean
+  totpSecret?: boolean
+  totpEnabled?: boolean
+  totpVerifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "password" | "image" | "onboarded" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "password" | "image" | "onboarded" | "role" | "consentedAt" | "consentVersion" | "totpSecret" | "totpEnabled" | "totpVerifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.User$businessArgs<ExtArgs>
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  totpRecoveryCodes?: boolean | Prisma.User$totpRecoveryCodesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -968,6 +1330,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     memberships: Prisma.$BusinessMemberPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
+    totpRecoveryCodes: Prisma.$TotpRecoveryCodePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -978,6 +1341,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     image: string | null
     onboarded: boolean
     role: $Enums.GlobalRole
+    consentedAt: Date | null
+    consentVersion: string | null
+    totpSecret: string | null
+    totpEnabled: boolean
+    totpVerifiedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1378,6 +1746,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   memberships<T extends Prisma.User$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  totpRecoveryCodes<T extends Prisma.User$totpRecoveryCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$totpRecoveryCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TotpRecoveryCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1415,6 +1784,11 @@ export interface UserFieldRefs {
   readonly image: Prisma.FieldRef<"User", 'String'>
   readonly onboarded: Prisma.FieldRef<"User", 'Boolean'>
   readonly role: Prisma.FieldRef<"User", 'GlobalRole'>
+  readonly consentedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly consentVersion: Prisma.FieldRef<"User", 'String'>
+  readonly totpSecret: Prisma.FieldRef<"User", 'String'>
+  readonly totpEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly totpVerifiedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -1898,6 +2272,30 @@ export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
+}
+
+/**
+ * User.totpRecoveryCodes
+ */
+export type User$totpRecoveryCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TotpRecoveryCode
+   */
+  select?: Prisma.TotpRecoveryCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TotpRecoveryCode
+   */
+  omit?: Prisma.TotpRecoveryCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TotpRecoveryCodeInclude<ExtArgs> | null
+  where?: Prisma.TotpRecoveryCodeWhereInput
+  orderBy?: Prisma.TotpRecoveryCodeOrderByWithRelationInput | Prisma.TotpRecoveryCodeOrderByWithRelationInput[]
+  cursor?: Prisma.TotpRecoveryCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TotpRecoveryCodeScalarFieldEnum | Prisma.TotpRecoveryCodeScalarFieldEnum[]
 }
 
 /**

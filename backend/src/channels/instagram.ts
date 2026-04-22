@@ -4,7 +4,9 @@
 //   pages_manage_metadata, pages_messaging, instagram_basic, instagram_manage_messages.
 
 import type { ChannelAdapter, ChannelConfigData, InboundMessage, OutboundMessage } from "./types";
+import { scoped } from "../logger";
 
+const log = scoped("channel:instagram");
 const GRAPH_API = "https://graph.facebook.com/v22.0";
 
 // ─── Webhook Payload Types ───
@@ -83,7 +85,7 @@ async function sendMessage(config: ChannelConfigData, message: OutboundMessage):
   });
 
   if (!res.ok) {
-    console.error(`[Instagram] Send failed:`, await res.text());
+    log.error({ status: res.status, body: await res.text() }, "send_failed");
     return null;
   }
 

@@ -4,7 +4,7 @@
 // business replies later from the dashboard.
 
 import { prisma } from "@/backend/prisma";
-import { corsOptions, enforceRateLimit, json, visitorFallbackName } from "../../_shared";
+import { corsOptions, enforceRateLimit, json, resolveWebchatConfig, originAllowed, visitorFallbackName } from "../../_shared";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +14,13 @@ interface Body {
   message?: string;
 }
 
-export async function OPTIONS(req: Request) {
-  return corsOptions(req);
+export async function OPTIONS(
+  req: Request,
+  { params }: { params: Promise<{ widgetKey: string }> },
+) {
+  const { widgetKey } = await params;
+  const config = await resolveWebchatConfig(widgetKey);
+  return corsOptions(req, config?.allowedOrigins ?? []);
 }
 
 export async function POST(
@@ -23,20 +28,27 @@ export async function POST(
   { params }: { params: Promise<{ widgetKey: string }> },
 ) {
   const { widgetKey } = await params;
-  const body = (await req.json()) as Body;
+  const origin = req.headers.get("origin") ?? "";
 
+  const resolved = await resolveWebchatConfig(widgetKey);
+  if (!resolved) return json({ error: "Widget not found" }, 404, req);
+  if (!originAllowed(origin, resolved.allowedOrigins)) {
+    return json({ error: "Origin not allowed" }, 403, req, resolved.allowedOrigins);
+  }
+
+  const body = (await req.json()) as Body;
   const sessionId = body.sessionId?.trim();
   const message = body.message?.trim();
   const name = body.name?.trim();
 
   if (!sessionId || !message) {
-    return json({ error: "sessionId and message required" }, 400, req);
+    return json({ error: "sessionId and message required" }, 400, req, resolved.allowedOrigins);
   }
 
   const config = await prisma.channelConfig.findFirst({
-    where: { channel: "WEBCHAT", externalId: widgetKey, active: true },
+    where: { id: resolved.id },
   });
-  if (!config) return json({ error: "Widget not found" }, 404, req);
+  if (!config) return json({ error: "Widget not found" }, 404, req, resolved.allowedOrigins);
 
   const limited = await enforceRateLimit(req, widgetKey, "offline", 3, 3_600_000);
   if (limited) return limited;
@@ -80,5 +92,5 @@ export async function POST(
     }),
   ]);
 
-  return json({ ok: true, conversationId: conversation.id }, 200, req);
+  return json({ ok: true, conversationId: conversation.id }, 200, req, resolved.allowedOrigins);
 }

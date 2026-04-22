@@ -1,18 +1,26 @@
 // ─── Webchat Config Endpoint ───
 // Returns public branding config for the widget to render (color, welcome, etc).
-// Does NOT return allowedOrigins or other non-public credentials fields.
+// Public CORS by design — the widget needs to fetch this before knowing its origin allowlist.
 
 import { prisma } from "@/backend/prisma";
-import { corsOptions, json, safeParse } from "../../_shared";
+import { decryptSecret } from "@/backend/crypto";
+import { publicCorsHeaders, safeParse } from "../../_shared";
 
 export const dynamic = "force-dynamic";
 
-export async function OPTIONS(req: Request) {
-  return corsOptions(req);
+function pubJson(data: unknown, status: number): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json", ...publicCorsHeaders() },
+  });
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: publicCorsHeaders() });
 }
 
 export async function GET(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ widgetKey: string }> },
 ) {
   const { widgetKey } = await params;
@@ -22,9 +30,9 @@ export async function GET(
     include: { business: { select: { name: true } } },
   });
 
-  if (!config) return json({ error: "Widget not found" }, 404, req);
+  if (!config) return pubJson({ error: "Widget not found" }, 404);
 
-  const credentials = safeParse(config.credentials);
+  const credentials = safeParse(decryptSecret(config.credentials));
   const branding = (credentials.branding ?? {}) as Record<string, string>;
 
   const collect = branding.collectVisitor;
@@ -32,7 +40,7 @@ export async function GET(
     collect === "optional" || collect === "required" ? collect : "off";
   const offlineMode: "off" | "always" = branding.offlineMode === "always" ? "always" : "off";
 
-  return json(
+  return pubJson(
     {
       businessName: config.business.name,
       primaryColor: branding.primaryColor ?? "#8B5CF6",
@@ -44,6 +52,5 @@ export async function GET(
       offlineMode,
     },
     200,
-    req,
   );
 }

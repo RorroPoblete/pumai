@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   PlatformConfig: 'PlatformConfig',
   User: 'User',
+  TotpRecoveryCode: 'TotpRecoveryCode',
   Account: 'Account',
   Session: 'Session',
   Business: 'Business',
@@ -63,7 +64,8 @@ export const ModelName = {
   ChannelConfig: 'ChannelConfig',
   Conversation: 'Conversation',
   Message: 'Message',
-  ProcessedWebhookEvent: 'ProcessedWebhookEvent'
+  ProcessedWebhookEvent: 'ProcessedWebhookEvent',
+  AuditEvent: 'AuditEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -99,11 +101,27 @@ export const UserScalarFieldEnum = {
   image: 'image',
   onboarded: 'onboarded',
   role: 'role',
+  consentedAt: 'consentedAt',
+  consentVersion: 'consentVersion',
+  totpSecret: 'totpSecret',
+  totpEnabled: 'totpEnabled',
+  totpVerifiedAt: 'totpVerifiedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const TotpRecoveryCodeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  codeHash: 'codeHash',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TotpRecoveryCodeScalarFieldEnum = (typeof TotpRecoveryCodeScalarFieldEnum)[keyof typeof TotpRecoveryCodeScalarFieldEnum]
 
 
 export const AccountScalarFieldEnum = {
@@ -267,12 +285,36 @@ export const ProcessedWebhookEventScalarFieldEnum = {
 export type ProcessedWebhookEventScalarFieldEnum = (typeof ProcessedWebhookEventScalarFieldEnum)[keyof typeof ProcessedWebhookEventScalarFieldEnum]
 
 
+export const AuditEventScalarFieldEnum = {
+  id: 'id',
+  actorId: 'actorId',
+  actorRole: 'actorRole',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  metadata: 'metadata',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditEventScalarFieldEnum = (typeof AuditEventScalarFieldEnum)[keyof typeof AuditEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -289,4 +331,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

@@ -166,7 +166,10 @@
             '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>' +
           '</svg>' +
         '</button>' +
-      '</form>';
+      '</form>' +
+      '<div id="pumai-webchat-disclosure" style="padding:6px 14px;font-size:10px;color:#71717A;text-align:center;border-top:1px solid rgba(113,113,122,0.15);">' +
+        'Powered by AI — may make mistakes' +
+      '</div>';
 
     var form = $("pumai-webchat-form");
     var input = $("pumai-webchat-input");

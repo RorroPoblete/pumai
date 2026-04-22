@@ -22,21 +22,39 @@ enum GlobalRole {
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String
-  email         String     @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  onboarded     Boolean    @default(false)
-  role          GlobalRole @default(USER)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id             String     @id @default(cuid())
+  name           String
+  email          String     @unique
+  emailVerified  DateTime?
+  password       String?
+  image          String?
+  onboarded      Boolean    @default(false)
+  role           GlobalRole @default(USER)
+  consentedAt    DateTime?
+  consentVersion String?
+  totpSecret     String?
+  totpEnabled    Boolean    @default(false)
+  totpVerifiedAt DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
-  business    Business?
-  memberships BusinessMember[]
-  accounts    Account[]
-  sessions    Session[]
+  business           Business?
+  memberships        BusinessMember[]
+  accounts           Account[]
+  sessions           Session[]
+  totpRecoveryCodes  TotpRecoveryCode[]
+}
+
+model TotpRecoveryCode {
+  id        String    @id @default(cuid())
+  userId    String
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
 }
 
 model Account {
@@ -283,4 +301,21 @@ model ProcessedWebhookEvent {
   processedAt DateTime @default(now())
 
   @@index([processedAt])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorRole  String?
+  action     String
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
 }

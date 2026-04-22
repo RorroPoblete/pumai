@@ -21,8 +21,13 @@ interface Body {
   visitor?: { name?: string };
 }
 
-export async function OPTIONS(req: Request) {
-  return corsOptions(req);
+export async function OPTIONS(
+  req: Request,
+  { params }: { params: Promise<{ widgetKey: string }> },
+) {
+  const { widgetKey } = await params;
+  const config = await resolveWebchatConfig(widgetKey);
+  return corsOptions(req, config?.allowedOrigins ?? []);
 }
 
 export async function POST(
@@ -35,7 +40,7 @@ export async function POST(
   const config = await resolveWebchatConfig(widgetKey);
   if (!config) return json({ error: "Widget not found" }, 404, req);
   if (!originAllowed(origin, config.allowedOrigins)) {
-    return json({ error: "Origin not allowed" }, 403, req);
+    return json({ error: "Origin not allowed" }, 403, req, config.allowedOrigins);
   }
 
   const limited = await enforceRateLimit(req, widgetKey, "msg", 30, 60_000);
@@ -44,7 +49,7 @@ export async function POST(
   const body = (await req.json()) as Body;
   const text = body.message?.trim();
   const sessionId = body.sessionId?.trim();
-  if (!text || !sessionId) return json({ error: "sessionId and message required" }, 400, req);
+  if (!text || !sessionId) return json({ error: "sessionId and message required" }, 400, req, config.allowedOrigins);
 
   const inbound: InboundMessage = {
     channel: "WEBCHAT",
@@ -65,5 +70,6 @@ export async function POST(
     },
     200,
     req,
+    config.allowedOrigins,
   );
 }

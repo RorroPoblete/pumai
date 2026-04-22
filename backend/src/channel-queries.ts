@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { getActiveBusinessId } from "./auth-utils";
+import { decryptSecret } from "./crypto";
 
 export interface ChannelConfigView {
   id: string;
@@ -40,7 +41,7 @@ export async function getChannelConfigs(): Promise<ChannelConfigView[]> {
     agentId: c.agentId,
     agentName: c.agent.name,
     createdAt: c.createdAt,
-    webchatBranding: c.channel === "WEBCHAT" ? parseBranding(c.credentials) : undefined,
+    webchatBranding: c.channel === "WEBCHAT" ? parseBranding(decryptSecret(c.credentials)) : undefined,
   }));
 }
 

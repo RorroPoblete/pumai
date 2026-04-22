@@ -1,9 +1,18 @@
 import { getRedis } from "./redis";
+import { scoped } from "./logger";
+
+const log = scoped("rate-limit");
+
+export interface RateLimitOptions {
+  /** When Redis is unreachable: true = deny, false = allow. Default: allow. */
+  failClosed?: boolean;
+}
 
 export async function rateLimit(
   key: string,
   maxRequests: number,
   windowMs: number,
+  opts: RateLimitOptions = {},
 ): Promise<{ ok: boolean; remaining: number }> {
   try {
     const client = getRedis();
@@ -19,8 +28,11 @@ export async function rateLimit(
     }
 
     return { ok: true, remaining: maxRequests - count };
-  } catch {
-    // Redis unavailable — allow request (fail open)
+  } catch (err) {
+    log.error({ err }, "redis_error");
+    if (opts.failClosed) {
+      return { ok: false, remaining: 0 };
+    }
     return { ok: true, remaining: maxRequests };
   }
 }

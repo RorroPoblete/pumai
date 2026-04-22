@@ -2,15 +2,20 @@
 // Long-lived stream. Subscribes to Redis pub/sub for the visitor's conversation
 // and forwards agent messages to the widget in real time.
 
-import { prisma } from "@/backend/prisma";
 import { createSubscriber } from "@/backend/redis";
-import { corsHeaders, corsOptions } from "../../_shared";
+import { prisma } from "@/backend/prisma";
+import { corsHeaders, corsOptions, originAllowed, resolveWebchatConfig } from "../../_shared";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function OPTIONS(req: Request) {
-  return corsOptions(req);
+export async function OPTIONS(
+  req: Request,
+  { params }: { params: Promise<{ widgetKey: string }> },
+) {
+  const { widgetKey } = await params;
+  const config = await resolveWebchatConfig(widgetKey);
+  return corsOptions(req, config?.allowedOrigins ?? []);
 }
 
 export async function GET(
@@ -20,21 +25,22 @@ export async function GET(
   const { widgetKey } = await params;
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("sessionId");
+  const origin = req.headers.get("origin") ?? "";
 
-  if (!sessionId) {
-    return new Response("sessionId required", { status: 400, headers: corsHeaders(req) });
+  const resolved = await resolveWebchatConfig(widgetKey);
+  if (!resolved) return new Response("Widget not found", { status: 404 });
+  if (!originAllowed(origin, resolved.allowedOrigins)) {
+    return new Response("Origin not allowed", { status: 403, headers: corsHeaders(req, resolved.allowedOrigins) });
   }
 
-  const config = await prisma.channelConfig.findFirst({
-    where: { channel: "WEBCHAT", externalId: widgetKey, active: true },
-    select: { businessId: true },
-  });
-  if (!config) return new Response("Widget not found", { status: 404, headers: corsHeaders(req) });
+  if (!sessionId) {
+    return new Response("sessionId required", { status: 400, headers: corsHeaders(req, resolved.allowedOrigins) });
+  }
 
   const conversation = await prisma.conversation.findUnique({
     where: {
       businessId_channel_contactExternalId: {
-        businessId: config.businessId,
+        businessId: resolved.businessId,
         channel: "WEBCHAT",
         contactExternalId: sessionId,
       },
@@ -42,7 +48,7 @@ export async function GET(
     select: { id: true },
   });
   if (!conversation) {
-    return new Response("No conversation", { status: 404, headers: corsHeaders(req) });
+    return new Response("No conversation", { status: 404, headers: corsHeaders(req, resolved.allowedOrigins) });
   }
 
   const channel = `webchat:${conversation.id}:events`;
@@ -82,7 +88,7 @@ export async function GET(
 
   return new Response(stream, {
     headers: {
-      ...corsHeaders(req),
+      ...corsHeaders(req, resolved.allowedOrigins),
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",

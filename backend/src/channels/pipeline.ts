@@ -8,7 +8,11 @@ import { getAdapter } from "./registry";
 import { CONTEXT_WINDOW_MS, SENTIMENT_MAP } from "./types";
 import type { InboundMessage, ChannelConfigData } from "./types";
 import { getChannelAccess } from "../channel-gate";
+import { decryptSecret } from "../crypto";
+import { scoped } from "../logger";
 import type { ChannelKey } from "@/lib/stripe";
+
+const log = scoped("pipeline");
 
 function parseCredentials(raw: string): Record<string, string> {
   try {
@@ -42,7 +46,13 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
   // Gate: check channel subscription + conversation limit for this month
   const access = await getChannelAccess(channelConfig.businessId, channelConfig.channel as ChannelKey);
   if (!access.allowed) {
-    console.warn(`[Pipeline] access_denied business=${channelConfig.businessId} channel=${channelConfig.channel} reason=${access.reason} used=${access.conversationsUsed} limit=${access.conversationsLimit}`);
+    log.warn({
+      businessId: channelConfig.businessId,
+      channel: channelConfig.channel,
+      reason: access.reason,
+      used: access.conversationsUsed,
+      limit: access.conversationsLimit,
+    }, "access_denied");
     return empty;
   }
 
@@ -54,7 +64,7 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
     if (exists) return empty;
   }
 
-  const credentials = parseCredentials(channelConfig.credentials);
+  const credentials = parseCredentials(decryptSecret(channelConfig.credentials));
   const adapter = getAdapter(message.channel);
   const configData: ChannelConfigData = {
     credentials,
@@ -108,6 +118,7 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
     where: { conversationId: conversation.id },
   });
   const hasOlderHistory = totalMessages > recentMessages.length;
+  const isFirstContact = totalMessages === 0;
 
   // 6. Save inbound message
   await prisma.$transaction([
@@ -155,7 +166,12 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
 
   const aiResponse = await getChatResponse(systemContent, history);
   const isEscalated = aiResponse.includes("[ESCALATE]");
-  const cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
+  let cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
+
+  // AI disclosure on first contact (Voluntary AI Safety Standard AU)
+  if (isFirstContact) {
+    cleanResponse = `${cleanResponse}\n\n— You are chatting with an AI assistant. Reply "human" at any time to speak with a person.`;
+  }
 
   // 9. Send outbound via channel adapter
   const outboundMsgId = await adapter.sendMessage(configData, {
@@ -198,7 +214,7 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
         },
       });
     })
-    .catch((err) => console.error(`[Pipeline] Analysis failed for ${conversation.id}:`, err));
+    .catch((err) => log.error({ err, conversationId: conversation.id }, "analysis_failed"));
 
   return { aiResponse: cleanResponse, isEscalated, conversationId: conversation.id };
 }

@@ -3,7 +3,9 @@
 // Docs: https://whapi.cloud/docs
 
 import type { ChannelAdapter, ChannelConfigData, InboundMessage, OutboundMessage } from "./types";
+import { scoped } from "../logger";
 
+const log = scoped("channel:whatsapp");
 const WHAPI_URL = "https://gate.whapi.cloud";
 
 interface WhapiMessage {
@@ -62,7 +64,7 @@ async function sendMessage(config: ChannelConfigData, message: OutboundMessage):
   });
 
   if (!res.ok) {
-    console.error(`[WhatsApp] Send failed:`, await res.text());
+    log.error({ status: res.status, body: await res.text() }, "send_failed");
     return null;
   }
 

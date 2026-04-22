@@ -7,6 +7,7 @@ import type { Channel } from "./channels/types";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
 import { requireChannelAccess } from "./channel-gate";
+import { encryptSecret } from "./crypto";
 import type { ChannelKey } from "@/lib/stripe";
 
 export async function connectChannel(raw: unknown) {
@@ -16,19 +17,21 @@ export async function connectChannel(raw: unknown) {
   const data = channelConfigSchema.parse(raw);
   await requireChannelAccess(businessId, data.channel as ChannelKey, { allowAtLimit: true });
 
+  const encrypted = encryptSecret(data.credentials);
+
   await prisma.channelConfig.upsert({
     where: { businessId_channel: { businessId, channel: data.channel as Channel } },
     create: {
       businessId,
       channel: data.channel as Channel,
       externalId: data.externalId,
-      credentials: data.credentials,
+      credentials: encrypted,
       agentId: data.agentId,
       active: true,
     },
     update: {
       externalId: data.externalId,
-      credentials: data.credentials,
+      credentials: encrypted,
       agentId: data.agentId,
       active: true,
     },
@@ -103,18 +106,20 @@ export async function saveWebchat(raw: unknown) {
     allowedOrigins: data.allowedOrigins,
   });
 
+  const encryptedCredentials = encryptSecret(credentials);
+
   await prisma.channelConfig.upsert({
     where: { businessId_channel: { businessId, channel: "WEBCHAT" } },
     create: {
       businessId,
       channel: "WEBCHAT",
       externalId: widgetKey,
-      credentials,
+      credentials: encryptedCredentials,
       agentId: data.agentId,
       active: true,
     },
     update: {
-      credentials,
+      credentials: encryptedCredentials,
       agentId: data.agentId,
       active: true,
     },

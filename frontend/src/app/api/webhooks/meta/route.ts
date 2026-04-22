@@ -8,9 +8,12 @@ import { instagramAdapter } from "@/backend/channels/instagram";
 import { handleInbound } from "@/backend/channels/pipeline";
 import { getMetaCredentials } from "@/backend/channels/meta-config";
 import type { InboundMessage } from "@/backend/channels/types";
+import { scoped } from "@/backend/logger";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
+
+const log = scoped("webhook:meta");
 
 // ─── GET: Webhook Verification ───
 
@@ -33,7 +36,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const { appSecrets } = await getMetaCredentials();
   if (appSecrets.length === 0) {
-    console.error("[Meta Webhook] No META_APP_SECRET configured");
+    log.error("missing_app_secret");
     return Response.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
@@ -59,7 +62,7 @@ export async function POST(req: Request) {
   // Fire-and-forget — Meta expects a fast 200
   for (const msg of messages) {
     handleInbound(msg).catch((err) =>
-      console.error(`[Meta Webhook] Pipeline error for ${msg.senderExternalId}:`, err),
+      log.error({ err, senderExternalId: msg.senderExternalId }, "pipeline_error"),
     );
   }
 

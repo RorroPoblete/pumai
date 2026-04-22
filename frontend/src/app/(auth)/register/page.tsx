@@ -8,19 +8,26 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (!consent) {
+      setError("You must accept the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, consent: true }),
       });
 
       const data = await res.json();
@@ -129,23 +136,36 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={8}
+            minLength={12}
             className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
-            placeholder="Min. 8 characters"
+            placeholder="Min. 12 characters"
           />
         </div>
 
+        <label className="flex items-start gap-3 text-xs text-[var(--text-secondary)] cursor-pointer">
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-0.5 w-4 h-4 rounded border-[var(--border-input)] bg-[var(--bg-input)] accent-[#8B5CF6]"
+          />
+          <span>
+            I agree to the{" "}
+            <Link href="/terms" target="_blank" className="text-[#8B5CF6] underline hover:opacity-80">Terms of Service</Link>,{" "}
+            <Link href="/privacy" target="_blank" className="text-[#8B5CF6] underline hover:opacity-80">Privacy Policy</Link>{" "}
+            and{" "}
+            <Link href="/acceptable-use" target="_blank" className="text-[#8B5CF6] underline hover:opacity-80">Acceptable Use Policy</Link>.
+            I acknowledge my data may be processed outside Australia by OpenAI, Stripe and other service providers.
+          </span>
+        </label>
+
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !consent}
           className="w-full gradient-btn !text-white font-semibold py-3 rounded-xl glow-sm hover:glow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Creating account..." : "Create Account"}
         </button>
-
-        <p className="text-xs text-[var(--text-muted)] text-center">
-          By signing up, you agree to our Terms of Service and Privacy Policy.
-        </p>
       </form>
 
       <p className="mt-6 text-center text-sm text-[var(--text-muted)]">

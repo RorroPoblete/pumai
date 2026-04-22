@@ -4,6 +4,7 @@
 import { getSessionContext } from "@/backend/auth-utils";
 import { prisma } from "@/backend/prisma";
 import { getAdapter } from "@/backend/channels/registry";
+import { decryptSecret } from "@/backend/crypto";
 import type { ChannelConfigData } from "@/backend/channels/types";
 import { publish } from "@/backend/redis";
 
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
 
   // Send via channel adapter
   const adapter = getAdapter(conversation.channel);
-  const credentials = JSON.parse(channelConfig.credentials) as Record<string, string>;
+  const credentials = JSON.parse(decryptSecret(channelConfig.credentials)) as Record<string, string>;
   const configData: ChannelConfigData = {
     credentials,
     externalId: channelConfig.externalId,

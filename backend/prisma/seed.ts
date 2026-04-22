@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🌱 Seeding database...");
 
-  const password = await bcrypt.hash("password123", 12);
+  const password = await bcrypt.hash("password123456", 12);
 
   // ─── Superadmin ───
   const admin = await prisma.user.upsert({
@@ -23,7 +23,7 @@ async function main() {
     },
   });
 
-  console.log("  ✓ Superadmin created (admin@pumai.com.au / password123)");
+  console.log("  ✓ Superadmin created (admin@pumai.com.au / password123456)");
 
   // ─── Demo User ───
   const demoUser = await prisma.user.upsert({
@@ -343,8 +343,8 @@ ESCALATION TRIGGERS (transfer to human):
   }
 
   console.log("\n✅ Seed completed!");
-  console.log("📧 Demo: demo@pumai.com.au / password123");
-  console.log("🔑 Admin: admin@pumai.com.au / password123");
+  console.log("📧 Demo: demo@pumai.com.au / password123456");
+  console.log("🔑 Admin: admin@pumai.com.au / password123456");
 }
 
 main()

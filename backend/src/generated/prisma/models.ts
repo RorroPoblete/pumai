@@ -10,6 +10,7 @@
  */
 export type * from './models/PlatformConfig.ts'
 export type * from './models/User.ts'
+export type * from './models/TotpRecoveryCode.ts'
 export type * from './models/Account.ts'
 export type * from './models/Session.ts'
 export type * from './models/Business.ts'
@@ -21,4 +22,5 @@ export type * from './models/ChannelConfig.ts'
 export type * from './models/Conversation.ts'
 export type * from './models/Message.ts'
 export type * from './models/ProcessedWebhookEvent.ts'
+export type * from './models/AuditEvent.ts'
 export type * from './commonInputTypes.ts'

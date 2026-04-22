@@ -28,6 +28,11 @@ export type PlatformConfig = Prisma.PlatformConfigModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model TotpRecoveryCode
+ * 
+ */
+export type TotpRecoveryCode = Prisma.TotpRecoveryCodeModel
+/**
  * Model Account
  * 
  */
@@ -82,3 +87,8 @@ export type Message = Prisma.MessageModel
  * 
  */
 export type ProcessedWebhookEvent = Prisma.ProcessedWebhookEventModel
+/**
+ * Model AuditEvent
+ * 
+ */
+export type AuditEvent = Prisma.AuditEventModel

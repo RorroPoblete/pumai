@@ -16,6 +16,10 @@
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
+  "overrides": {
+    "hono": "^4.12.14",
+    "@hono/node-server": "^1.19.13"
+  },
   "dependencies": {
     "@auth/core": "^0.41.0",
     "@prisma/adapter-pg": "^7.7.0",
@@ -23,14 +27,18 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.1",
     "ioredis": "^5.10.1",
-    "next": "16.2.2",
-    "next-auth": "^5.0.0-beta.30",
+    "next": "^16.2.4",
+    "next-auth": "5.0.0-beta.30",
     "openai": "^6.34.0",
+    "otpauth": "^9.5.0",
     "pg": "^8.20.0",
+    "pino": "^10.3.1",
     "prisma": "^7.7.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "stripe": "^22.0.2",
+    "tsx": "^4.21.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -38,12 +46,12 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.2",
+    "eslint-config-next": "^16.2.4",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

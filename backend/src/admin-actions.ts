@@ -6,9 +6,12 @@ import type { Channel } from "./channels/types";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { encryptSecret } from "./crypto";
+import { auditWrite } from "./audit";
+import { getRequestMeta } from "./request-meta";
 
 export async function createTenant(formData: FormData) {
-  await requireSuperadmin();
+  const ctx = await requireSuperadmin();
 
   const name = formData.get("name") as string;
   const industry = formData.get("industry") as string;
@@ -42,14 +45,34 @@ export async function createTenant(formData: FormData) {
     });
   });
 
+  const meta = await getRequestMeta();
+  await auditWrite("admin.tenant_created", {
+    actorId: ctx.userId,
+    actorRole: ctx.role,
+    targetType: "Business",
+    metadata: { name, industry, ownerEmail },
+    ip: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
   revalidatePath("/dashboard/tenants");
   redirect("/dashboard/tenants");
 }
 
 export async function deleteTenant(businessId: string) {
-  await requireSuperadmin();
+  const ctx = await requireSuperadmin();
 
   await prisma.business.delete({ where: { id: businessId } });
+
+  const meta = await getRequestMeta();
+  await auditWrite("admin.tenant_deleted", {
+    actorId: ctx.userId,
+    actorRole: ctx.role,
+    targetType: "Business",
+    targetId: businessId,
+    ip: meta.ip,
+    userAgent: meta.userAgent,
+  });
 
   const cookieStore = await cookies();
   if (cookieStore.get("pumai_active_business")?.value === businessId) {
@@ -60,7 +83,7 @@ export async function deleteTenant(businessId: string) {
 }
 
 export async function updateTenantPlan(businessId: string, tier: "FREE" | "STARTER" | "GROWTH" | "ENTERPRISE") {
-  await requireSuperadmin();
+  const ctx = await requireSuperadmin();
 
   const channels = ["WEBCHAT", "MESSENGER", "INSTAGRAM", "WHATSAPP"] as const;
   for (const channel of channels) {
@@ -78,6 +101,17 @@ export async function updateTenantPlan(businessId: string, tier: "FREE" | "START
       },
     });
   }
+
+  const meta = await getRequestMeta();
+  await auditWrite("admin.tenant_plan_changed", {
+    actorId: ctx.userId,
+    actorRole: ctx.role,
+    targetType: "Business",
+    targetId: businessId,
+    metadata: { tier },
+    ip: meta.ip,
+    userAgent: meta.userAgent,
+  });
 
   revalidatePath("/dashboard/tenants");
 }
@@ -179,10 +213,11 @@ export async function adminConnectChannel(
   await requireSuperadmin();
 
   const ch = channel as Channel;
+  const encrypted = encryptSecret(credentials);
   await prisma.channelConfig.upsert({
     where: { businessId_channel: { businessId, channel: ch } },
-    create: { businessId, channel: ch, externalId, credentials, agentId, active: true },
-    update: { externalId, credentials, agentId, active: true },
+    create: { businessId, channel: ch, externalId, credentials: encrypted, agentId, active: true },
+    update: { externalId, credentials: encrypted, agentId, active: true },
   });
 
   revalidatePath("/dashboard/tenants/platform");

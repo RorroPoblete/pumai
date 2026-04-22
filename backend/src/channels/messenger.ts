@@ -2,7 +2,9 @@
 // Parses Meta webhook payloads and sends messages via Graph API v21.0.
 
 import type { ChannelAdapter, ChannelConfigData, InboundMessage, OutboundMessage } from "./types";
+import { scoped } from "../logger";
 
+const log = scoped("channel:messenger");
 const GRAPH_API = "https://graph.facebook.com/v22.0";
 
 // ─── Webhook Payload Types ───
@@ -63,7 +65,7 @@ async function sendMessage(config: ChannelConfigData, message: OutboundMessage):
   });
 
   if (!res.ok) {
-    console.error(`[Messenger] Send failed:`, await res.text());
+    log.error({ status: res.status, body: await res.text() }, "send_failed");
     return null;
   }
 

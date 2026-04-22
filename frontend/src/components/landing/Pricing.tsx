@@ -14,68 +14,68 @@ const channelConfig: Record<Channel, { label: string; color: string; bg: string;
 const plans: Record<Channel, { name: string; price: string; period: string; target: string; setup: string; features: string[]; cta: string; popular: boolean }[]> = {
   webchat: [
     {
-      name: "Webchat Starter", price: "A$99", period: "/month", target: "Small business websites", setup: "Free setup",
+      name: "Webchat Starter", price: "A$99", period: "/month inc GST", target: "Small business websites", setup: "Free setup",
       features: ["500 chat sessions/month", "1 AI agent", "Embeddable widget", "Custom branding (colours, logo)", "Basic analytics", "Email support", "Extra: A$0.10/session"],
       cta: "Get Started", popular: false,
     },
     {
-      name: "Webchat Growth", price: "A$249", period: "/month", target: "E-commerce & lead generation", setup: "A$300 setup fee",
+      name: "Webchat Growth", price: "A$249", period: "/month inc GST", target: "E-commerce & lead generation", setup: "A$300 setup fee",
       features: ["2,000 chat sessions/month", "3 AI agents", "Lead capture forms", "CRM integrations", "File & image sharing", "Advanced analytics", "Priority support", "Extra: A$0.08/session"],
       cta: "Get Started", popular: true,
     },
     {
-      name: "Webchat Enterprise", price: "A$599+", period: "/month", target: "High-traffic sites & SaaS", setup: "Custom setup",
+      name: "Webchat Enterprise", price: "A$599+", period: "/month inc GST", target: "High-traffic sites & SaaS", setup: "Custom setup",
       features: ["Unlimited chat sessions", "Unlimited AI agents", "Co-browsing support", "Custom CSS & JS hooks", "Dedicated API", "Guaranteed SLA", "Account manager", "Extra: A$0.05/session"],
       cta: "Contact Sales", popular: false,
     },
   ],
   wa: [
     {
-      name: "WA Starter", price: "A$199", period: "/month", target: "Businesses with young/digital audience", setup: "A$500 setup fee",
+      name: "WA Starter", price: "A$199", period: "/month inc GST", target: "Businesses with young/digital audience", setup: "A$500 setup fee",
       features: ["500 WhatsApp conversations/month", "1 AI agent", "1 funnel", "Rich media (images, buttons, links)", "Basic dashboard", "Extra: A$0.25/conv"],
       cta: "Get Started", popular: false,
     },
     {
-      name: "WA Growth", price: "A$449", period: "/month", target: "E-commerce, hospitality, services", setup: "A$900 setup fee",
+      name: "WA Growth", price: "A$449", period: "/month inc GST", target: "E-commerce, hospitality, services", setup: "A$900 setup fee",
       features: ["2,000 WhatsApp conversations/month", "3 AI agents", "3 funnels", "Product catalogues", "CRM integrations", "Advanced analytics", "Priority support", "Extra: A$0.20/conv"],
       cta: "Get Started", popular: true,
     },
     {
-      name: "WA Enterprise", price: "A$999+", period: "/month", target: "Retail, e-commerce, multi-location", setup: "Custom setup",
+      name: "WA Enterprise", price: "A$999+", period: "/month inc GST", target: "Retail, e-commerce, multi-location", setup: "Custom setup",
       features: ["Unlimited conversations", "Unlimited AI agents", "Unlimited funnels", "Dedicated API", "Guaranteed SLA", "Account manager", "WA marketing outbound", "Extra: A$0.15/conv"],
       cta: "Contact Sales", popular: false,
     },
   ],
   instagram: [
     {
-      name: "Instagram Starter", price: "A$129", period: "/month", target: "Brands growing on Instagram", setup: "A$300 setup fee",
+      name: "Instagram Starter", price: "A$129", period: "/month inc GST", target: "Brands growing on Instagram", setup: "A$300 setup fee",
       features: ["500 DM conversations/month", "1 AI agent", "Auto-reply to DMs", "Story mention replies", "Basic dashboard", "Email support", "Extra: A$0.20/conv"],
       cta: "Get Started", popular: false,
     },
     {
-      name: "Instagram Growth", price: "A$349", period: "/month", target: "E-commerce & creator brands", setup: "A$600 setup fee",
+      name: "Instagram Growth", price: "A$349", period: "/month inc GST", target: "E-commerce & creator brands", setup: "A$600 setup fee",
       features: ["2,000 DM conversations/month", "3 AI agents", "Product tag integration", "Story + comment replies", "CRM integrations", "Advanced analytics", "Priority support", "Extra: A$0.15/conv"],
       cta: "Get Started", popular: true,
     },
     {
-      name: "Instagram Enterprise", price: "A$799+", period: "/month", target: "High-volume DTC brands", setup: "Custom setup",
+      name: "Instagram Enterprise", price: "A$799+", period: "/month inc GST", target: "High-volume DTC brands", setup: "Custom setup",
       features: ["Unlimited conversations", "Unlimited AI agents", "Shopping tag automations", "Meta Ads integration", "Dedicated API", "Guaranteed SLA", "Account manager", "Extra: A$0.10/conv"],
       cta: "Contact Sales", popular: false,
     },
   ],
   messenger: [
     {
-      name: "Messenger Starter", price: "A$119", period: "/month", target: "Small businesses on Facebook", setup: "A$300 setup fee",
+      name: "Messenger Starter", price: "A$119", period: "/month inc GST", target: "Small businesses on Facebook", setup: "A$300 setup fee",
       features: ["500 DM conversations/month", "1 AI agent", "Auto-reply Page messages", "Basic dashboard", "Email support", "Extra: A$0.20/conv"],
       cta: "Get Started", popular: false,
     },
     {
-      name: "Messenger Growth", price: "A$329", period: "/month", target: "Local services & multi-location", setup: "A$600 setup fee",
+      name: "Messenger Growth", price: "A$329", period: "/month inc GST", target: "Local services & multi-location", setup: "A$600 setup fee",
       features: ["2,000 DM conversations/month", "3 AI agents", "Comment-to-DM replies", "Persistent menu templates", "CRM integrations", "Advanced analytics", "Priority support", "Extra: A$0.15/conv"],
       cta: "Get Started", popular: true,
     },
     {
-      name: "Messenger Enterprise", price: "A$749+", period: "/month", target: "National brands with high volume", setup: "Custom setup",
+      name: "Messenger Enterprise", price: "A$749+", period: "/month inc GST", target: "National brands with high volume", setup: "Custom setup",
       features: ["Unlimited conversations", "Unlimited AI agents", "Sponsored message campaigns", "Meta Ads integration", "Dedicated API", "Guaranteed SLA", "Account manager", "Extra: A$0.10/conv"],
       cta: "Contact Sales", popular: false,
     },
@@ -124,6 +124,9 @@ export default function Pricing() {
           </h2>
           <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-xl mx-auto">
             Choose the channels your customers use. Mix and match, or go Omnichannel for full coverage.
+          </p>
+          <p className="mt-3 text-xs text-[var(--text-muted)]">
+            All prices in Australian dollars, GST included. Setup fees shown are one-time. Omnichannel bundle setup is a flat A$350 when you subscribe to two or more channels in a single checkout.
           </p>
         </div>
 

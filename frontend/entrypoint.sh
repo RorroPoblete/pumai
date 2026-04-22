@@ -15,10 +15,10 @@ done
 
 echo "Database is ready"
 
-echo "Pushing schema to database..."
-npx prisma db push
+echo "Applying migrations..."
+npx prisma migrate deploy
 
-echo "Seeding database..."
+echo "Seeding database (idempotent upserts)..."
 node --import tsx prisma/seed.ts || echo "Seed skipped (may already exist or failed)"
 
 echo "Starting PumAI on port 3000..."

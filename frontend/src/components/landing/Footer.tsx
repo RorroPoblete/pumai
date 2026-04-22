@@ -1,10 +1,25 @@
 import Image from "next/image";
 
-const footerLinks = {
-  Product: ["Features", "Pricing", "Integrations", "API Docs"],
-  Company: ["About", "Blog", "Careers", "Contact"],
-  Legal: ["Privacy Policy", "Terms of Service", "Spam Act Compliance"],
-  Support: ["Help Centre", "Documentation", "Status", "Community"],
+const footerLinks: Record<string, { label: string; href: string }[]> = {
+  Product: [
+    { label: "Features", href: "/#features" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "Integrations", href: "/#how-it-works" },
+  ],
+  Company: [
+    { label: "About", href: "/#how-it-works" },
+    { label: "Contact Sales", href: "/contact" },
+  ],
+  Legal: [
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+    { label: "Acceptable Use", href: "/acceptable-use" },
+    { label: "Cookie Policy", href: "/cookies" },
+  ],
+  Support: [
+    { label: "Help Centre", href: "mailto:support@pumai.com.au" },
+    { label: "Contact", href: "mailto:support@pumai.com.au" },
+  ],
 };
 
 export default function Footer() {
@@ -40,12 +55,12 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5">
                 {links.map((link) => (
-                  <li key={link}>
+                  <li key={link.label}>
                     <a
-                      href="#"
+                      href={link.href}
                       className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
                     >
-                      {link}
+                      {link.label}
                     </a>
                   </li>
                 ))}

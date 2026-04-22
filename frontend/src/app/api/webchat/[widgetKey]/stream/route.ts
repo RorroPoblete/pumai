@@ -25,8 +25,13 @@ interface Body {
   attachment?: { url?: string; type?: string };
 }
 
-export async function OPTIONS(req: Request) {
-  return corsOptions(req);
+export async function OPTIONS(
+  req: Request,
+  { params }: { params: Promise<{ widgetKey: string }> },
+) {
+  const { widgetKey } = await params;
+  const config = await resolveWebchatConfig(widgetKey);
+  return corsOptions(req, config?.allowedOrigins ?? []);
 }
 
 export async function POST(
@@ -39,7 +44,7 @@ export async function POST(
   const resolved = await resolveWebchatConfig(widgetKey);
   if (!resolved) return json({ error: "Widget not found" }, 404, req);
   if (!originAllowed(origin, resolved.allowedOrigins)) {
-    return json({ error: "Origin not allowed" }, 403, req);
+    return json({ error: "Origin not allowed" }, 403, req, resolved.allowedOrigins);
   }
 
   const limited = await enforceRateLimit(req, widgetKey, "msg", 30, 60_000);
@@ -49,14 +54,14 @@ export async function POST(
     where: { id: resolved.id },
     include: { agent: true },
   });
-  if (!config) return json({ error: "Widget not found" }, 404, req);
+  if (!config) return json({ error: "Widget not found" }, 404, req, resolved.allowedOrigins);
 
   const body = (await req.json()) as Body;
   const text = body.message?.trim() ?? "";
   const sessionId = body.sessionId?.trim();
   const attachment = body.attachment;
   if (!sessionId || (!text && !attachment?.url)) {
-    return json({ error: "sessionId and message or attachment required" }, 400, req);
+    return json({ error: "sessionId and message or attachment required" }, 400, req, resolved.allowedOrigins);
   }
 
   const fallbackName = visitorFallbackName(sessionId);
@@ -110,7 +115,7 @@ export async function POST(
   ]);
 
   if (!conversation.aiEnabled) {
-    return sseResponse(req, async (send) => {
+    return sseResponse(req, resolved.allowedOrigins, async (send) => {
       send({ type: "done", conversationId: conversation.id, escalated: false });
     });
   }
@@ -138,7 +143,7 @@ export async function POST(
     attachmentType: attachment?.type ?? null,
   });
 
-  return sseResponse(req, async (send) => {
+  return sseResponse(req, resolved.allowedOrigins, async (send) => {
     const stream = await streamChatResponse(systemContent, history);
     let buffer = "";
     for await (const chunk of stream) {
@@ -204,7 +209,7 @@ async function toDataUrl(url: string | null, type: string | null): Promise<strin
 
 type SendFn = (event: Record<string, unknown>) => void;
 
-function sseResponse(req: Request, run: (send: SendFn) => Promise<void>) {
+function sseResponse(req: Request, allowed: string[], run: (send: SendFn) => Promise<void>) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -224,7 +229,7 @@ function sseResponse(req: Request, run: (send: SendFn) => Promise<void>) {
 
   return new Response(stream, {
     headers: {
-      ...corsHeaders(req),
+      ...corsHeaders(req, allowed),
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",

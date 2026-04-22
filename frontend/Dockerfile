@@ -1,11 +1,16 @@
-# ─── Stage 1: Dependencies ───
+# ─── Stage 1: Dev dependencies for build ───
 FROM node:22-alpine AS deps
 WORKDIR /build
-
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 
-# ─── Stage 2: Build ───
+# ─── Stage 2: Production-only dependencies ───
+FROM node:22-alpine AS deps-prod
+WORKDIR /build
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --omit=dev
+
+# ─── Stage 3: Build ───
 FROM node:22-alpine AS builder
 WORKDIR /build
 
@@ -20,7 +25,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npx prisma generate
 RUN npm run build
 
-# ─── Stage 3: Production ───
+# ─── Stage 4: Production runner ───
 FROM node:22-alpine AS runner
 WORKDIR /app
 
@@ -38,7 +43,9 @@ COPY --from=builder /build/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /build/tsconfig.json ./tsconfig.json
 COPY --from=builder /build/src/generated ./src/generated
 COPY --from=builder /build/package.json ./package.json
-COPY --from=builder /build/node_modules ./node_modules
+
+# Use production-only dependencies (excludes eslint, tsx, @prisma/dev, etc.)
+COPY --from=deps-prod /build/node_modules ./node_modules
 
 COPY frontend/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
