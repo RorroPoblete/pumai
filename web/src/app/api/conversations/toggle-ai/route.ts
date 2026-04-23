@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "conversationId is required" }, { status: 400 });
   }
 
-  const conversation = await prisma.conversation.findUnique({
+  const conversation = await prisma.conversation.findFirst({
     where: { id: conversationId, businessId: ctx.activeBusinessId },
     select: { aiEnabled: true },
   });
@@ -23,10 +23,12 @@ export async function POST(req: Request) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
-  await prisma.conversation.update({
-    where: { id: conversationId },
-    data: { aiEnabled: !conversation.aiEnabled },
+  const next = !conversation.aiEnabled;
+  const { count } = await prisma.conversation.updateMany({
+    where: { id: conversationId, businessId: ctx.activeBusinessId },
+    data: { aiEnabled: next },
   });
+  if (count !== 1) return Response.json({ error: "Not found" }, { status: 404 });
 
-  return Response.json({ aiEnabled: !conversation.aiEnabled });
+  return Response.json({ aiEnabled: next });
 }

@@ -74,9 +74,12 @@ function resolveToken(config: ChannelConfigData): string {
 
 async function sendMessage(config: ChannelConfigData, message: OutboundMessage): Promise<string | null> {
   const token = resolveToken(config);
-  const res = await fetch(`${GRAPH_API}/me/messages?access_token=${token}`, {
+  const res = await fetch(`${GRAPH_API}/me/messages`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({
       recipient: { id: message.recipientExternalId },
       message: { text: message.text },
@@ -98,7 +101,9 @@ async function sendMessage(config: ChannelConfigData, message: OutboundMessage):
 async function fetchSenderName(igsid: string, config: ChannelConfigData): Promise<string | null> {
   try {
     const token = resolveToken(config);
-    const res = await fetch(`${GRAPH_API}/${igsid}?fields=name,username&access_token=${token}`);
+    const res = await fetch(`${GRAPH_API}/${igsid}?fields=name,username`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!res.ok) return null;
 
     const data = (await res.json()) as { name?: string; username?: string };

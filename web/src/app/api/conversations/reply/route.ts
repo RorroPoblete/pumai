@@ -25,8 +25,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "conversationId and message are required" }, { status: 400 });
   }
 
-  // Load conversation with channel info
-  const conversation = await prisma.conversation.findUnique({
+  // Load conversation with channel info (tenant-scoped)
+  const conversation = await prisma.conversation.findFirst({
     where: { id: conversationId, businessId: ctx.activeBusinessId },
     select: {
       id: true,

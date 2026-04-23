@@ -5,6 +5,7 @@
 import { prisma } from "@/server/prisma";
 import { rateLimit } from "@/server/rate-limit";
 import { decryptSecret } from "@/server/crypto";
+import { clientIPFromRequest } from "@/server/request-meta";
 
 // Public CORS — only for endpoints that must serve any origin (e.g. /config returns
 // public branding before the widget knows its allowlist).
@@ -87,20 +88,11 @@ export async function resolveWebchatConfig(widgetKey: string): Promise<ResolvedC
   };
 }
 
-// Default-deny: empty allowlist means no cross-origin access.
-// To allow same-origin we still rely on the origin header check; same-origin
-// requests typically don't send Origin so they bypass this gate.
+// Default-deny. Missing Origin is only permitted when there is no allowlist
+// (e.g. the public /config bootstrap); otherwise the request must match.
 export function originAllowed(origin: string, allowed: string[]): boolean {
-  if (!origin) return true; // same-origin (no Origin header)
-  return allowed.includes(origin);
-}
-
-export function clientIP(req: Request): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
+  if (allowed.length === 0) return !origin;
+  return !!origin && allowed.includes(origin);
 }
 
 export async function enforceRateLimit(
@@ -110,7 +102,7 @@ export async function enforceRateLimit(
   max: number,
   windowMs: number,
 ): Promise<Response | null> {
-  const ip = clientIP(req);
+  const ip = clientIPFromRequest(req);
   const key = `webchat:${bucket}:${widgetKey}:${ip}`;
   const res = await rateLimit(key, max, windowMs);
   if (!res.ok) return json({ error: "Rate limit exceeded" }, 429, req);

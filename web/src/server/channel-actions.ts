@@ -45,9 +45,10 @@ export async function disconnectChannel(channelConfigId: string) {
   const businessId = await getActiveBusinessId();
   if (!businessId) throw new Error("No active business");
 
-  await prisma.channelConfig.delete({
+  const { count } = await prisma.channelConfig.deleteMany({
     where: { id: channelConfigId, businessId },
   });
+  if (count !== 1) throw new Error("Channel config not found");
 
   revalidatePath("/dashboard/channels");
 }
@@ -56,15 +57,17 @@ export async function toggleChannelActive(channelConfigId: string) {
   const businessId = await getActiveBusinessId();
   if (!businessId) throw new Error("No active business");
 
-  const config = await prisma.channelConfig.findUnique({
+  const config = await prisma.channelConfig.findFirst({
     where: { id: channelConfigId, businessId },
+    select: { active: true },
   });
   if (!config) throw new Error("Channel config not found");
 
-  await prisma.channelConfig.update({
-    where: { id: channelConfigId },
+  const { count } = await prisma.channelConfig.updateMany({
+    where: { id: channelConfigId, businessId },
     data: { active: !config.active },
   });
+  if (count !== 1) throw new Error("Channel config not found");
 
   revalidatePath("/dashboard/channels");
 }
@@ -73,10 +76,11 @@ export async function updateChannelAgent(channelConfigId: string, agentId: strin
   const businessId = await getActiveBusinessId();
   if (!businessId) throw new Error("No active business");
 
-  await prisma.channelConfig.update({
+  const { count } = await prisma.channelConfig.updateMany({
     where: { id: channelConfigId, businessId },
     data: { agentId },
   });
+  if (count !== 1) throw new Error("Channel config not found");
 
   revalidatePath("/dashboard/channels");
 }

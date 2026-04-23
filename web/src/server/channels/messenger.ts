@@ -78,7 +78,9 @@ async function sendMessage(config: ChannelConfigData, message: OutboundMessage):
 async function fetchSenderName(psid: string, config: ChannelConfigData): Promise<string | null> {
   try {
     const token = config.credentials.pageAccessToken;
-    const res = await fetch(`${GRAPH_API}/${psid}?fields=first_name,last_name&access_token=${token}`);
+    const res = await fetch(`${GRAPH_API}/${psid}?fields=first_name,last_name`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!res.ok) return null;
 
     const data = (await res.json()) as { first_name?: string; last_name?: string };

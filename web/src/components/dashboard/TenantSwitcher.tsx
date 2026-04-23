@@ -1,5 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
+import { setActiveBusiness } from "@/server/actions";
+
 interface Tenant {
   id: string;
   name: string;
@@ -17,12 +20,12 @@ export default function TenantSwitcher({
   activeName: string | null;
   isSuperadmin: boolean;
 }) {
+  const [, startTransition] = useTransition();
   if (tenants.length <= 1 && !isSuperadmin) return null;
 
   function handleSwitch(businessId: string) {
     if (!businessId) return;
-    document.cookie = `pumai_active_business=${businessId};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
-    window.location.href = "/dashboard";
+    startTransition(() => setActiveBusiness(businessId));
   }
 
   return (

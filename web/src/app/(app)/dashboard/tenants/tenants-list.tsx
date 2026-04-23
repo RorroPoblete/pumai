@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createTenant, deleteTenant, updateTenantPlan, addUserToTenant, removeUserFromTenant, updateMemberRole, deleteUser } from "@/server/admin-actions";
+import { setActiveBusiness } from "@/server/actions";
 
 interface Member {
   id: string;
@@ -54,8 +55,7 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
   );
 
   function handleView(id: string) {
-    document.cookie = `pumai_active_business=${id};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
-    window.location.href = "/dashboard";
+    startTransition(() => setActiveBusiness(id));
   }
 
   return (

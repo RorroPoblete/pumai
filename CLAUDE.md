@@ -136,3 +136,11 @@ cd web && npm run dev                 # Next.js on port 3000
 ## Env management
 
 All secrets live in a single `.env` at the repo root (gitignored). `web/.env.local` is a symlink to it. `docker-compose.yml` reads the same file via `env_file: .env`.
+
+## Security notes
+
+- `next-auth@5.0.0-beta.30` is pinned exactly (no caret). Subscribe to the Auth.js GHSA feed and test CSRF/session paths when bumping; first stable 5.x is the upgrade target.
+- `TRUSTED_PROXY_HOPS` env var controls XFF parsing for client-IP rate limiting. Default `1` assumes one trusted proxy in front of the app. Set `0` when the app is directly internet-facing.
+- Per-request CSP nonce is generated in `middleware.ts` — do not add inline `<script>` without the nonce.
+- `AUTH_TRUST_HOST=true` (set in compose) tells NextAuth to trust `Host`/`X-Forwarded-Host`. Only safe when the app is behind a reverse proxy that normalizes/validates those headers. Remove it if the app is ever exposed directly to the internet; set `AUTH_URL` explicitly instead.
+- `callbacks.redirect` in `web/src/auth.ts` enforces same-origin callback URLs — open-redirect defence. Do not relax without replacing the check.

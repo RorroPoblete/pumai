@@ -4,6 +4,7 @@ import { prisma } from "./prisma";
 import { requireAuth, getActiveBusinessId } from "./auth-utils";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import type { AgentTone } from "@/generated/prisma/enums";
 import { onboardingSchema, agentSchema, settingsSchema } from "./validation";
 import { hasAnyActiveSubscription } from "./channel-gate";
@@ -127,10 +128,11 @@ export async function updateAgent(id: string, formData: FormData) {
     knowledgeBase: formData.get("knowledgeBase") || null,
   });
 
-  await prisma.agent.update({
+  const { count } = await prisma.agent.updateMany({
     where: { id, businessId },
     data: { ...data, tone: data.tone as AgentTone },
   });
+  if (count !== 1) throw new Error("Agent not found");
 
   revalidatePath("/dashboard/agents");
   revalidatePath(`/dashboard/agents/${id}`);
@@ -139,16 +141,17 @@ export async function updateAgent(id: string, formData: FormData) {
 export async function toggleAgentStatus(id: string) {
   const businessId = await getBusinessId();
 
-  const agent = await prisma.agent.findUnique({
+  const agent = await prisma.agent.findFirst({
     where: { id, businessId },
     select: { status: true },
   });
   if (!agent) throw new Error("Agent not found");
 
-  await prisma.agent.update({
+  const { count } = await prisma.agent.updateMany({
     where: { id, businessId },
     data: { status: agent.status === "ACTIVE" ? "PAUSED" : "ACTIVE" },
   });
+  if (count !== 1) throw new Error("Agent not found");
 
   revalidatePath("/dashboard/agents");
   revalidatePath(`/dashboard/agents/${id}`);
@@ -157,7 +160,8 @@ export async function toggleAgentStatus(id: string) {
 export async function deleteAgent(id: string) {
   const businessId = await getBusinessId();
 
-  await prisma.agent.delete({ where: { id, businessId } });
+  const { count } = await prisma.agent.deleteMany({ where: { id, businessId } });
+  if (count !== 1) throw new Error("Agent not found");
 
   revalidatePath("/dashboard/agents");
   redirect("/dashboard/agents");
@@ -180,6 +184,14 @@ export async function updateSettings(raw: { businessName: string; timezone: stri
 
 export async function updatePassword(currentPassword: string, newPassword: string) {
   const ctx = await requireAuth();
+  const { rateLimit } = await import("./rate-limit");
+  const { passwordSchema } = await import("./validation");
+
+  passwordSchema.parse({ currentPassword, newPassword });
+
+  const rl = await rateLimit(`pwchg:${ctx.userId}`, 5, 15 * 60_000, { failClosed: true });
+  if (!rl.ok) throw new Error("Too many password change attempts. Try again later.");
+
   const bcrypt = await import("bcryptjs");
 
   const user = await prisma.user.findUnique({
@@ -203,4 +215,34 @@ export async function requestPasswordReset(email: string) {
   // Always return success to prevent email enumeration
   if (!user) return;
   // TODO: generate token, save to DB, send email via SendGrid/Resend
+}
+
+// ─── Active Business Switcher (HttpOnly cookie) ───
+
+export async function setActiveBusiness(businessId: string) {
+  const ctx = await requireAuth();
+
+  if (ctx.role !== "SUPERADMIN") {
+    const member = await prisma.businessMember.findUnique({
+      where: { userId_businessId: { userId: ctx.userId, businessId } },
+    });
+    if (!member) {
+      const owned = await prisma.business.findFirst({
+        where: { id: businessId, userId: ctx.userId },
+        select: { id: true },
+      });
+      if (!owned) throw new Error("Unauthorized");
+    }
+  }
+
+  const store = await cookies();
+  store.set("pumai_active_business", businessId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+
+  redirect("/dashboard");
 }
