@@ -1,4 +1,16 @@
+# Dependencies
+node_modules
+
+# Environment
 .env
 .env.*
-.DS_Store
+!.env.example
+
+# Marketing videos (large artifacts, generated separately)
 /marketing
+
+# OS
+.DS_Store
+
+# Claude
+.claude/scheduled_tasks.lock
