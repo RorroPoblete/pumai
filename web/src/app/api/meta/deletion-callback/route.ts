@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/server/prisma";
+import { scoped } from "@/server/logger";
 
 export const dynamic = "force-dynamic";
+
+const log = scoped("meta-deletion");
+
+function hashId(id: string): string {
+  return crypto.createHash("sha256").update(id).digest("hex").slice(0, 12);
+}
 
 // Meta Data Deletion Callback
 // https://developers.facebook.com/docs/development/create-an-app/app-dashboard/data-deletion-callback
@@ -37,36 +44,55 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "missing signed_request" }, { status: 400 });
   }
 
-  const secret = process.env.META_APP_SECRET;
-  if (!secret) {
-    console.error("[meta-deletion] META_APP_SECRET not configured");
+  const secrets = [process.env.META_APP_SECRET, process.env.META_APP_SECRET_IG].filter(
+    (s): s is string => typeof s === "string" && s.length > 0,
+  );
+  if (secrets.length === 0) {
+    log.error("META_APP_SECRET not configured");
     return NextResponse.json({ error: "not_configured" }, { status: 500 });
   }
 
-  const data = parseSignedRequest(signedRequest, secret);
+  let data: { user_id?: string } | null = null;
+  for (const secret of secrets) {
+    data = parseSignedRequest(signedRequest, secret);
+    if (data) break;
+  }
   if (!data?.user_id) {
     return NextResponse.json({ error: "invalid signature" }, { status: 400 });
   }
 
   const metaUserId = data.user_id;
+  const userHash = hashId(metaUserId);
   const confirmationCode = crypto.randomUUID();
 
   try {
-    // Delete conversations keyed by Meta user id (PSID / IGSID = contactExternalId)
-    const deleted = await prisma.conversation.deleteMany({
-      where: {
-        contactExternalId: metaUserId,
-        channel: { in: ["MESSENGER", "INSTAGRAM"] },
-      },
+    // Only delete conversations belonging to businesses with a Meta ChannelConfig.
+    const scopedBusinesses = await prisma.channelConfig.findMany({
+      where: { channel: { in: ["MESSENGER", "INSTAGRAM"] } },
+      select: { businessId: true },
     });
+    const businessIds = [...new Set(scopedBusinesses.map((c) => c.businessId))];
+
+    const deleted = businessIds.length
+      ? await prisma.conversation.deleteMany({
+          where: {
+            contactExternalId: metaUserId,
+            channel: { in: ["MESSENGER", "INSTAGRAM"] },
+            businessId: { in: businessIds },
+          },
+        })
+      : { count: 0 };
 
     await prisma.processedWebhookEvent.create({
       data: { id: `meta-deletion:${confirmationCode}`, type: "meta.data_deletion" },
     }).catch(() => {});
 
-    console.log(`[meta-deletion] deleted ${deleted.count} conversations for Meta user ${metaUserId} (confirmation=${confirmationCode})`);
+    log.info(
+      { userHash, deleted: deleted.count, confirmationCode, businesses: businessIds.length },
+      "deletion_complete",
+    );
   } catch (err) {
-    console.error("[meta-deletion] failed", err);
+    log.error({ err, userHash }, "deletion_failed");
     return NextResponse.json({ error: "deletion_failed" }, { status: 500 });
   }
 

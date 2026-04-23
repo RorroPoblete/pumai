@@ -17,16 +17,19 @@ export async function rateLimit(
   try {
     const client = getRedis();
     const redisKey = `rl:${key}`;
-    const count = await client.incr(redisKey);
 
-    if (count === 1) {
-      await client.pexpire(redisKey, windowMs);
-    }
+    // INCR + PEXPIRE atomically in a single round-trip so a process crash
+    // between the two commands cannot leave a permanent key (never resets).
+    const [[, rawCount]] = (await client
+      .multi()
+      .incr(redisKey)
+      .pexpire(redisKey, windowMs, "NX")
+      .exec()) as [[Error | null, number], [Error | null, number]];
 
+    const count = Number(rawCount);
     if (count > maxRequests) {
       return { ok: false, remaining: 0 };
     }
-
     return { ok: true, remaining: maxRequests - count };
   } catch (err) {
     log.error({ err }, "redis_error");

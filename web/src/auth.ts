@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/server/prisma";
 import { verifyTotpCode, verifyRecoveryCode } from "@/server/totp";
 import { rateLimit } from "@/server/rate-limit";
+import { clientIPFromRequest } from "@/server/request-meta";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -67,6 +68,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Same-origin allowlist. Blocks open-redirect via callbackUrl.
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        const u = new URL(url);
+        if (u.origin === baseUrl) return url;
+      } catch {
+        // fallthrough
+      }
+      return baseUrl;
+    },
   },
   providers: [
     Google,
@@ -77,16 +89,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
         totpCode: { label: "2FA code", type: "text" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null;
 
         const email = credentials.email as string;
         const password = credentials.password as string;
         const totpCode = (credentials.totpCode as string | undefined)?.trim() ?? "";
 
-        // Per-email rate limit (fail-closed). Blocks slow online brute force.
-        const rl = await rateLimit(`login:${email.toLowerCase()}`, 10, 10 * 60_000, { failClosed: true });
-        if (!rl.ok) throw new Error("TOO_MANY_ATTEMPTS");
+        // Two-dimensional rate limit (both fail-closed):
+        // per-email (blocks slow online brute force of one account)
+        // per-IP    (blocks credential stuffing across many accounts)
+        const ip = request instanceof Request ? clientIPFromRequest(request) : "unknown";
+        const [emailRl, ipRl] = await Promise.all([
+          rateLimit(`login:${email.toLowerCase()}`, 10, 10 * 60_000, { failClosed: true }),
+          rateLimit(`login-ip:${ip}`, 30, 10 * 60_000, { failClosed: true }),
+        ]);
+        if (!emailRl.ok || !ipRl.ok) throw new Error("TOO_MANY_ATTEMPTS");
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user || !user.password) return null;

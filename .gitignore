@@ -6,6 +6,19 @@ node_modules
 .env.*
 !.env.example
 
+# Secrets / keys / certs (defense in depth)
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+id_rsa*
+id_ed25519*
+credentials.json
+service-account*.json
+# .npmrc is committed (no secrets — registry + strict-ssl config only).
+# If you ever need auth tokens, use NPM_TOKEN env var in CI, not .npmrc.
+
 # Marketing videos (large artifacts, generated separately)
 /marketing
 

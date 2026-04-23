@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
 import { registerUser } from "@/auth";
 import { rateLimit } from "@/server/rate-limit";
+import { clientIPFromRequest } from "@/server/request-meta";
+import { scoped } from "@/server/logger";
 
 export const dynamic = "force-dynamic";
 
-function clientIP(req: Request): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
+const log = scoped("register");
 
 export async function POST(req: Request) {
-  const ip = clientIP(req);
+  const ip = clientIPFromRequest(req);
   const rl = await rateLimit(`register:${ip}`, 5, 60 * 60_000, { failClosed: true });
   if (!rl.ok) {
     return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
@@ -45,7 +41,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
-    console.error("[register] error", err);
+    log.error({ err }, "failed");
     return NextResponse.json({ error: "Registration failed" }, { status: 400 });
   }
 }

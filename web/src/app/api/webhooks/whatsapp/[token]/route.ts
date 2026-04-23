@@ -7,24 +7,17 @@ import { whatsappAdapter } from "@/server/channels/whatsapp";
 import { handleInbound } from "@/server/channels/pipeline";
 import { rateLimit } from "@/server/rate-limit";
 import { scoped } from "@/server/logger";
+import { clientIPFromRequest } from "@/server/request-meta";
 
 export const dynamic = "force-dynamic";
 
 const log = scoped("webhook:whatsapp");
 
-function clientIP(req: Request): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
-
 function timingSafeEqualStr(a: string, b: string): boolean {
-  const aBuf = Buffer.from(a);
-  const bBuf = Buffer.from(b);
-  if (aBuf.length !== bBuf.length) return false;
-  return crypto.timingSafeEqual(aBuf, bBuf);
+  // Hash both sides to fixed length first so length is not leaked via timing.
+  const aHash = crypto.createHash("sha256").update(a).digest();
+  const bHash = crypto.createHash("sha256").update(b).digest();
+  return crypto.timingSafeEqual(aHash, bHash);
 }
 
 export async function POST(
@@ -42,7 +35,7 @@ export async function POST(
     return new Response("Forbidden", { status: 403 });
   }
 
-  const ip = clientIP(req);
+  const ip = clientIPFromRequest(req);
   const rl = await rateLimit(`whapi:${ip}`, 60, 60_000);
   if (!rl.ok) return new Response("Too many requests", { status: 429 });
 

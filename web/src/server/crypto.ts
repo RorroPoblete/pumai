@@ -11,6 +11,11 @@
 //   - Re-encrypt data in batches, then retire the old key from CHANNEL_CRED_KEYS.
 
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+import { scoped } from "./logger";
+
+const log = scoped("crypto");
+let _legacyWarned = false;
+let _legacyCount = 0;
 
 const ENC_PREFIX = "enc:";
 const CURRENT_VERSION = 1;
@@ -69,7 +74,14 @@ function tryDecrypt(key: Buffer, iv: Buffer, tag: Buffer, enc: Buffer): string |
 }
 
 export function decryptSecret(payload: string): string {
-  if (!payload.startsWith(ENC_PREFIX)) return payload; // legacy plaintext
+  if (!payload.startsWith(ENC_PREFIX)) {
+    _legacyCount++;
+    if (!_legacyWarned) {
+      _legacyWarned = true;
+      log.warn({ legacyCount: _legacyCount }, "legacy_plaintext_credential_detected");
+    }
+    return payload;
+  }
 
   const body = payload.slice(ENC_PREFIX.length);
   const colonIdx = body.indexOf(":");
@@ -95,6 +107,11 @@ export function decryptSecret(payload: string): string {
 
 export function isEncrypted(payload: string): boolean {
   return payload.startsWith(ENC_PREFIX);
+}
+
+/** Count of legacy plaintext credentials read since process start. Surface in admin dashboards. */
+export function legacyDecryptCount(): number {
+  return _legacyCount;
 }
 
 /**

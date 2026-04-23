@@ -158,14 +158,19 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
     });
   }
 
+  // Strip the [ESCALATE] sentinel from inbound content so a user cannot
+  // trigger human takeover by typing the marker themselves. The agent owns
+  // that marker; user text is scrubbed before it reaches the LLM.
+  const sanitize = (s: string) => s.replace(/\[ESCALATE\]/gi, "[escalate]");
+
   for (const m of recentMessages) {
-    history.push({ role: m.role.toLowerCase(), content: m.content });
+    history.push({ role: m.role.toLowerCase(), content: sanitize(m.content) });
   }
-  history.push({ role: "user", content: message.messageText });
+  history.push({ role: "user", content: sanitize(message.messageText) });
 
   const aiResponse = await getChatResponse(systemContent, history);
   const isEscalated = aiResponse.includes("[ESCALATE]");
-  let cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
+  const cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
 
   // 9. Send outbound via channel adapter
   const outboundMsgId = await adapter.sendMessage(configData, {

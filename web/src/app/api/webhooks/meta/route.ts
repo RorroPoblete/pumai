@@ -24,7 +24,13 @@ export async function GET(req: Request) {
 
   const { verifyToken } = await getMetaCredentials();
 
-  if (mode === "subscribe" && token === verifyToken) {
+  if (mode !== "subscribe" || !token) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  const a = Buffer.from(token);
+  const b = Buffer.from(verifyToken);
+  if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
     return new Response(url.searchParams.get("hub.challenge"), { status: 200 });
   }
 

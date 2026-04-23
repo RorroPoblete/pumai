@@ -24,7 +24,7 @@ export const settingsSchema = z.object({
 
 export const passwordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8, "Minimum 8 characters"),
+  newPassword: z.string().min(12, "Minimum 12 characters"),
 });
 
 export const tenantSchema = z.object({

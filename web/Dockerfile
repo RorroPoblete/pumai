@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1.7
 
 # ─── Stage 1: Install deps ───
-FROM node:22-alpine AS deps
+FROM node:22-alpine@sha256:8ea2348b068a9544dae7317b4f3aafcdc032df1647bb7d768a05a5cad1a7683f AS deps
 WORKDIR /app
 COPY web/package.json web/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline --no-audit --no-fund
 
 # ─── Stage 2: Build ───
-FROM node:22-alpine AS builder
+FROM node:22-alpine@sha256:8ea2348b068a9544dae7317b4f3aafcdc032df1647bb7d768a05a5cad1a7683f AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm prune --omit=dev
 
 # ─── Stage 3: Runner ───
-FROM node:22-alpine AS runner
+FROM node:22-alpine@sha256:8ea2348b068a9544dae7317b4f3aafcdc032df1647bb7d768a05a5cad1a7683f AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -52,5 +52,8 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget --spider -q http://127.0.0.1:3000/api/health || exit 1
 
 ENTRYPOINT ["./entrypoint.sh"]
