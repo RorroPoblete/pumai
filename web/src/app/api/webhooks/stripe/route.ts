@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/server/prisma";
 import { upsertSubscriptionFromStripe } from "@/server/billing-actions";
+import { scoped } from "@/server/logger";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -10,12 +11,12 @@ export const maxDuration = 30;
 // ─── Logging ───
 
 type LogLevel = "info" | "warn" | "error";
+const sLog = scoped("webhook:stripe");
 
 function log(level: LogLevel, evt: string, meta: Record<string, unknown> = {}) {
-  const payload = JSON.stringify({ scope: "stripe-webhook", evt, ...meta });
-  if (level === "error") console.error(payload);
-  else if (level === "warn") console.warn(payload);
-  else console.log(payload);
+  if (level === "error") sLog.error(meta, evt);
+  else if (level === "warn") sLog.warn(meta, evt);
+  else sLog.info(meta, evt);
 }
 
 // ─── Error classes ───

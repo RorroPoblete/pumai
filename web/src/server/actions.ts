@@ -238,10 +238,10 @@ export async function setActiveBusiness(businessId: string) {
   const store = await cookies();
   store.set("pumai_active_business", businessId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: (process.env.AUTH_URL ?? "").startsWith("https://"),
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: 60 * 60 * 24 * 30,
   });
 
   redirect("/dashboard");

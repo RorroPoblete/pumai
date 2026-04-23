@@ -4,7 +4,10 @@
 
 import { createSubscriber } from "@/server/redis";
 import { prisma } from "@/server/prisma";
+import { scoped } from "@/server/logger";
 import { corsHeaders, corsOptions, originAllowed, resolveWebchatConfig } from "../../_shared";
+
+const log = scoped("webchat:events");
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -64,7 +67,7 @@ export async function GET(
       try {
         await subscriber.subscribe(channel);
       } catch (err) {
-        console.error("[Webchat Events] subscribe failed", err);
+        log.error({ err }, "subscribe_failed");
         controller.close();
         return;
       }

@@ -1,10 +1,9 @@
 // ─── Uploaded File Serving ───
-// Serves files from UPLOADS_DIR. Protected by HMAC-signed URL + expiry.
+// Serves files from storage (GCS or local FS). Protected by HMAC-signed URL + expiry.
 // The signature is generated at upload time (see /api/webchat/.../upload).
 
-import { readFile } from "fs/promises";
 import crypto from "crypto";
-import path from "path";
+import { getObjectBytes } from "@/server/storage";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -49,17 +48,14 @@ export async function GET(
     return new Response("Forbidden", { status: 403 });
   }
 
-  const dir = process.env.UPLOADS_DIR || "/app/uploads";
-  try {
-    const bytes = await readFile(path.join(dir, filename));
-    const ext = filename.split(".").pop()!.toLowerCase();
-    return new Response(bytes, {
-      headers: {
-        "Content-Type": MIME[ext] ?? "application/octet-stream",
-        "Cache-Control": "private, max-age=3600",
-      },
-    });
-  } catch {
-    return new Response("Not found", { status: 404 });
-  }
+  const bytes = await getObjectBytes(filename);
+  if (!bytes) return new Response("Not found", { status: 404 });
+
+  const ext = filename.split(".").pop()!.toLowerCase();
+  return new Response(new Uint8Array(bytes), {
+    headers: {
+      "Content-Type": MIME[ext] ?? "application/octet-stream",
+      "Cache-Control": "private, max-age=3600",
+    },
+  });
 }

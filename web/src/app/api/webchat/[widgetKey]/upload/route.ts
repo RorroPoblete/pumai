@@ -1,10 +1,9 @@
 // ─── Webchat File Upload ───
-// Accepts image upload from the widget, saves to UPLOADS_DIR volume,
+// Accepts image upload from the widget, saves to storage (GCS or local FS),
 // returns public URL served by /api/uploads/[file].
 
-import { writeFile, mkdir } from "fs/promises";
 import { randomBytes, createHmac } from "crypto";
-import path from "path";
+import { putObject } from "@/server/storage";
 import { corsOptions, enforceRateLimit, json, originAllowed, resolveWebchatConfig } from "../../_shared";
 
 export const dynamic = "force-dynamic";
@@ -89,9 +88,7 @@ export async function POST(
   }
 
   const filename = `${randomBytes(12).toString("hex")}.${detected.ext}`;
-  const dir = process.env.UPLOADS_DIR || "/app/uploads";
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, filename), bytes);
+  await putObject(filename, bytes, detected.type);
 
   return json(
     {

@@ -4,8 +4,10 @@
 import { prisma } from "@/server/prisma";
 import { buildSystemPrompt, streamChatResponse, analyzeConversation } from "@/server/ai";
 import { CONTEXT_WINDOW_MS, SENTIMENT_MAP } from "@/server/channels/types";
-import { readFile } from "fs/promises";
-import path from "path";
+import { getObjectBytes } from "@/server/storage";
+import { scoped } from "@/server/logger";
+
+const log = scoped("webchat:stream");
 import {
   corsHeaders,
   corsOptions,
@@ -190,7 +192,7 @@ export async function POST(
           },
         });
       })
-      .catch((err) => console.error(`[Webchat] Analysis failed:`, err));
+      .catch((err) => log.error({ err }, "analysis_failed"));
   });
 }
 
@@ -198,13 +200,9 @@ async function toDataUrl(url: string | null, type: string | null): Promise<strin
   if (!url || !type?.startsWith("image/")) return null;
   const match = url.match(/\/api\/uploads\/([a-f0-9]+\.(?:png|jpe?g|webp|gif))$/i);
   if (!match) return url;
-  try {
-    const dir = process.env.UPLOADS_DIR || "/app/uploads";
-    const bytes = await readFile(path.join(dir, match[1]));
-    return `data:${type};base64,${bytes.toString("base64")}`;
-  } catch {
-    return null;
-  }
+  const bytes = await getObjectBytes(match[1]);
+  if (!bytes) return null;
+  return `data:${type};base64,${bytes.toString("base64")}`;
 }
 
 type SendFn = (event: Record<string, unknown>) => void;
@@ -219,7 +217,7 @@ function sseResponse(req: Request, allowed: string[], run: (send: SendFn) => Pro
       try {
         await run(send);
       } catch (err) {
-        console.error("[Webchat SSE] error", err);
+        log.error({ err }, "sse_error");
         send({ type: "error", message: "Internal error" });
       } finally {
         controller.close();
