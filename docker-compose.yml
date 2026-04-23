@@ -1,7 +1,6 @@
 services:
-  # ─── PostgreSQL ───
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:4e6e670bb069649261c9c18031f0aded7bb249a5b6664ddec29c013a89310d50
     container_name: pumai-postgres
     restart: unless-stopped
     environment:
@@ -18,12 +17,11 @@ services:
       timeout: 3s
       retries: 10
 
-  # ─── Redis ───
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:7aec734b2bb298a1d769fd8729f13b8514a41bf90fcdd1f38ec52267fbaa8ee6
     container_name: pumai-redis
     restart: unless-stopped
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD required}"]
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"]
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
@@ -36,52 +34,31 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
 
-  # ─── Next.js App ───
   app:
     build:
       context: .
-      dockerfile: frontend/Dockerfile
+      dockerfile: web/Dockerfile
     container_name: pumai-app
     restart: unless-stopped
     ports:
       - "3002:3000"
+      - "127.0.0.1:5555:5555"  # Prisma Studio (loopback only — use: docker compose exec app npm run db:studio)
+    env_file: .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-pumai}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pumai_db}
       REDIS_URL: redis://default:${REDIS_PASSWORD}@redis:6379
-      AUTH_SECRET: "${AUTH_SECRET:?AUTH_SECRET is required}"
-      AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID:-}
-      AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      META_APP_SECRET: ${META_APP_SECRET:-}
-      META_APP_SECRET_IG: ${META_APP_SECRET_IG:-}
-      META_WEBHOOK_VERIFY_TOKEN: "${META_WEBHOOK_VERIFY_TOKEN:?META_WEBHOOK_VERIFY_TOKEN required}"
-      WHATSAPP_WEBHOOK_TOKEN: ${WHATSAPP_WEBHOOK_TOKEN:-}
-      CHANNEL_CRED_KEY: ${CHANNEL_CRED_KEY:-}
-      UPLOAD_SIGNING_KEY: ${UPLOAD_SIGNING_KEY:-}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3002}
       AUTH_URL: ${AUTH_URL:-http://localhost:3002}
       AUTH_TRUST_HOST: "true"
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      STRIPE_PRICE_WEBCHAT_STARTER: ${STRIPE_PRICE_WEBCHAT_STARTER:-}
-      STRIPE_PRICE_WEBCHAT_GROWTH: ${STRIPE_PRICE_WEBCHAT_GROWTH:-}
-      STRIPE_PRICE_WEBCHAT_ENTERPRISE: ${STRIPE_PRICE_WEBCHAT_ENTERPRISE:-}
-      STRIPE_PRICE_WA_STARTER: ${STRIPE_PRICE_WA_STARTER:-}
-      STRIPE_PRICE_WA_GROWTH: ${STRIPE_PRICE_WA_GROWTH:-}
-      STRIPE_PRICE_WA_ENTERPRISE: ${STRIPE_PRICE_WA_ENTERPRISE:-}
-      STRIPE_PRICE_IG_STARTER: ${STRIPE_PRICE_IG_STARTER:-}
-      STRIPE_PRICE_IG_GROWTH: ${STRIPE_PRICE_IG_GROWTH:-}
-      STRIPE_PRICE_IG_ENTERPRISE: ${STRIPE_PRICE_IG_ENTERPRISE:-}
-      STRIPE_PRICE_MSG_STARTER: ${STRIPE_PRICE_MSG_STARTER:-}
-      STRIPE_PRICE_MSG_GROWTH: ${STRIPE_PRICE_MSG_GROWTH:-}
-      STRIPE_PRICE_MSG_ENTERPRISE: ${STRIPE_PRICE_MSG_ENTERPRISE:-}
-      STRIPE_PRICE_WEBCHAT_ADDON: ${STRIPE_PRICE_WEBCHAT_ADDON:-}
-      STRIPE_PRICE_WA_ADDON: ${STRIPE_PRICE_WA_ADDON:-}
-      STRIPE_PRICE_IG_ADDON: ${STRIPE_PRICE_IG_ADDON:-}
-      STRIPE_PRICE_MSG_ADDON: ${STRIPE_PRICE_MSG_ADDON:-}
       UPLOADS_DIR: /app/uploads
     volumes:
       - uploads_data:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
       postgres:
         condition: service_healthy

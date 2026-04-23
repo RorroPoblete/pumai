@@ -1,9 +1,15 @@
-frontend/node_modules
-frontend/.next
-frontend/.env.local
+# Build context excludes — keep docker image lean
+web/node_modules
+web/.next
+web/tsconfig.tsbuildinfo
+marketing
+docs
+.git
+.github
+.claude
 .env
+.env.*
 *.md
 LOGO.png
-style.md
-*.jsx
-.claude
+**/.DS_Store
+**/*.log

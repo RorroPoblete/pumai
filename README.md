@@ -287,7 +287,6 @@ DB synced automatically
 
 
 
-docker compose up --build
-stripe listen --forward-to localhost:3002/api/webhooks/stripe
-docker compose restart app
+           
+
 

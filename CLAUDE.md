@@ -1,158 +1,146 @@
-# PumAI — Project Rules & Architecture Decisions
+# PumAI — Project Rules & Architecture
 
 ## Code Principles
 
 - **Quality over speed** — Clean, readable, well-structured code always wins
 - **Modular architecture** — Each module has a single responsibility and clear boundaries
-- **Easy maintainability** — Any developer should understand the code without tribal knowledge
-- **No over-engineering** — Solve what's needed, not what might be needed someday
-- **Read first, write complete** — Understand existing code before changing it. Deliver full solutions.
+- **No over-engineering** — Solve what's needed, not what might be needed
+- **Read first, write complete** — Understand existing code before changing it
+- **No dead code** — Delete it, don't comment it out
 
 ## Project Structure
 
 ```
 AUSTRALIAN_DREAM/
-  backend/           # Prisma schema, server logic, AI engine, channels
-    prisma/          # schema.prisma, seed.ts
+  web/                       # Next.js 16 fullstack app (frontend + API routes)
     src/
-      generated/     # Prisma client (auto-generated, do NOT edit)
-      channels/      # Multi-channel adapter layer
-      ai.ts          # OpenAI integration
-      actions.ts     # Server actions (agent CRUD, settings)
-      queries.ts     # Data queries (dashboard, conversations)
-      auth-utils.ts  # Session/tenant resolution
-      prisma.ts      # Prisma client singleton
-      rate-limit.ts  # Redis-backed rate limiting
-      validation.ts  # Zod schemas
-  frontend/          # Next.js 16 app
-    src/app/api/     # API routes (chat, webhooks, auth)
-    src/app/(app)/   # Dashboard pages
-    src/components/  # React components
-  marketing/         # Marketing site (separate)
+      app/                   # Pages + API routes
+        (app)/dashboard/     # Main app UI (conversations, agents, settings)
+        (auth)/              # Login, register, forgot-password
+        api/                 # API routes (chat, webhooks, auth, billing)
+      server/                # Server-side shared logic (consumed by API + actions)
+        channels/            # Multi-channel adapter layer
+        ai.ts                # OpenAI integration
+        actions.ts           # Server actions
+        queries.ts           # Data queries
+        auth-utils.ts        # Session/tenant resolution
+        prisma.ts            # Prisma client singleton
+        redis.ts             # Redis client singleton
+        rate-limit.ts        # Redis-backed rate limiting
+        logger.ts            # Pino structured logging
+      components/            # React components
+      generated/prisma/      # Prisma client (auto-generated)
+      lib/                   # Client-safe helpers
+    prisma/                  # schema.prisma + seed.ts + migrations
+    prisma.config.ts
+    package.json
+    Dockerfile
+  marketing/                 # Marketing site + Remotion videos (separate, gitignored)
+  docs/                      # Operational runbooks
+  docker-compose.yml         # Postgres + Redis + app (app behind --profile full)
+  .env                       # Single source of truth (gitignored)
+  .env.example               # Template (committed)
 ```
+
+`web/.env.local` is a symlink to `../.env` — one source of truth for secrets.
 
 ## Tech Stack
 
-- **Runtime:** Node.js + TypeScript (strict)
-- **Frontend:** Next.js 16, Tailwind CSS v4, React
-- **Auth:** NextAuth.js v5 (Credentials + Google OAuth)
-- **Database:** PostgreSQL 16 + Prisma v7
-- **Cache:** Redis 7 (ioredis)
-- **AI:** OpenAI GPT-4o-mini (128K context)
-- **Deploy:** Docker + docker-compose
+- **Runtime:** Node.js 22 + TypeScript (strict)
+- **Framework:** Next.js 16 (App Router, Turbopack in dev)
+- **Auth:** NextAuth.js v5 (Credentials + Google OAuth + TOTP 2FA)
+- **Database:** PostgreSQL 16 + Prisma v7 (with @prisma/adapter-pg)
+- **Cache / Rate limit:** Redis 7 (ioredis)
+- **AI:** OpenAI GPT-4o-mini
+- **Deploy:** Docker multi-stage build + docker-compose
 
 ## Architecture Decisions
 
-### Multi-Channel Architecture (Phase 7+)
+### Next.js fullstack (not a separate backend process)
 
-**Pattern:** Adapter + Unified Pipeline
+Next.js runs UI, API routes, and server actions in one process. Code under `web/src/server/` is shared server-side logic imported by API routes and server actions — not a separate server.
 
-Each messaging channel (Messenger, Instagram, Webchat, WhatsApp) follows the same pattern:
+### Multi-Channel (Phase 7+)
 
-1. **Adapter** (`backend/src/channels/<channel>.ts`) — Does only 2 things:
-   - `parseInbound(body)` — Parses raw webhook payload into normalized `InboundMessage`
-   - `sendMessage(config, msg)` — Sends a message via the channel's API
-   - Adapters do NOT touch the database or AI engine
+Adapter + Unified Pipeline pattern:
 
-2. **Pipeline** (`backend/src/channels/pipeline.ts`) — Single `handleInbound()` function:
-   - Find ChannelConfig (identify business)
-   - Deduplicate by externalMsgId
-   - Upsert Conversation
-   - Save inbound message
-   - Generate AI response via `getChatResponse()`
-   - Send outbound via adapter
-   - Save outbound message
-   - Async sentiment analysis
+1. **Adapter** (`web/src/server/channels/<channel>.ts`) — only two methods:
+   - `parseInbound(body)` — normalize webhook payload
+   - `sendMessage(config, msg)` — send via channel API
+   - No DB or AI access
+2. **Pipeline** (`web/src/server/channels/pipeline.ts`) — `handleInbound()`:
+   - Lookup ChannelConfig → dedupe → upsert Conversation → save inbound → AI response → send outbound → save outbound → async sentiment
+3. **Registry** (`web/src/server/channels/registry.ts`) — Channel enum → adapter
+4. **Webhook routes** (`web/src/app/api/webhooks/`) — verify signature, dispatch to pipeline
 
-3. **Registry** (`backend/src/channels/registry.ts`) — Maps Channel enum to adapter instance
-
-4. **Webhook routes** (`frontend/src/app/api/webhooks/`) — Verify signatures, parse body, dispatch to pipeline
-
-### Key Schema Decisions
+### Schema
 
 - **Channel enum:** MESSENGER, INSTAGRAM, WEBCHAT, WHATSAPP
-- **ChannelConfig model:** Per-business, per-channel credentials + default agent. `@@unique([businessId, channel])`
-- **Conversation.contactExternalId:** Platform-specific user ID (PSID for Messenger, IGSID for Instagram, phone for WhatsApp, session ID for Webchat)
-- **Conversation lookup key:** `@@unique([businessId, channel, contactExternalId])`
-- **Message.externalMsgId:** Platform message ID for deduplication
-- **Agent routing:** One default agent per channel per business via `ChannelConfig.agentId`
+- **ChannelConfig:** per-business, per-channel credentials + default agent. `@@unique([businessId, channel])`
+- **Conversation:** `@@unique([businessId, channel, contactExternalId])`
+- **Message.externalMsgId:** platform message ID for deduplication
+- One default agent per channel per business via `ChannelConfig.agentId`
 
-### Meta (Facebook + Instagram) Webhook
+### Meta webhook
 
-- Single endpoint `/api/webhooks/meta` handles both Messenger and Instagram
-- `body.object === "page"` for Messenger, `"instagram"` for Instagram
-- HMAC-SHA256 signature verification using `META_APP_SECRET`
-- App-level env vars: `META_APP_SECRET`, `META_WEBHOOK_VERIFY_TOKEN`
-- Per-business tokens stored in `ChannelConfig.credentials` (DB, not env vars)
+- Single endpoint `/api/webhooks/meta` for Messenger + Instagram
+- `body.object === "page"` → Messenger, `"instagram"` → Instagram
+- HMAC-SHA256 verification: `META_APP_SECRET` (page) / `META_APP_SECRET_IG` (IG)
+- Per-business tokens stored encrypted in `ChannelConfig.credentials`
 
 ### AI Engine
 
-- `buildSystemPrompt()` — Tone-aware system prompt with agent instructions + knowledge base
-- `streamChatResponse()` — Streaming for browser-facing chat (agent test)
-- `getChatResponse()` — Non-streaming for webhook pipeline (response goes to channel API)
-- `analyzeConversation()` — Sentiment, escalation, language detection
+- `buildSystemPrompt()` — tone + agent instructions + knowledge base
+- `streamChatResponse()` — streaming for browser chat
+- `getChatResponse()` — non-streaming for webhooks
+- `analyzeConversation()` — sentiment, escalation, language
 
 ### Multi-Tenancy
 
 - 1:1 User → Business (owner)
-- BusinessMember for team access (OWNER, ADMIN, MEMBER roles)
+- BusinessMember for team access (OWNER, ADMIN, MEMBER)
 - Active business resolved via: cookie → session → DB fallback
-- All queries scoped by `businessId`
+- Every query scoped by `businessId`
 
 ## Coding Conventions
 
-- **Imports:** Use `@/` alias for backend imports from `backend/src/`
-- **Server actions:** Marked with `"use server"`, validated with Zod
-- **Error handling:** Validate at boundaries (API routes, webhooks), trust internal code
-- **Naming:** camelCase for functions/variables, PascalCase for types/components, UPPER_SNAKE for enums
-- **Files:** kebab-case for file names, one module per file
-- **No comments** unless logic is non-obvious. Code should be self-documenting.
-- **No unused code** — Delete it, don't comment it out
-
-## Channel Integration Order
-
-1. Facebook Messenger (Phase 7) — First channel, establishes the multi-channel architecture
-2. Instagram DMs (Phase 8) — Reuses Meta webhook, similar adapter
-3. Webchat (Phase 9) — Embeddable widget, supports streaming
-4. WhatsApp (Phase 10) — Cloud API, different payload shape
-
-## Environment Variables
-
-```
-# Database
-DATABASE_URL=postgresql://...
-
-# Auth
-NEXTAUTH_SECRET=...
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-
-# AI
-OPENAI_API_KEY=...
-
-# Redis
-REDIS_URL=redis://...
-
-# Meta (Facebook/Instagram)
-META_APP_SECRET=<from Meta developer console>
-META_WEBHOOK_VERIFY_TOKEN=<arbitrary string for webhook verification>
-```
+- **Imports:** `@/*` → `web/src/*`. Server code under `@/server/*`.
+- **Server actions:** `"use server"` + Zod validation
+- **Errors:** validate at boundaries (API routes, webhooks), trust internal code
+- **Naming:** camelCase (vars), PascalCase (types/components), UPPER_SNAKE (enums)
+- **Files:** kebab-case, one module per file
+- **No comments** unless the WHY is non-obvious
 
 ## Commands
 
 ```bash
-# Development
-cd frontend && npm run dev
+# Primary flow — full stack in docker
+docker compose up --build             # postgres + redis + app → http://localhost:3002
+docker compose down                   # stop (volumes persist)
+docker compose down -v                # stop + wipe DB/redis data
 
-# Database
-cd backend && npx prisma db push      # Apply schema
-cd backend && npx prisma db seed      # Seed data
-cd backend && npx prisma studio       # GUI
+# DB operations
+docker compose exec app npm run db:push    # apply schema changes
+docker compose exec app npm run db:seed    # reseed (idempotent; also runs automatically on container start)
+docker compose exec app npm run db:studio  # Prisma Studio → http://localhost:5555
 
-# Docker
-docker compose up --build
+# Optional: dev-local mode (hot reload faster than docker rebuild)
+docker compose up -d postgres redis   # only services
+cd web && npm run dev                 # Next.js on port 3000
 
 # Demo login
-# Email: demo@pumai.com.au
-# Password: password123
+# admin@pumai.com.au / password123456
+# demo@pumai.com.au  / password123456
 ```
+
+## Env management
+
+All secrets live in a single `.env` at the repo root (gitignored). `web/.env.local` is a symlink to it. `docker-compose.yml` reads the same file via `env_file: .env`.
+
+## Security notes
+
+- `next-auth@5.0.0-beta.30` is pinned exactly (no caret). Subscribe to the Auth.js GHSA feed and test CSRF/session paths when bumping; first stable 5.x is the upgrade target.
+- `TRUSTED_PROXY_HOPS` env var controls XFF parsing for client-IP rate limiting. Default `1` assumes one trusted proxy in front of the app. Set `0` when the app is directly internet-facing.
+- Per-request CSP nonce is generated in `middleware.ts` — do not add inline `<script>` without the nonce.
+- `AUTH_TRUST_HOST=true` (set in compose) tells NextAuth to trust `Host`/`X-Forwarded-Host`. Only safe when the app is behind a reverse proxy that normalizes/validates those headers. Remove it if the app is ever exposed directly to the internet; set `AUTH_URL` explicitly instead.
+- `callbacks.redirect` in `web/src/auth.ts` enforces same-origin callback URLs — open-redirect defence. Do not relax without replacing the check.
