@@ -118,7 +118,6 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
     where: { conversationId: conversation.id },
   });
   const hasOlderHistory = totalMessages > recentMessages.length;
-  const isFirstContact = totalMessages === 0;
 
   // 6. Save inbound message
   await prisma.$transaction([
