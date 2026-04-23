@@ -175,7 +175,10 @@ export async function createCartCheckoutSession(items: CartItem[]): Promise<{ ur
   }
 
   const alreadyActive = await findActiveChannels(businessId, channels);
-  if (alreadyActive.length > 0) return createBillingPortal();
+  if (alreadyActive.length > 0) {
+    const biz = await prisma.business.findUniqueOrThrow({ where: { id: businessId }, select: { stripeCustomerId: true } });
+    if (biz.stripeCustomerId) return createBillingPortal();
+  }
 
   const customerId = await ensureStripeCustomer(businessId);
   const base = appUrl();
@@ -217,7 +220,10 @@ export async function createAddonCheckoutSession(channel: ChannelKey): Promise<{
   }
 
   const [active] = await findActiveChannels(businessId, [channel]);
-  if (active) return createBillingPortal();
+  if (active) {
+    const biz = await prisma.business.findUniqueOrThrow({ where: { id: businessId }, select: { stripeCustomerId: true } });
+    if (biz.stripeCustomerId) return createBillingPortal();
+  }
 
   const customerId = await ensureStripeCustomer(businessId);
   const base = appUrl();
@@ -250,7 +256,7 @@ export async function createBillingPortal(): Promise<{ url: string }> {
 
   const business = await prisma.business.findUniqueOrThrow({ where: { id: businessId } });
   if (!business.stripeCustomerId) {
-    throw new BillingError("No billing account yet — complete a checkout first", "no_customer");
+    return { url: `${appUrl()}/dashboard/billing` };
   }
 
   const session = await getStripe().billingPortal.sessions.create({

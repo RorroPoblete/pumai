@@ -282,3 +282,12 @@ DB synced automatically
 - `docs/integrations/instagram-status-2026-04-16.md` — Instagram status & blockers
 - `TECHNICAL_DEBT.md` — pending work
 - `CLAUDE.md` — project rules & architecture decisions
+
+
+
+
+
+docker compose up --build
+stripe listen --forward-to localhost:3002/api/webhooks/stripe
+docker compose restart app
+

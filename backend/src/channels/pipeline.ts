@@ -168,11 +168,6 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
   const isEscalated = aiResponse.includes("[ESCALATE]");
   let cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
 
-  // AI disclosure on first contact (Voluntary AI Safety Standard AU)
-  if (isFirstContact) {
-    cleanResponse = `${cleanResponse}\n\n— You are chatting with an AI assistant. Reply "human" at any time to speak with a person.`;
-  }
-
   // 9. Send outbound via channel adapter
   const outboundMsgId = await adapter.sendMessage(configData, {
     recipientExternalId: message.senderExternalId,
