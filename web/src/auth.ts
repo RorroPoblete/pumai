@@ -7,6 +7,27 @@ import { verifyTotpCode, verifyRecoveryCode } from "@/server/totp";
 import { rateLimit } from "@/server/rate-limit";
 import { clientIPFromRequest } from "@/server/request-meta";
 
+const isProd = process.env.NODE_ENV === "production";
+const isBuild = process.env.NEXT_PHASE === "phase-production-build";
+const isLocalhostUrl = (u?: string) =>
+  !!u && /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(u);
+
+if (isProd && !isBuild) {
+  const authUrl = process.env.AUTH_URL;
+  if (!authUrl || (!authUrl.startsWith("https://") && !isLocalhostUrl(authUrl))) {
+    throw new Error("AUTH_URL must be an https:// URL in production");
+  }
+  const publicUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!publicUrl || (!publicUrl.startsWith("https://") && !isLocalhostUrl(publicUrl))) {
+    throw new Error("NEXT_PUBLIC_APP_URL must be an https:// URL in production");
+  }
+}
+
+// Cookie hardening is governed by whether AUTH_URL is actually https —
+// not NODE_ENV — so docker-compose dev (NODE_ENV=production + http://localhost)
+// still works.
+const useSecureCookies = (process.env.AUTH_URL ?? "").startsWith("https://");
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/login",
@@ -14,6 +35,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: "jwt",
+  },
+  cookies: {
+    sessionToken: {
+      name: useSecureCookies ? "__Secure-authjs.session-token" : "authjs.session-token",
+      options: { httpOnly: true, sameSite: "lax", path: "/", secure: useSecureCookies },
+    },
+    csrfToken: {
+      name: useSecureCookies ? "__Host-authjs.csrf-token" : "authjs.csrf-token",
+      options: { httpOnly: true, sameSite: "lax", path: "/", secure: useSecureCookies },
+    },
+    callbackUrl: {
+      name: useSecureCookies ? "__Secure-authjs.callback-url" : "authjs.callback-url",
+      options: { sameSite: "lax", path: "/", secure: useSecureCookies },
+    },
   },
   callbacks: {
     async jwt({ token, user, trigger }) {

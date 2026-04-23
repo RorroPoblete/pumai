@@ -17,8 +17,12 @@ echo "[pumai] Database ready"
 echo "[pumai] Applying migrations..."
 npx prisma migrate deploy
 
-echo "[pumai] Seeding database (idempotent)..."
-npx prisma db seed || echo "[pumai] Seed skipped"
+if [ "${RUN_SEED:-0}" = "1" ]; then
+  echo "[pumai] Seeding database (RUN_SEED=1)..."
+  npx prisma db seed || echo "[pumai] Seed failed"
+else
+  echo "[pumai] Seed skipped (set RUN_SEED=1 to enable)"
+fi
 
 echo "[pumai] Starting on port ${PORT:-3000}..."
 exec node server.js

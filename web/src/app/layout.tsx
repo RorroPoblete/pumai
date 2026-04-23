@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToastProvider from "@/components/Toast";
 import "./globals.css";
+
+export const dynamic = "force-dynamic";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,11 +53,6 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>{children}</ToastProvider>
         </ThemeProvider>
-        <Script
-          src="http://localhost:3002/widget.js"
-          data-widget-key="wk_6f257c07eaa0aec1a22cb8d2"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

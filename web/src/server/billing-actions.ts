@@ -18,7 +18,20 @@ import { BillingError, type CartItem } from "./billing-types";
 const ACTIVE_STATUSES = ["active", "trialing"] as const;
 
 function appUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "http://localhost:3002";
+  const raw = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  const isProd = process.env.NODE_ENV === "production";
+  const isBuild = process.env.NEXT_PHASE === "phase-production-build";
+  const isLocalhost = raw ? /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(raw) : false;
+  if (raw) {
+    if (isProd && !isBuild && !raw.startsWith("https://") && !isLocalhost) {
+      throw new Error("NEXT_PUBLIC_APP_URL must be an https:// URL in production");
+    }
+    return raw;
+  }
+  if (isProd && !isBuild) {
+    throw new Error("NEXT_PUBLIC_APP_URL is required in production");
+  }
+  return "http://localhost:3002";
 }
 
 async function requireBusinessId(): Promise<string> {

@@ -51,6 +51,7 @@ services:
       AUTH_URL: ${AUTH_URL:-http://localhost:3002}
       AUTH_TRUST_HOST: "true"
       UPLOADS_DIR: /app/uploads
+      RUN_SEED: "1"
     volumes:
       - uploads_data:/app/uploads
     healthcheck:

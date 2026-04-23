@@ -33,10 +33,6 @@ function parseSignedRequest(signedRequest: string, secret: string): { user_id?: 
   }
 }
 
-function publicBase(): string {
-  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "http://localhost:3002";
-}
-
 export async function POST(req: Request) {
   const form = await req.formData();
   const signedRequest = form.get("signed_request");
@@ -96,8 +92,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "deletion_failed" }, { status: 500 });
   }
 
+  const statusUrl = new URL("/api/meta/deletion-status", req.url);
+  statusUrl.searchParams.set("code", confirmationCode);
   return NextResponse.json({
-    url: `${publicBase()}/api/meta/deletion-status?code=${confirmationCode}`,
+    url: statusUrl.toString(),
     confirmation_code: confirmationCode,
   });
 }

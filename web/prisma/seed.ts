@@ -1,11 +1,31 @@
 import bcrypt from "bcryptjs";
+import { createCipheriv, randomBytes } from "crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.js";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
+function encryptSecret(plaintext: string): string {
+  const raw = process.env.CHANNEL_CRED_KEY;
+  if (!raw) throw new Error("CHANNEL_CRED_KEY is not set");
+  const key = Buffer.from(raw, "base64");
+  if (key.length !== 32) throw new Error("CHANNEL_CRED_KEY must decode to 32 bytes");
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key, iv, { authTagLength: 16 });
+  const enc = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `enc:v1:${Buffer.concat([iv, tag, enc]).toString("base64")}`;
+}
+
 async function main() {
+  const dbUrl = process.env.DATABASE_URL ?? "";
+  const isLocalDb = /@(localhost|127\.0\.0\.1|postgres):/.test(dbUrl);
+  if (process.env.NODE_ENV === "production" && !isLocalDb) {
+    console.log("⚠️  Seed is dev-only. Refusing to run against a non-local DATABASE_URL in production.");
+    return;
+  }
+
   console.log("🌱 Seeding database...");
 
   const password = await bcrypt.hash("password123456", 12);
@@ -23,7 +43,7 @@ async function main() {
     },
   });
 
-  console.log("  ✓ Superadmin created (admin@pumai.com.au / password123456)");
+  console.log("  ✓ Superadmin created (admin@pumai.com.au)");
 
   // ─── Demo User ───
   const demoUser = await prisma.user.upsert({
@@ -342,9 +362,44 @@ ESCALATION TRIGGERS (transfer to human):
     console.log("  ✓ Agents updated");
   }
 
+  // ─── Demo webchat widget for landing page ───
+  const webchatCredentials = encryptSecret(
+    JSON.stringify({
+      branding: {
+        primaryColor: "#8B5CF6",
+        title: "PumAI",
+        welcomeMessage: "Hi! Ask me anything about PumAI.",
+        position: "right",
+        collectVisitor: "off",
+        offlineMode: "off",
+      },
+      allowedOrigins: [
+        "http://localhost:3000",
+        "http://localhost:3002",
+        "https://pumai.com.au",
+      ],
+    }),
+  );
+  await prisma.channelConfig.upsert({
+    where: { businessId_channel: { businessId: business.id, channel: "WEBCHAT" } },
+    create: {
+      businessId: business.id,
+      channel: "WEBCHAT",
+      externalId: "wk_pumai_landing",
+      credentials: webchatCredentials,
+      agentId: agents[0].id,
+      active: true,
+    },
+    update: {
+      externalId: "wk_pumai_landing",
+      credentials: webchatCredentials,
+      agentId: agents[0].id,
+      active: true,
+    },
+  });
+  console.log("  ✓ Webchat widget created (wk_pumai_landing)");
+
   console.log("\n✅ Seed completed!");
-  console.log("📧 Demo: demo@pumai.com.au / password123456");
-  console.log("🔑 Admin: admin@pumai.com.au / password123456");
 }
 
 main()

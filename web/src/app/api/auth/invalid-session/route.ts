@@ -3,11 +3,9 @@ import { signOut } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
-function publicBase(): string {
-  return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "http://localhost:3002";
-}
-
-export async function GET() {
+export async function GET(req: Request) {
   await signOut({ redirect: false });
-  return NextResponse.redirect(`${publicBase()}/login?error=session_expired`);
+  const url = new URL("/login", req.url);
+  url.searchParams.set("error", "session_expired");
+  return NextResponse.redirect(url);
 }

@@ -5,19 +5,10 @@ import { getToken } from "next-auth/jwt";
 const protectedRoutes = ["/dashboard", "/onboarding"];
 const authRoutes = ["/login", "/register", "/forgot-password"];
 
-function appBase(req: NextRequest): string {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
-  if (envUrl) return envUrl;
-  const forwardedHost = req.headers.get("x-forwarded-host");
-  const forwardedProto = req.headers.get("x-forwarded-proto") ?? "http";
-  if (forwardedHost) return `${forwardedProto}://${forwardedHost}`;
-  return req.nextUrl.origin;
-}
-
 function buildCSP(nonce: string, isProd: boolean): string {
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' ${isProd ? "" : "'unsafe-eval'"} https://js.stripe.com https://accounts.google.com`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isProd ? "" : " 'unsafe-eval'"} https://js.stripe.com https://accounts.google.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
@@ -32,7 +23,7 @@ function buildCSP(nonce: string, isProd: boolean): string {
     .join("; ");
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // The widget script is loaded cross-origin by design — don't apply CSP to it.
@@ -52,13 +43,12 @@ export async function middleware(req: NextRequest) {
   if (needsAuthCheck) {
     const token = await getToken({ req, secret: process.env.AUTH_SECRET });
     const isLoggedIn = !!token;
-    const base = appBase(req);
 
     if (authRoutes.some((r) => pathname.startsWith(r)) && isLoggedIn) {
-      return NextResponse.redirect(`${base}/dashboard`);
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
     if (protectedRoutes.some((r) => pathname.startsWith(r)) && !isLoggedIn) {
-      const loginUrl = new URL(`${base}/login`);
+      const loginUrl = new URL("/login", req.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
@@ -67,6 +57,7 @@ export async function middleware(req: NextRequest) {
   const requestHeaders = new Headers(req.headers);
   if (!skipCsp) {
     requestHeaders.set("x-nonce", nonce);
+    requestHeaders.set("Content-Security-Policy", csp);
   }
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
@@ -76,7 +67,7 @@ export async function middleware(req: NextRequest) {
   return response;
 }
 
-// Apply middleware to every route except static/internal/widget paths.
+// Apply proxy to every route except static/internal/widget paths.
 // CSP + nonce are injected globally; auth gating is performed conditionally.
 export const config = {
   matcher: [
