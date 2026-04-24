@@ -8,6 +8,8 @@ No secret values appear in this document. All secrets live in Secret Manager and
 
 **Why Singapore and not Sydney:** `australia-southeast1` does not support native Cloud Run domain mappings (`gcloud beta run domain-mappings create` returns HTTP 501). Singapore supports them, adds ~60-70 ms latency for Australian users (still under 120 ms), and keeps the stack pure GCP + GoDaddy DNS — no Cloudflare proxy, no Worker, no Load Balancer, $0 extra infrastructure cost.
 
+All Sydney resources (Cloud Run service, Cloud SQL instance `pumai-db`, Artifact Registry repo, GCS bucket `pumai-uploads-prod`) have been deleted to avoid idle cost. The short-lived Cloudflare zone that was created while exploring the Sydney-with-CDN option was removed as well.
+
 ---
 
 ## 1. Live service

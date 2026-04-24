@@ -103,8 +103,8 @@ jobs:
       id-token: write
     env:
       GCP_PROJECT: pumai-prod
-      GCP_REGION: australia-southeast1
-      AR_IMAGE: australia-southeast1-docker.pkg.dev/pumai-prod/pumai/app
+      GCP_REGION: asia-southeast1
+      AR_IMAGE: asia-southeast1-docker.pkg.dev/pumai-prod/pumai/app
       CLOUD_RUN_SERVICE: pumai-app
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -116,7 +116,7 @@ jobs:
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@77e7a554d41e2ee56fc945c52dfd3f33b12ef9b5 # v2.1.2
       - name: Configure docker for Artifact Registry
-        run: gcloud auth configure-docker australia-southeast1-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker asia-southeast1-docker.pkg.dev --quiet
       - name: Build image
         run: docker build -f web/Dockerfile -t "${AR_IMAGE}:${{ github.sha }}" -t "${AR_IMAGE}:latest" .
       - name: Push image (sha + latest)
