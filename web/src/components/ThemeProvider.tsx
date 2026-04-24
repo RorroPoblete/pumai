@@ -19,7 +19,9 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const stored = localStorage.getItem("pumai-theme") as Theme | null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (stored) setTheme(stored);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

@@ -311,7 +311,7 @@ export default function PlatformSettings({
 
           {channels.length === 0 && (
             <div className="text-center py-8 text-[var(--text-muted)] text-xs">
-              No channels connected yet. Click "+ Connect Channel" to get started.
+              No channels connected yet. Click &quot;+ Connect Channel&quot; to get started.
             </div>
           )}
         </div>

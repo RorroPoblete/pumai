@@ -102,6 +102,7 @@ export default function ConversationsList({ conversations: initialConversations 
     const conv = conversations.find((c) => c.id === selectedId);
     if (!conv || conv.unreadCount === 0) return;
     fetch(`/api/conversations/${selectedId}/read`, { method: "POST" }).catch(() => {});
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setConversations((prev) =>
       prev.map((c) => (c.id === selectedId ? { ...c, unreadCount: 0 } : c)),
     );
