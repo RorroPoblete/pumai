@@ -68,14 +68,20 @@ export default async function AnalyticsPage() {
               <div className="relative w-36 h-36">
                 <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
                   <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border-subtle)" strokeWidth="12" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" strokeWidth="12"
-                    strokeDasharray={`${chart.sentimentBreakdown.positive * 2.51} 251`} strokeLinecap="round" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" strokeWidth="12"
-                    strokeDasharray={`${chart.sentimentBreakdown.neutral * 2.51} 251`}
-                    strokeDashoffset={`${-chart.sentimentBreakdown.positive * 2.51}`} strokeLinecap="round" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="12"
-                    strokeDasharray={`${chart.sentimentBreakdown.negative * 2.51} 251`}
-                    strokeDashoffset={`${-(chart.sentimentBreakdown.positive + chart.sentimentBreakdown.neutral) * 2.51}`} strokeLinecap="round" />
+                  {chart.sentimentBreakdown.positive > 0 && (
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" strokeWidth="12"
+                      strokeDasharray={`${chart.sentimentBreakdown.positive * 2.51} 251`} strokeLinecap="round" />
+                  )}
+                  {chart.sentimentBreakdown.neutral > 0 && (
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#f59e0b" strokeWidth="12"
+                      strokeDasharray={`${chart.sentimentBreakdown.neutral * 2.51} 251`}
+                      strokeDashoffset={`${-chart.sentimentBreakdown.positive * 2.51}`} strokeLinecap="round" />
+                  )}
+                  {chart.sentimentBreakdown.negative > 0 && (
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="12"
+                      strokeDasharray={`${chart.sentimentBreakdown.negative * 2.51} 251`}
+                      strokeDashoffset={`${-(chart.sentimentBreakdown.positive + chart.sentimentBreakdown.neutral) * 2.51}`} strokeLinecap="round" />
+                  )}
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">

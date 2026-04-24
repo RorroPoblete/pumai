@@ -69,9 +69,9 @@ export default function WebchatForm({ agents, initial, initialAgentId, onSaved }
             onChange={(e) => setAgentId(e.target.value)}
             className="w-full px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
           >
-            <option value="">Select an agent...</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="">Select an agent...</option>
             {agents.map((a) => (
-              <option key={a.id} value={a.id}>{a.name}</option>
+              <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" key={a.id} value={a.id}>{a.name}</option>
             ))}
           </select>
         </div>
@@ -82,8 +82,8 @@ export default function WebchatForm({ agents, initial, initialAgentId, onSaved }
             onChange={(e) => setPosition(e.target.value as "left" | "right")}
             className="w-full px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
           >
-            <option value="right">Bottom right</option>
-            <option value="left">Bottom left</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="right">Bottom right</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="left">Bottom left</option>
           </select>
         </div>
       </div>
@@ -140,9 +140,9 @@ export default function WebchatForm({ agents, initial, initialAgentId, onSaved }
             onChange={(e) => setCollectVisitor(e.target.value as "off" | "optional" | "required")}
             className="w-full px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
           >
-            <option value="off">Do not ask</option>
-            <option value="optional">Ask, allow skip</option>
-            <option value="required">Required before chat</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="off">Do not ask</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="optional">Ask, allow skip</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="required">Required before chat</option>
           </select>
         </div>
         <div>
@@ -154,8 +154,8 @@ export default function WebchatForm({ agents, initial, initialAgentId, onSaved }
             onChange={(e) => setOfflineMode(e.target.value as "off" | "always")}
             className="w-full px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
           >
-            <option value="off">Live chat (AI replies)</option>
-            <option value="always">Offline (capture email, async)</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="off">Live chat (AI replies)</option>
+            <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="always">Offline (capture email, async)</option>
           </select>
         </div>
       </div>

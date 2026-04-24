@@ -416,7 +416,7 @@
     var css =
       ":host { all: initial; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }" +
       "*, *::before, *::after { box-sizing: border-box; }" +
-      "#pumai-webchat-root { position: fixed; bottom: 20px; z-index: 2147483647; font-family: inherit; }" +
+      "#pumai-webchat-root { position: fixed; bottom: 20px; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }" +
       "#pumai-webchat-root[data-position='right'] { right: 20px; }" +
       "#pumai-webchat-root[data-position='left'] { left: 20px; }" +
       "#pumai-webchat-btn { width: 56px; height: 56px; border-radius: 50%; border: none; background: " + color + "; color: white; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); display: flex; align-items: center; justify-content: center; transition: transform .15s; }" +
