@@ -155,9 +155,7 @@ export default function Home() {
       <ScrollReveal>
         <LogoCarousel />
       </ScrollReveal>
-      <ScrollReveal>
-        <Features />
-      </ScrollReveal>
+      <Features />
       <ScrollReveal>
         <HowItWorks />
       </ScrollReveal>

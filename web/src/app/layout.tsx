@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
 import ToastProvider from "@/components/Toast";
+import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -99,7 +100,9 @@ export default function RootLayout({
     <html lang="en-AU" className={`${inter.variable} antialiased`} suppressHydrationWarning>
       <body className="min-h-screen font-sans">
         <ThemeProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <SmoothScrollProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </SmoothScrollProvider>
         </ThemeProvider>
       </body>
     </html>
