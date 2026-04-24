@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CTA() {
   return (
     <section className="relative py-24 px-6">
@@ -9,27 +11,27 @@ export default function CTA() {
 
         <div className="relative z-10">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)] mb-6">
-            Ready to put your business
+            Launch your AI chatbot
             <br />
-            <span className="gradient-text-violet">on autopilot?</span>
+            <span className="gradient-text-violet">across every channel</span>
           </h2>
           <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-10">
-            Join Australian businesses already using AI-powered Webchat, WhatsApp &amp; social agents
-            to close more deals, support more customers, and work less.
+            Join Australian businesses automating Webchat, WhatsApp, Instagram and Messenger with
+            PumAI. Close more deals, support more customers, work less.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
+            <Link
               href="/register"
               className="gradient-btn !text-white font-semibold text-lg px-8 py-4 rounded-xl glow-sm hover:glow-md hover:-translate-y-0.5 transition-all duration-300"
             >
               Get Started Today
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              href="/contact"
               className="text-[var(--text-secondary)] font-semibold text-lg hover:text-[var(--text-primary)] transition-colors duration-300"
             >
               Book a Demo &rarr;
-            </a>
+            </Link>
           </div>
         </div>
       </div>

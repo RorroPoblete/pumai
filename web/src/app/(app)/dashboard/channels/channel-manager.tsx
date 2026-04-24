@@ -332,9 +332,9 @@ export default function ChannelManager({
                         onChange={(e) => setFormData({ ...formData, agentId: e.target.value })}
                         className="w-full px-4 py-2 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6] transition-colors"
                       >
-                        <option value="">Select an agent...</option>
+                        <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" value="">Select an agent...</option>
                         {agents.map((a) => (
-                          <option key={a.id} value={a.id}>{a.name}</option>
+                          <option className="bg-[var(--bg-secondary)] text-[var(--text-primary)]" key={a.id} value={a.id}>{a.name}</option>
                         ))}
                       </select>
                     </div>

@@ -19,10 +19,14 @@ function encryptSecret(plaintext: string): string {
 }
 
 async function main() {
+  if (process.env.SEED_ALLOW !== "1") {
+    console.log("⚠️  Seed refusing to run. Set SEED_ALLOW=1 to enable (dev only).");
+    return;
+  }
   const dbUrl = process.env.DATABASE_URL ?? "";
   const isLocalDb = /@(localhost|127\.0\.0\.1|postgres):/.test(dbUrl);
-  if (process.env.NODE_ENV === "production" && !isLocalDb) {
-    console.log("⚠️  Seed is dev-only. Refusing to run against a non-local DATABASE_URL in production.");
+  if (!isLocalDb) {
+    console.log("⚠️  Seed requires a local DATABASE_URL. Refusing.");
     return;
   }
 

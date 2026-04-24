@@ -57,7 +57,7 @@ export default function OnboardingPage() {
       {/* Header */}
       <div className="px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="PumAI" width={32} height={32} className="rounded-lg" />
+          <Image src="/logo.png" alt="PumAI logo" width={32} height={32} className="rounded-lg" />
           <span className="text-lg font-bold text-[var(--text-primary)]">
             Pum<span className="text-[#8B5CF6]">AI</span>
           </span>

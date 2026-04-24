@@ -73,8 +73,8 @@ export default function Industries() {
             <span className="gradient-text-violet">Australian industries</span>
           </h2>
           <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-            From healthcare to hospitality — our AI agents adapt to the unique needs of
-            your vertical.
+            From healthcare to hospitality — our AI chatbots and agents adapt to every
+            Australian vertical.
           </p>
         </div>
 

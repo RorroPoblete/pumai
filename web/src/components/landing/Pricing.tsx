@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 
 type Channel = "webchat" | "wa" | "instagram" | "messenger";
 
@@ -19,12 +20,12 @@ const plans: Record<Channel, { name: string; price: string; period: string; targ
       cta: "Get Started", popular: false,
     },
     {
-      name: "Webchat Growth", price: "A$249", period: "/month inc GST", target: "E-commerce & lead generation", setup: "A$300 setup fee",
+      name: "Webchat Growth", price: "A$299", period: "/month inc GST", target: "E-commerce & lead generation", setup: "A$300 setup fee",
       features: ["2,000 chat sessions/month", "3 AI agents", "Lead capture forms", "CRM integrations", "File & image sharing", "Advanced analytics", "Priority support", "Extra: A$0.08/session"],
       cta: "Get Started", popular: true,
     },
     {
-      name: "Webchat Enterprise", price: "A$599+", period: "/month inc GST", target: "High-traffic sites & SaaS", setup: "Custom setup",
+      name: "Webchat Scale", price: "A$599", period: "/month inc GST", target: "High-traffic sites & SaaS", setup: "Custom setup",
       features: ["Unlimited chat sessions", "Unlimited AI agents", "Co-browsing support", "Custom CSS & JS hooks", "Dedicated API", "Guaranteed SLA", "Account manager", "Extra: A$0.05/session"],
       cta: "Contact Sales", popular: false,
     },
@@ -36,12 +37,12 @@ const plans: Record<Channel, { name: string; price: string; period: string; targ
       cta: "Get Started", popular: false,
     },
     {
-      name: "WA Growth", price: "A$449", period: "/month inc GST", target: "E-commerce, hospitality, services", setup: "A$900 setup fee",
+      name: "WA Growth", price: "A$499", period: "/month inc GST", target: "E-commerce, hospitality, services", setup: "A$900 setup fee",
       features: ["2,000 WhatsApp conversations/month", "3 AI agents", "3 funnels", "Product catalogues", "CRM integrations", "Advanced analytics", "Priority support", "Extra: A$0.20/conv"],
       cta: "Get Started", popular: true,
     },
     {
-      name: "WA Enterprise", price: "A$999+", period: "/month inc GST", target: "Retail, e-commerce, multi-location", setup: "Custom setup",
+      name: "WA Scale", price: "A$899", period: "/month inc GST", target: "Retail, e-commerce, multi-location", setup: "Custom setup",
       features: ["Unlimited conversations", "Unlimited AI agents", "Unlimited funnels", "Dedicated API", "Guaranteed SLA", "Account manager", "WA marketing outbound", "Extra: A$0.15/conv"],
       cta: "Contact Sales", popular: false,
     },
@@ -58,24 +59,24 @@ const plans: Record<Channel, { name: string; price: string; period: string; targ
       cta: "Get Started", popular: true,
     },
     {
-      name: "Instagram Enterprise", price: "A$799+", period: "/month inc GST", target: "High-volume DTC brands", setup: "Custom setup",
+      name: "Instagram Scale", price: "A$699", period: "/month inc GST", target: "High-volume DTC brands", setup: "Custom setup",
       features: ["Unlimited conversations", "Unlimited AI agents", "Shopping tag automations", "Meta Ads integration", "Dedicated API", "Guaranteed SLA", "Account manager", "Extra: A$0.10/conv"],
       cta: "Contact Sales", popular: false,
     },
   ],
   messenger: [
     {
-      name: "Messenger Starter", price: "A$119", period: "/month inc GST", target: "Small businesses on Facebook", setup: "A$300 setup fee",
+      name: "Messenger Starter", price: "A$129", period: "/month inc GST", target: "Small businesses on Facebook", setup: "A$300 setup fee",
       features: ["500 DM conversations/month", "1 AI agent", "Auto-reply Page messages", "Basic dashboard", "Email support", "Extra: A$0.20/conv"],
       cta: "Get Started", popular: false,
     },
     {
-      name: "Messenger Growth", price: "A$329", period: "/month inc GST", target: "Local services & multi-location", setup: "A$600 setup fee",
+      name: "Messenger Growth", price: "A$349", period: "/month inc GST", target: "Local services & multi-location", setup: "A$600 setup fee",
       features: ["2,000 DM conversations/month", "3 AI agents", "Comment-to-DM replies", "Persistent menu templates", "CRM integrations", "Advanced analytics", "Priority support", "Extra: A$0.15/conv"],
       cta: "Get Started", popular: true,
     },
     {
-      name: "Messenger Enterprise", price: "A$749+", period: "/month inc GST", target: "National brands with high volume", setup: "Custom setup",
+      name: "Messenger Scale", price: "A$699", period: "/month inc GST", target: "National brands with high volume", setup: "Custom setup",
       features: ["Unlimited conversations", "Unlimited AI agents", "Sponsored message campaigns", "Meta Ads integration", "Dedicated API", "Guaranteed SLA", "Account manager", "Extra: A$0.10/conv"],
       cta: "Contact Sales", popular: false,
     },
@@ -119,8 +120,8 @@ export default function Pricing() {
             Pricing
           </span>
           <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
-            Four channels,{" "}
-            <span className="gradient-text-violet">one platform</span>
+            AI chatbot pricing —{" "}
+            <span className="gradient-text-violet">four channels, one platform</span>
           </h2>
           <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-xl mx-auto">
             Choose the channels your customers use. Mix and match, or go Omnichannel for full coverage.
@@ -139,14 +140,19 @@ export default function Pricing() {
               <button
                 key={ch}
                 onClick={() => setChannel(ch)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border-2 ${
                   active
-                    ? `border-2 shadow-[0_0_20px_${c.bg}0.15)]`
-                    : "border-2 border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border-input)]"
+                    ? ""
+                    : "border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border-input)]"
                 }`}
                 style={
                   active
-                    ? { backgroundColor: `${c.bg}0.15)`, color: c.color, borderColor: c.color }
+                    ? {
+                        backgroundColor: `${c.bg}0.15)`,
+                        color: c.color,
+                        borderColor: c.color,
+                        boxShadow: `0 0 20px ${c.bg}0.15)`,
+                      }
                     : undefined
                 }
               >
@@ -184,14 +190,14 @@ export default function Pricing() {
             >
               {p.popular && (
                 <div
-                  className="absolute -top-3 right-6 text-xs font-bold px-3 py-1 rounded-md text-[var(--text-primary)]"
-                  style={{ background: cfg.color }}
+                  className="absolute -top-3 right-6 text-xs font-bold px-3 py-1 rounded-md"
+                  style={{ background: cfg.color, color: "#ffffff" }}
                 >
                   MOST POPULAR
                 </div>
               )}
 
-              <div className="text-sm font-semibold text-[var(--text-secondary)] mb-1">{p.name}</div>
+              <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-1">{p.name}</h3>
               <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-4xl font-black text-[var(--text-primary)]">{p.price}</span>
                 <span className="text-[var(--text-muted)] text-sm">{p.period}</span>
@@ -210,7 +216,7 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              <a
+              <Link
                 href={p.cta === "Contact Sales" ? "/contact" : "/register"}
                 className={`block text-center font-semibold py-3 rounded-xl transition-all duration-300 ${
                   p.popular
@@ -219,7 +225,7 @@ export default function Pricing() {
                 }`}
               >
                 {p.cta}
-              </a>
+              </Link>
             </div>
           ))}
         </div>
@@ -237,6 +243,24 @@ export default function Pricing() {
             Add Webchat + WhatsApp + Instagram + Messenger on top of any plan.
             One AI platform, four channels, total coverage.
           </p>
+        </div>
+
+        {/* Enterprise contact-only tier */}
+        <div className="mt-6 p-6 rounded-2xl border border-[rgba(139,92,246,0.2)] bg-transparent flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="text-left">
+            <div className="text-sm font-bold text-[var(--text-primary)]">Enterprise</div>
+            <p className="mt-1 text-sm text-[var(--text-secondary)] max-w-2xl">
+              Above 10,000 conversations/month, multi-brand portfolios, custom SLAs with dedicated
+              account manager, custom integrations, SOC 2 / ISO 27001 / data-residency
+              requirements. Priced per engagement.
+            </p>
+          </div>
+          <Link
+            href="/contact"
+            className="border-2 border-[rgba(139,92,246,0.5)] text-[var(--text-primary)] font-semibold px-6 py-3 rounded-xl whitespace-nowrap hover:bg-[rgba(139,92,246,0.08)] hover:border-[#8B5CF6] transition-all"
+          >
+            Contact Sales
+          </Link>
         </div>
 
         {/* Extras */}

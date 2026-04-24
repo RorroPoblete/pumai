@@ -38,8 +38,12 @@ export default function SettingsForm({
   }
 
   function handleChangePassword() {
-    if (!currentPw || !newPw || newPw.length < 8) {
-      setPwMsg({ ok: false, text: "New password must be at least 8 characters" });
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPw);
+    const hasNumber = /\d/.test(newPw);
+    const hasCapital = /[A-Z]/.test(newPw);
+
+    if (!currentPw || !newPw || newPw.length < 12 || !hasSpecialChar || !hasNumber || !hasCapital) {
+      setPwMsg({ ok: false, text: "Password does not meet requirements" });
       return;
     }
     startTransition(async () => {
@@ -105,7 +109,13 @@ export default function SettingsForm({
             </div>
             <div>
               <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">New password</label>
-              <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Minimum 8 characters" className={inputClass} />
+              <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Minimum 12 characters" className={inputClass} />
+              <div className="text-[10px] space-y-0.5 mt-2">
+                <p className={newPw.length >= 12 ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{newPw.length >= 12 ? "✓" : "○"} At least 12 characters</p>
+                <p className={/[A-Z]/.test(newPw) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/[A-Z]/.test(newPw) ? "✓" : "○"} At least 1 capital letter</p>
+                <p className={/\d/.test(newPw) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/\d/.test(newPw) ? "✓" : "○"} At least 1 number</p>
+                <p className={/[!@#$%^&*(),.?":{}|<>]/.test(newPw) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/[!@#$%^&*(),.?":{}|<>]/.test(newPw) ? "✓" : "○"} At least 1 special character</p>
+              </div>
             </div>
             {pwMsg && (
               <p className={`text-xs ${pwMsg.ok ? "text-[#22c55e]" : "text-[#ef4444]"}`}>{pwMsg.text}</p>
@@ -136,13 +146,14 @@ export default function SettingsForm({
                   <div className="text-xs text-[var(--text-muted)]">{n.desc}</div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setNotifications((prev) => ({ ...prev, [n.key]: !prev[n.key as keyof typeof prev] }))}
-                  className={`w-11 h-6 rounded-full transition-colors duration-200 relative ${
+                  className={`w-11 h-6 rounded-full transition-colors duration-200 flex items-center px-1 ${
                     notifications[n.key as keyof typeof notifications] ? "bg-[#8B5CF6]" : "bg-[var(--bg-hover)]"
                   }`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                    notifications[n.key as keyof typeof notifications] ? "translate-x-6" : "translate-x-1"
+                  <span className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                    notifications[n.key as keyof typeof notifications] ? "translate-x-5" : "translate-x-0"
                   }`} />
                 </button>
               </div>

@@ -59,29 +59,32 @@ Every agent has a name, a tone (Professional / Friendly / Casual), a system prom
 | Tier | Monthly | Conversations / month | Setup fee |
 |---|---|---|---|
 | Starter | $99 | 500 | Free |
-| Growth | $249 | 2,000 | $300 |
-| Enterprise | $599+ | Unlimited | Custom |
+| Growth | $299 | 2,000 | $300 |
+| Scale | $599 | 10,000 | Custom |
 
 ### WhatsApp Business
 | Tier | Monthly | Conversations / month | Setup fee |
 |---|---|---|---|
 | Starter | $199 | 500 | $500 |
-| Growth | $449 | 2,000 | $900 |
-| Enterprise | $999+ | Unlimited | Custom |
+| Growth | $499 | 2,000 | $900 |
+| Scale | $899 | 10,000 | Custom |
 
 ### Instagram DMs
 | Tier | Monthly | Conversations / month | Setup fee |
 |---|---|---|---|
 | Starter | $129 | 500 | $300 |
 | Growth | $349 | 2,000 | $600 |
-| Enterprise | $799+ | Unlimited | Custom |
+| Scale | $699 | 10,000 | Custom |
 
 ### Messenger
 | Tier | Monthly | Conversations / month | Setup fee |
 |---|---|---|---|
-| Starter | $119 | 500 | $300 |
-| Growth | $329 | 2,000 | $600 |
-| Enterprise | $749+ | Unlimited | Custom |
+| Starter | $129 | 500 | $300 |
+| Growth | $349 | 2,000 | $600 |
+| Scale | $699 | 10,000 | Custom |
+
+### Enterprise (contact sales)
+For volumes above 10,000 conversations/month, multi-brand portfolios, custom SLAs, dedicated account manager, and compliance needs (SOC 2, ISO 27001, data residency). Priced per engagement. Direct prospects to the Contact page or offer to connect them with the PumAI team.
 
 ### Omnichannel bundle
 Add WhatsApp + Webchat + Instagram + Messenger on top of any plan for **+$300/month**, with a single $350 one-off bundle setup fee (replaces the per-channel setup fees). Best value for businesses that already want the full coverage.

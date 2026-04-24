@@ -104,7 +104,7 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
               <label className="block text-xs text-[var(--text-secondary)] mb-1">Owner Email</label>
               <input name="ownerEmail" type="email" required placeholder="john@acme.com.au" className={inputClass} />
             </div>
-            <div>
+            <div hidden>
               <label className="block text-xs text-[var(--text-secondary)] mb-1">Plan</label>
               <select name="plan" className={inputClass}>
                 <option value="STARTER">Starter</option>

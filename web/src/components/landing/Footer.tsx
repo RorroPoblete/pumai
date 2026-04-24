@@ -1,24 +1,28 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const footerLinks: Record<string, { label: string; href: string }[]> = {
   Product: [
     { label: "Features", href: "/#features" },
-    { label: "Pricing", href: "/#pricing" },
-    { label: "Integrations", href: "/#how-it-works" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "WhatsApp AI", href: "/whatsapp-ai" },
+    { label: "Instagram DM Automation", href: "/instagram-dm-automation" },
+    { label: "Messenger AI", href: "/messenger-ai" },
   ],
   Company: [
-    { label: "About", href: "/#how-it-works" },
+    { label: "How it Works", href: "/#how-it-works" },
     { label: "Contact Sales", href: "/contact" },
   ],
   Legal: [
+    { label: "Security", href: "/security" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
     { label: "Acceptable Use", href: "/acceptable-use" },
     { label: "Cookie Policy", href: "/cookies" },
   ],
   Support: [
-    { label: "Help Centre", href: "mailto:support@pumai.com.au" },
-    { label: "Contact", href: "mailto:support@pumai.com.au" },
+    { label: "Contact Sales", href: "/contact" },
+    { label: "Support email", href: "mailto:support@pumai.com.au" },
   ],
 };
 
@@ -32,7 +36,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-4">
               <Image
                 src="/logo.png"
-                alt="PumAI"
+                alt="PumAI logo"
                 width={28}
                 height={28}
                 className="rounded-lg"
@@ -54,16 +58,28 @@ export default function Footer() {
                 {heading}
               </h4>
               <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const external = link.href.startsWith("mailto:") || link.href.startsWith("http");
+                  return (
+                    <li key={link.label}>
+                      {external ? (
+                        <a
+                          href={link.href}
+                          className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

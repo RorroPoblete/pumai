@@ -19,8 +19,6 @@ export function publicCorsHeaders(): HeadersInit {
   };
 }
 
-// Scoped CORS — reflect Origin only when it's in the widget's allowlist.
-// Empty allowlist = no Allow-Origin header emitted (browser blocks cross-origin).
 export function corsHeaders(req: Request, allowed: string[] = []): HeadersInit {
   const headers: Record<string, string> = {
     "Vary": "Origin",
@@ -88,10 +86,8 @@ export async function resolveWebchatConfig(widgetKey: string): Promise<ResolvedC
   };
 }
 
-// Default-deny. Missing Origin is only permitted when there is no allowlist
-// (e.g. the public /config bootstrap); otherwise the request must match.
+// Fail-closed: empty allowlist denies all. Tenants must configure ≥1 origin.
 export function originAllowed(origin: string, allowed: string[]): boolean {
-  if (allowed.length === 0) return !origin;
   return !!origin && allowed.includes(origin);
 }
 
@@ -104,7 +100,7 @@ export async function enforceRateLimit(
 ): Promise<Response | null> {
   const ip = clientIPFromRequest(req);
   const key = `webchat:${bucket}:${widgetKey}:${ip}`;
-  const res = await rateLimit(key, max, windowMs);
+  const res = await rateLimit(key, max, windowMs, { failClosed: true });
   if (!res.ok) return json({ error: "Rate limit exceeded" }, 429, req);
   return null;
 }

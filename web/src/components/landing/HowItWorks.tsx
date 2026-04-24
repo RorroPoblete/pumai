@@ -42,7 +42,7 @@ export default function HowItWorks() {
             How It Works
           </span>
           <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
-            Live in <span className="gradient-text-violet">four simple steps</span>
+            Launch your AI chatbot in <span className="gradient-text-violet">four simple steps</span>
           </h2>
         </div>
 

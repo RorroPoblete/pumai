@@ -27,3 +27,4 @@ service-account*.json
 
 # Claude
 .claude/scheduled_tasks.lock
+.claude/skills/

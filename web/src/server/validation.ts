@@ -57,7 +57,7 @@ export const webchatConfigSchema = z.object({
   position: z.enum(["left", "right"]).default("right"),
   collectVisitor: z.enum(["off", "optional", "required"]).default("off"),
   offlineMode: z.enum(["off", "always"]).default("off"),
-  allowedOrigins: z.array(z.string().url()).default([]),
+  allowedOrigins: z.array(z.string().url()).min(1, "At least one allowed origin is required"),
 });
 
 export const chatSchema = z.object({
