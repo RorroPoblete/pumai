@@ -74,12 +74,12 @@ Each of the 4 channels can be subscribed independently:
 
 Per-channel pricing:
 
-| Channel | Starter | Growth | Enterprise | Add-on (after first paid) |
-|---------|---------|--------|------------|---------------------------|
-| Webchat | A$99 | A$249 | A$599 | A$350/mo (Growth-level) |
-| Messenger | A$119 | A$329 | A$749 | A$350/mo |
-| Instagram | A$129 | A$349 | A$799 | A$350/mo |
-| WhatsApp | A$199 | A$449 | A$999 | A$350/mo |
+| Channel | Starter | Growth | Scale | Add-on (after first paid) |
+|---------|---------|--------|-------|---------------------------|
+| Webchat | A$99 | A$299 | A$599 | A$350/mo (Growth-level) |
+| Messenger | A$129 | A$349 | A$699 | A$350/mo |
+| Instagram | A$129 | A$349 | A$699 | A$350/mo |
+| WhatsApp | A$199 | A$499 | A$899 | A$350/mo |
 
 ### Setup fees
 - **Single channel**: channel/tier specific (e.g. Webchat Growth = A$300)
