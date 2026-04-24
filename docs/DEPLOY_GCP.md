@@ -1,8 +1,8 @@
 # PumAI — GCP Deployment Runbook
 
 **Region:** `asia-southeast1` (Singapore)
-**Status:** Production live on Cloud Run auto URL; custom domain `pumai.com.au` uses native Cloud Run domain mapping, DNS at GoDaddy.
-**Last updated:** 2026-04-23
+**Status:** Production live at `https://pumai.com.au` + `https://www.pumai.com.au`. Native Cloud Run domain mapping, Google-managed TLS, DNS at GoDaddy. CI/CD via GitHub Actions + Workload Identity Federation — every push to `main` auto-deploys.
+**Last updated:** 2026-04-24
 
 No secret values appear in this document. All secrets live in Secret Manager and in local `.env` (gitignored).
 
@@ -23,22 +23,41 @@ All Sydney resources (Cloud Run service, Cloud SQL instance `pumai-db`, Artifact
 ## 2. Architecture
 
 ```
-             Browser
-               │ HTTPS (Google-managed cert)
-               ▼
-GoDaddy DNS → 4 A + 4 AAAA (Google Cloud Run IPs)
-               │
-               ▼
-Cloud Run service: pumai-app  (asia-southeast1, min=0 max=3, 1 vCPU / 1 GiB)
-      │              │                 │                │
-      │ socket       │ REST            │ env            │ rediss://
-      ▼              ▼                 ▼                ▼
-Cloud SQL       GCS bucket        Secret Manager    Upstash Redis
-Postgres 16     pumai-uploads-sg  (12 secrets)      (free tier,
-db-f1-micro     uniform IAM       runtime SA        Sydney, cross-
-ENTERPRISE      public-access-    has accessor      region ok)
-edition         prevention
-asia-southeast1
+                        Browser
+                           │
+                           │ HTTPS (Google-managed cert)
+                           ▼
+                   pumai.com.au / www.pumai.com.au
+                           │
+          GoDaddy DNS ─────┤  (apex: 4 A + 4 AAAA Google anycast,
+                           │   www: CNAME ghs.googlehosted.com)
+                           ▼
+   ┌────────────────────────────────────────────────────────────────┐
+   │ Cloud Run service "pumai-app"  (asia-southeast1, Singapore)    │
+   │ min=0  max=3  1 vCPU  1 GiB  timeout=3600s  concurrency=80     │
+   │ runtime SA: pumai-run@pumai-prod.iam.gserviceaccount.com       │
+   └────────────────────────────────────────────────────────────────┘
+              │              │              │              │
+              │ Unix socket  │ REST         │ env vars     │ rediss://
+              ▼              ▼              ▼              ▼
+    ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+    │ Cloud SQL    │  │ GCS bucket   │  │ Secret Mgr   │  │ Upstash      │
+    │ pumai-db-sg  │  │ pumai-       │  │ 12 secrets   │  │ Redis        │
+    │ Postgres 16  │  │ uploads-sg   │  │ mounted as   │  │ TLS          │
+    │ db-f1-micro  │  │ uniform IAM  │  │ env at       │  │ Sydney       │
+    │ Enterprise   │  │ public-      │  │ runtime      │  │ region       │
+    │ 10 GB SSD    │  │ access-      │  │              │  │ (free tier)  │
+    │ PITR on      │  │ prevention   │  │              │  │              │
+    │ Singapore    │  │ Singapore    │  │              │  │              │
+    └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘
+
+   ┌────────────────────────────────────────────────────────────────┐
+   │ CI/CD: GitHub Actions (RorroPoblete/pumai)                     │
+   │ Push → main → typecheck + lint + npm audit + Trivy + deploy    │
+   │ Auth via Workload Identity Federation (no SA keys stored)      │
+   │ Image built on x86 GH runner → Artifact Registry Singapore     │
+   │ gcloud run services update --image=sha → Cloud Run revision    │
+   └────────────────────────────────────────────────────────────────┘
 ```
 
 ### Runtime identity
@@ -108,6 +127,9 @@ All on `main`. Commit hashes in chronological order:
 | `8ad0cc8` | `proxy.ts` passes `cookieName: __Secure-authjs.session-token` + `secureCookie: true` to `getToken()` so middleware finds the prod session cookie |
 | `5b3aa28` | `prisma/prod-bootstrap.ts` — idempotent prod-safe seed (assumes admin exists; no demo user; encrypts channel-config credentials with prod `CHANNEL_CRED_KEY`) |
 | `d37acb7` | Phase 4 CI/CD — WIF deploy job, `npm ci --ignore-scripts`, Trivy installer pinned to `v0.69.3`, Dependabot (npm + actions + docker, weekly), root `SECURITY.md` |
+| `b39e248` | CI workflow points at `asia-southeast1` and the Singapore Artifact Registry after the migration |
+| `769a1bb` | Silence 4 pre-existing eslint errors (setState-in-effect, unescaped JSX quotes) that only surfaced in CI |
+| `4da5282` | Pin Google GitHub Actions by major tag (`@v2`) instead of invented SHAs that failed to resolve on the first deploy |
 
 ### Key environment behaviour
 
@@ -293,14 +315,20 @@ See section 5.
 
 ## 10. Known follow-ups
 
-- Finish DNS propagation, update `AUTH_URL` + `NEXT_PUBLIC_APP_URL`.
-- Register the Stripe prod webhook and rotate `STRIPE_WEBHOOK_SECRET`.
-- Configure Google OAuth client for production and store `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in Secret Manager (currently empty in `.env`).
-- Cloud Monitoring alert policies: 5xx rate, p95 latency, Cloud SQL CPU, Secret-Manager access-denied events.
+### Not blocking — complete when each third-party side is ready
+- Register the Stripe production webhook at `https://pumai.com.au/api/webhooks/stripe` and rotate `STRIPE_WEBHOOK_SECRET` in Secret Manager.
+- Update Meta Messenger / Instagram webhook callback URLs to `https://pumai.com.au/api/webhooks/meta` in the Meta App dashboard.
+- Create a production Google OAuth client, add `https://pumai.com.au/api/auth/callback/google` as an authorised redirect URI, and populate `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` in Secret Manager (currently empty).
+
+### Observability — add once there is real traffic
+- Cloud Monitoring alert policies: 5xx rate, p95 latency, Cloud SQL CPU, Secret-Manager access-denied.
 - Uptime check on `/api/health`.
-- Enable Dependabot alerts + security updates in GitHub repo settings.
-- Consider enabling Cloud SQL HA (+~$10/mo) once real users are on the platform.
-- Consider a GCP Global Load Balancer later if the Cloudflare-proxied traffic needs finer backend control or you want to centralise everything inside GCP.
+- Enable Dependabot alerts and Dependabot security updates in GitHub repo settings.
+
+### Scaling and reliability — revisit when justified
+- Cloud SQL HA (+~$10/mo) once there are real paying customers.
+- Move the Upstash Redis database from Sydney (`ap-southeast-2`) to Singapore (`ap-southeast-1`) if rate-limit latency becomes a measurable hot-path cost — currently every Redis call hops cross-region (~60 ms).
+- Consider a GCP Global Load Balancer later only if we need centralised traffic control inside GCP (WAF, Cloud Armor, multi-region).
 
 ## 11. Out of scope
 
