@@ -4,14 +4,17 @@ import Link from "next/link";
 const footerLinks: Record<string, { label: string; href: string }[]> = {
   Product: [
     { label: "Features", href: "/#features" },
-    { label: "Pricing", href: "/#pricing" },
-    { label: "Integrations", href: "/#how-it-works" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "WhatsApp AI", href: "/whatsapp-ai" },
+    { label: "Instagram DM Automation", href: "/instagram-dm-automation" },
+    { label: "Messenger AI", href: "/messenger-ai" },
   ],
   Company: [
-    { label: "About", href: "/#how-it-works" },
+    { label: "How it Works", href: "/#how-it-works" },
     { label: "Contact Sales", href: "/contact" },
   ],
   Legal: [
+    { label: "Security", href: "/security" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
     { label: "Acceptable Use", href: "/acceptable-use" },
@@ -32,7 +35,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/logo.png"
+                src="/logo.svg"
                 alt="PumAI logo"
                 width={28}
                 height={28}

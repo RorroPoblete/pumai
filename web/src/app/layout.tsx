@@ -5,8 +5,6 @@ import ToastProvider from "@/components/Toast";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import "./globals.css";
 
-export const dynamic = "force-dynamic";
-
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pumai.com.au";
 
 const inter = Inter({
@@ -22,21 +20,9 @@ export const metadata: Metadata = {
     template: "%s · PumAI",
   },
   description:
-    "AI-powered agents that automate sales, support, and marketing across WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation — built for Australian SMEs.",
+    "AI agents automating sales, support and marketing across WhatsApp, Webchat, Instagram DMs and Messenger. Built for Australian SMEs.",
   applicationName: "PumAI",
   generator: "Next.js",
-  keywords: [
-    "AI agents Australia",
-    "WhatsApp Business AI",
-    "omnichannel AI",
-    "conversational AI",
-    "Australian SME automation",
-    "customer support AI",
-    "Instagram DM automation",
-    "Messenger bot Australia",
-    "webchat widget",
-    "chatbot Australia",
-  ],
   authors: [{ name: "PumAI", url: SITE_URL }],
   creator: "PumAI",
   publisher: "PumAI",
@@ -49,9 +35,6 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "any" },
     ],
     apple: "/logo.png",
-  },
-  alternates: {
-    canonical: "/",
   },
   openGraph: {
     title: "PumAI — Omnichannel AI Agents for Australian Business",

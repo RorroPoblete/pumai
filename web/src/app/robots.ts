@@ -15,10 +15,11 @@ export default function robots(): MetadataRoute.Robots {
           "/login",
           "/register",
           "/forgot-password",
+          "/2fa",
+          "/verify-email",
         ],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
   };
 }

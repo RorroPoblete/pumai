@@ -1,4 +1,13 @@
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Sign in",
+    template: "%s · PumAI",
+  },
+  robots: { index: false, follow: false },
+};
 
 export default function AuthLayout({
   children,
@@ -15,8 +24,8 @@ export default function AuthLayout({
         <div className="relative z-10 max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <Image
-              src="/logo.png"
-              alt="PumAI"
+              src="/logo.svg"
+              alt="PumAI logo"
               width={44}
               height={44}
               className="rounded-xl"

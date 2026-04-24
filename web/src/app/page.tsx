@@ -1,30 +1,32 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Script from "next/script";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
-import Features from "@/components/landing/Features";
-import HowItWorks from "@/components/landing/HowItWorks";
-import Pricing from "@/components/landing/Pricing";
-import Industries from "@/components/landing/Industries";
 import LogoCarousel from "@/components/landing/LogoCarousel";
-import CTA from "@/components/landing/CTA";
-import Footer from "@/components/landing/Footer";
 import ScrollReveal from "@/components/landing/ScrollReveal";
 import JsonLd from "@/components/JsonLd";
+
+const Features = dynamic(() => import("@/components/landing/Features"));
+const HowItWorks = dynamic(() => import("@/components/landing/HowItWorks"));
+const Pricing = dynamic(() => import("@/components/landing/Pricing"));
+const Industries = dynamic(() => import("@/components/landing/Industries"));
+const CTA = dynamic(() => import("@/components/landing/CTA"));
+const Footer = dynamic(() => import("@/components/landing/Footer"));
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pumai.com.au";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "PumAI — Omnichannel AI Agents for WhatsApp, Webchat, Instagram & Messenger",
+    absolute: "PumAI — AI Agents for WhatsApp, Instagram & Messenger",
   },
   description:
-    "PumAI deploys AI agents that handle sales, support and marketing 24/7 across WhatsApp, Webchat, Instagram DMs and Facebook Messenger. One platform, every conversation — built for Australian SMEs.",
+    "Deploy AI agents 24/7 on WhatsApp, Webchat, Instagram DMs and Messenger. One platform, every conversation — built for Australian SMEs.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "PumAI — Omnichannel AI Agents for Australian Business",
+    title: "PumAI — AI Agents for WhatsApp, Instagram & Messenger",
     description:
-      "AI-powered agents for WhatsApp, Webchat, Instagram DMs, and Messenger. One platform, every conversation.",
+      "Deploy AI agents 24/7 on WhatsApp, Webchat, Instagram DMs and Messenger. Built for Australian SMEs.",
     url: "/",
     type: "website",
   },
@@ -34,12 +36,18 @@ export default function Home() {
   const organization = {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: "PumAI",
+    legalName: "PumAI Pty Ltd",
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     description:
       "AI-powered omnichannel agents for Australian businesses across WhatsApp, Webchat, Instagram DMs and Messenger.",
     areaServed: { "@type": "Country", name: "Australia" },
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "AU",
+    },
     contactPoint: [
       {
         "@type": "ContactPoint",
@@ -72,12 +80,8 @@ export default function Home() {
       priceCurrency: "AUD",
       lowPrice: "99",
       highPrice: "899",
-      offerCount: "12",
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.8",
-      reviewCount: "32",
+      availability: "https://schema.org/OnlineOnly",
+      url: `${SITE_URL}/pricing`,
     },
     featureList: [
       "Conversational AI across 4 channels",
@@ -94,10 +98,11 @@ export default function Home() {
   const website = {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
     name: "PumAI",
     url: SITE_URL,
     inLanguage: "en-AU",
-    publisher: { "@type": "Organization", name: "PumAI" },
+    publisher: { "@id": `${SITE_URL}/#organization` },
   };
 
   const faq = {
@@ -172,7 +177,7 @@ export default function Home() {
       <Script
         src="/widget.js"
         data-widget-key="wk_pumai_landing"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
     </>
   );

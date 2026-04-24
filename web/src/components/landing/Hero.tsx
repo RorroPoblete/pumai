@@ -1,16 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import Particles from "./Particles";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
-}
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -22,9 +14,22 @@ export default function Hero() {
   const statsRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(
-    () => {
-      if (!h1Ref.current) return;
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+
+    (async () => {
+      const [{ default: gsap }, { ScrollTrigger }, { SplitText }] = await Promise.all([
+        import("gsap"),
+        import("gsap/ScrollTrigger"),
+        import("gsap/SplitText"),
+      ]);
+      if (cancelled || !h1Ref.current) return;
+
+      gsap.registerPlugin(ScrollTrigger, SplitText);
 
       const fullText = h1Ref.current.textContent ?? "";
       h1Ref.current.setAttribute("aria-label", fullText);
@@ -45,12 +50,7 @@ export default function Hero() {
 
       const tl = gsap.timeline({ delay: 0.1 });
 
-      tl.to(badgeRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "expo.out",
-      })
+      tl.to(badgeRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" })
         .to(
           split.chars,
           {
@@ -65,23 +65,11 @@ export default function Hero() {
           },
           "-=0.5"
         )
-        .to(
-          subtitleRef.current,
-          { opacity: 1, y: 0, duration: 1, ease: "expo.out" },
-          "-=0.6"
-        )
-        .to(
-          ctasRef.current,
-          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
-          "-=0.7"
-        )
-        .to(
-          statsRef.current,
-          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
-          "-=0.7"
-        );
+        .to(subtitleRef.current, { opacity: 1, y: 0, duration: 1, ease: "expo.out" }, "-=0.6")
+        .to(ctasRef.current, { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, "-=0.7")
+        .to(statsRef.current, { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, "-=0.7");
 
-      gsap.to(contentRef.current, {
+      const scrubA = gsap.to(contentRef.current, {
         scale: 1.1,
         opacity: 0,
         ease: "none",
@@ -93,7 +81,7 @@ export default function Hero() {
         },
       });
 
-      gsap.to(bgRef.current, {
+      const scrubB = gsap.to(bgRef.current, {
         yPercent: -20,
         ease: "none",
         scrollTrigger: {
@@ -104,12 +92,19 @@ export default function Hero() {
         },
       });
 
-      return () => {
+      cleanup = () => {
         split.revert();
+        scrubA.scrollTrigger?.kill();
+        scrubB.scrollTrigger?.kill();
+        tl.kill();
       };
-    },
-    { scope: sectionRef }
-  );
+    })();
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, []);
 
   return (
     <section
@@ -117,9 +112,13 @@ export default function Hero() {
       data-bg-color="#000000"
       className="relative min-h-screen flex items-center justify-center overflow-hidden gradient-hero"
     >
-      <div ref={bgRef} className="absolute inset-0 will-change-transform">
+      <div
+        ref={bgRef}
+        className="absolute inset-0 will-change-transform"
+        style={{ contain: "paint" }}
+      >
         <Particles />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[rgba(139,92,246,0.08)] blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[rgba(139,92,246,0.08)] blur-[80px] pointer-events-none" />
       </div>
 
       <div
@@ -139,9 +138,9 @@ export default function Hero() {
           ref={h1Ref}
           className="hero-h1 text-5xl sm:text-6xl lg:text-7xl font-black tracking-[-0.04em] leading-[1.1] mb-6"
         >
-          <span className="gradient-text">Your AI Sales &amp; </span>
-          <span className="gradient-text">Support Team, </span>
-          <span className="text-[#8B5CF6]">on Every Channel</span>
+          <span className="gradient-text">AI Agents for </span>
+          <span className="gradient-text">WhatsApp, Instagram </span>
+          <span className="text-[#8B5CF6]">&amp; Every Channel</span>
         </h1>
 
         <p

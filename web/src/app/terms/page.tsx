@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalLayout title="Terms of Service" lastUpdated="20 April 2026">
+    <LegalLayout title="Terms of Service" slug="terms" lastUpdated="20 April 2026">
       <p>
         These Terms of Service (&quot;Terms&quot;) govern your use of the PumAI platform (&quot;Service&quot;). By using the
         Service you agree to these Terms. If you do not agree, do not use the Service.

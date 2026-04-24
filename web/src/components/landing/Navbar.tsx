@@ -3,19 +3,21 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
 
 const links = [
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Industries", href: "#industries" },
+  { label: "Features", href: "/#features" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Industries", href: "/#industries" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggle } = useTheme();
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -24,12 +26,15 @@ export default function Navbar() {
   }, []);
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
-    e.preventDefault();
     setOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    const hashIdx = href.indexOf("#");
+    if (hashIdx === -1) return;
+    const path = href.slice(0, hashIdx);
+    const hash = href.slice(hashIdx);
+    if (path && path !== pathname) return;
+    e.preventDefault();
+    const target = document.querySelector(hash);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
@@ -43,7 +48,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3" aria-label="PumAI home">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="PumAI logo"
             width={36}
             height={36}

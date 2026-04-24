@@ -1,14 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
-}
+import { useEffect, useRef } from "react";
 
 const features = [
   {
@@ -79,9 +71,22 @@ export default function Features() {
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const eyebrowRef = useRef<HTMLSpanElement>(null);
 
-  useGSAP(
-    () => {
-      if (!h2Ref.current) return;
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+
+    (async () => {
+      const [{ default: gsap }, { ScrollTrigger }, { SplitText }] = await Promise.all([
+        import("gsap"),
+        import("gsap/ScrollTrigger"),
+        import("gsap/SplitText"),
+      ]);
+      if (cancelled || !h2Ref.current) return;
+
+      gsap.registerPlugin(ScrollTrigger, SplitText);
 
       h2Ref.current.setAttribute("aria-label", h2Ref.current.textContent ?? "");
 
@@ -104,12 +109,7 @@ export default function Features() {
         },
       });
 
-      tl.to(eyebrowRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        ease: "expo.out",
-      })
+      tl.to(eyebrowRef.current, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" })
         .to(
           split.chars,
           {
@@ -122,11 +122,7 @@ export default function Features() {
           },
           "-=0.4"
         )
-        .to(
-          subtitleRef.current,
-          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
-          "-=0.7"
-        );
+        .to(subtitleRef.current, { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, "-=0.7");
 
       const cards = gsap.utils.toArray<HTMLElement>(".feature-card");
 
@@ -136,7 +132,7 @@ export default function Features() {
         willChange: "clip-path, transform",
       });
 
-      gsap.to(cards, {
+      const cardTween = gsap.to(cards, {
         clipPath: "inset(0% 0 0 0)",
         yPercent: 0,
         duration: 1.1,
@@ -150,12 +146,19 @@ export default function Features() {
         onComplete: () => gsap.set(cards, { willChange: "auto" }),
       });
 
-      return () => {
+      cleanup = () => {
         split.revert();
+        tl.kill();
+        cardTween.scrollTrigger?.kill();
+        cardTween.kill();
       };
-    },
-    { scope: sectionRef }
-  );
+    })();
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, []);
 
   return (
     <section

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="20 April 2026">
+    <LegalLayout title="Privacy Policy" slug="privacy" lastUpdated="20 April 2026">
       <p>
         This Privacy Policy explains how <strong>PumAI</strong> (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) collects, uses, stores
         and discloses personal information in accordance with the <em>Privacy Act 1988</em> (Cth) and the Australian Privacy
