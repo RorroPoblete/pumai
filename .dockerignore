@@ -13,3 +13,17 @@ docs
 LOGO.png
 **/.DS_Store
 **/*.log
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.vscode
+.idea
+coverage
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts

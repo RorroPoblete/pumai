@@ -22,8 +22,13 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Skip the widget — it is cross-origin by design.
-        source: "/((?!widget\\.js|api/webchat).*)",
+        // Keep a minimum set on widget.js (cross-origin by design — no HSTS/CSP).
+        source: "/widget.js",
+        headers: [{ key: "X-Content-Type-Options", value: "nosniff" }],
+      },
+      {
+        // All other routes (including /api/webchat/* JSON endpoints) get the full set.
+        source: "/((?!widget\\.js).*)",
         headers: securityHeaders,
       },
     ];

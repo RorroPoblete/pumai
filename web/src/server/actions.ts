@@ -211,7 +211,18 @@ export async function updatePassword(currentPassword: string, newPassword: strin
 }
 
 export async function requestPasswordReset(email: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const normalized = email.trim().toLowerCase();
+  const { rateLimit } = await import("./rate-limit");
+  const { getRequestMeta } = await import("./request-meta");
+  const { ip } = await getRequestMeta();
+
+  const ipRl = await rateLimit(`pwreset-ip:${ip ?? "unknown"}`, 10, 3600_000, { failClosed: true });
+  if (!ipRl.ok) throw new Error("Too many password reset attempts. Try again later.");
+
+  const emailRl = await rateLimit(`pwreset:${normalized}`, 3, 3600_000, { failClosed: true });
+  if (!emailRl.ok) return; // swallow to prevent enumeration via error
+
+  const user = await prisma.user.findUnique({ where: { email: normalized } });
   // Always return success to prevent email enumeration
   if (!user) return;
   // TODO: generate token, save to DB, send email via SendGrid/Resend

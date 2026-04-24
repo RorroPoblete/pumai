@@ -52,6 +52,7 @@ services:
       AUTH_TRUST_HOST: "true"
       UPLOADS_DIR: /app/uploads
       RUN_SEED: "1"
+      SEED_ALLOW: "1"
     volumes:
       - uploads_data:/app/uploads
     healthcheck:

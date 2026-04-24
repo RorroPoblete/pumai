@@ -27,9 +27,7 @@ export function corsHeaders(req: Request, allowed: string[] = []): HeadersInit {
     "Access-Control-Max-Age": "86400",
   };
   const origin = req.headers.get("origin");
-  if (allowed.length === 0) {
-    headers["Access-Control-Allow-Origin"] = origin || "*";
-  } else if (origin && allowed.includes(origin)) {
+  if (origin && allowed.includes(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
   }
   return headers;
@@ -88,9 +86,8 @@ export async function resolveWebchatConfig(widgetKey: string): Promise<ResolvedC
   };
 }
 
-// Default-allow if empty. If allowlist is empty, allow all.
+// Fail-closed: empty allowlist denies all. Tenants must configure ≥1 origin.
 export function originAllowed(origin: string, allowed: string[]): boolean {
-  if (allowed.length === 0) return true;
   return !!origin && allowed.includes(origin);
 }
 
@@ -103,7 +100,7 @@ export async function enforceRateLimit(
 ): Promise<Response | null> {
   const ip = clientIPFromRequest(req);
   const key = `webchat:${bucket}:${widgetKey}:${ip}`;
-  const res = await rateLimit(key, max, windowMs);
+  const res = await rateLimit(key, max, windowMs, { failClosed: true });
   if (!res.ok) return json({ error: "Rate limit exceeded" }, 429, req);
   return null;
 }
