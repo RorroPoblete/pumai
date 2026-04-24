@@ -12,7 +12,14 @@ export default function Particles() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animId: number;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    const isMobile = window.innerWidth < 768;
+    const maxCount = isMobile ? 50 : 120;
+
+    let animId: number | null = null;
+    let visible = true;
     let particles: {
       x: number;
       y: number;
@@ -25,13 +32,14 @@ export default function Particles() {
     function resize() {
       canvas!.width = canvas!.offsetWidth * window.devicePixelRatio;
       canvas!.height = canvas!.offsetHeight * window.devicePixelRatio;
+      ctx!.setTransform(1, 0, 0, 1, 0, 0);
       ctx!.scale(window.devicePixelRatio, window.devicePixelRatio);
     }
 
     function init() {
       resize();
       const count = Math.floor((canvas!.offsetWidth * canvas!.offsetHeight) / 8000);
-      particles = Array.from({ length: Math.min(count, 120) }, () => ({
+      particles = Array.from({ length: Math.min(count, maxCount) }, () => ({
         x: Math.random() * canvas!.offsetWidth,
         y: Math.random() * canvas!.offsetHeight,
         r: Math.random() * 1.5 + 0.5,
@@ -79,13 +87,45 @@ export default function Particles() {
       animId = requestAnimationFrame(draw);
     }
 
-    init();
-    draw();
+    function start() {
+      if (animId !== null) return;
+      draw();
+    }
 
+    function stop() {
+      if (animId !== null) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+    }
+
+    init();
+    start();
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          visible = entry.isIntersecting;
+          if (visible) start();
+          else stop();
+        }
+      },
+      { threshold: 0 }
+    );
+    io.observe(canvas);
+
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else if (visible) start();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("resize", init);
+
     return () => {
       window.removeEventListener("resize", init);
-      cancelAnimationFrame(animId);
+      document.removeEventListener("visibilitychange", onVisibility);
+      io.disconnect();
+      stop();
     };
   }, []);
 

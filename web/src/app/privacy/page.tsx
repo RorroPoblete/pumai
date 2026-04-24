@@ -1,10 +1,17 @@
+import type { Metadata } from "next";
 import LegalLayout from "@/components/legal/LegalLayout";
 
-export const metadata = { title: "Privacy Policy · PumAI" };
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "How PumAI collects, uses, stores and discloses personal information under the Privacy Act 1988 (Cth) and the Australian Privacy Principles.",
+  alternates: { canonical: "/privacy" },
+  robots: { index: true, follow: true },
+};
 
 export default function PrivacyPage() {
   return (
-    <LegalLayout title="Privacy Policy" lastUpdated="20 April 2026">
+    <LegalLayout title="Privacy Policy" slug="privacy" lastUpdated="20 April 2026">
       <p>
         This Privacy Policy explains how <strong>PumAI</strong> (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) collects, uses, stores
         and discloses personal information in accordance with the <em>Privacy Act 1988</em> (Cth) and the Australian Privacy

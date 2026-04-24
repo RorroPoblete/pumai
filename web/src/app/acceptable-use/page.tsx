@@ -1,16 +1,23 @@
+import type { Metadata } from "next";
 import LegalLayout from "@/components/legal/LegalLayout";
 
-export const metadata = { title: "Acceptable Use Policy · PumAI" };
+export const metadata: Metadata = {
+  title: "Acceptable Use Policy",
+  description:
+    "Rules for acceptable use of the PumAI platform — what's allowed, what's not, and consequences of breach.",
+  alternates: { canonical: "/acceptable-use" },
+  robots: { index: true, follow: true },
+};
 
 export default function AcceptableUsePage() {
   return (
-    <LegalLayout title="Acceptable Use Policy" lastUpdated="20 April 2026">
+    <LegalLayout title="Acceptable Use Policy" slug="acceptable-use" lastUpdated="20 April 2026">
       <p>
         This Acceptable Use Policy applies to everyone who uses PumAI. It works together with the{" "}
         <a href="/terms">Terms of Service</a>. Breach may result in suspension or termination of your account.
       </p>
 
-      <h2>1. You may not</h2>
+      <h2>1. Prohibited uses</h2>
       <ul>
         <li>Use the Service to send spam, unsolicited messages or mass outbound campaigns without consent.</li>
         <li>Configure the AI to impersonate a real human without disclosure when asked.</li>

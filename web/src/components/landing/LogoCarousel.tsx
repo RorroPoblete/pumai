@@ -21,7 +21,10 @@ function LogoItem({ name }: { name: string }) {
 
 export default function LogoCarousel() {
   return (
-    <section className="py-16 overflow-hidden border-y border-[var(--border-subtle)]">
+    <section
+      className="py-16 overflow-hidden border-y border-[var(--border-subtle)]"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "200px" }}
+    >
       <div className="text-center mb-8">
         <span className="text-xs font-semibold text-[var(--text-muted)] tracking-widest uppercase">
           Integrates with your favourite tools
@@ -31,8 +34,8 @@ export default function LogoCarousel() {
       {/* Infinite scroll track */}
       <div className="relative">
         {/* Fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-black to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-black to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, var(--bg-base), transparent)" }} />
+        <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, var(--bg-base), transparent)" }} />
 
         <div className="flex gap-6 animate-scroll w-max">
           {/* Duplicate for seamless loop */}

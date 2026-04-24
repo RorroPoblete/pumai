@@ -85,16 +85,64 @@
 
 /* ---- Base ---- */
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+}
+
+/* Lenis smooth scroll — opt-in via provider */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
   transition: background-color 0.3s, color 0.3s;
+}
+
+/* ---- SplitText baseline ---- */
+.split-line {
+  overflow: visible;
+}
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.split-char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Re-apply gradient per char so SplitText inline-block wrapping keeps the fill */
+.gradient-text .split-char {
+  background: linear-gradient(180deg, var(--text-primary) 0%, var(--gradient-text-end) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+.gradient-text-violet .split-char {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 /* ---- Utility classes ---- */
@@ -211,6 +259,19 @@ body {
 
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-scroll,
+  .animate-pulse-glow {
+    animation: none;
+  }
+}
+
+/* ---- Anchor scroll offset (fixed navbar) ---- */
+section[id] {
+  scroll-margin-top: 80px;
 }
 
 /* ---- Scroll Reveal ---- */
