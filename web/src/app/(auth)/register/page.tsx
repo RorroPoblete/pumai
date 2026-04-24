@@ -21,6 +21,15 @@ export default function RegisterPage() {
       return;
     }
 
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasCapital = /[A-Z]/.test(password);
+
+    if (password.length < 12 || !hasSpecialChar || !hasNumber || !hasCapital) {
+      setError("Password does not meet requirements.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -140,6 +149,12 @@ export default function RegisterPage() {
             className="w-full px-4 py-3 rounded-xl bg-[var(--bg-input)] border border-[var(--border-input)] text-[var(--text-primary)] text-sm placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-colors"
             placeholder="Min. 12 characters"
           />
+          <div className="text-[10px] space-y-0.5 mt-2">
+            <p className={password.length >= 12 ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{password.length >= 12 ? "✓" : "○"} At least 12 characters</p>
+            <p className={/[A-Z]/.test(password) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/[A-Z]/.test(password) ? "✓" : "○"} At least 1 capital letter</p>
+            <p className={/\d/.test(password) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/\d/.test(password) ? "✓" : "○"} At least 1 number</p>
+            <p className={/[!@#$%^&*(),.?":{}|<>]/.test(password) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/[!@#$%^&*(),.?":{}|<>]/.test(password) ? "✓" : "○"} At least 1 special character</p>
+          </div>
         </div>
 
         <label className="flex items-start gap-3 text-xs text-[var(--text-secondary)] cursor-pointer">
