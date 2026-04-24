@@ -5,6 +5,12 @@ import { getToken } from "next-auth/jwt";
 const protectedRoutes = ["/dashboard", "/onboarding"];
 const authRoutes = ["/login", "/register", "/forgot-password"];
 
+// Must match the custom cookie name set in auth.ts so getToken() finds it.
+const useSecureCookies = (process.env.AUTH_URL ?? "").startsWith("https://");
+const sessionCookieName = useSecureCookies
+  ? "__Secure-authjs.session-token"
+  : "authjs.session-token";
+
 function buildCSP(nonce: string, isProd: boolean): string {
   return [
     "default-src 'self'",
@@ -41,7 +47,12 @@ export async function proxy(req: NextRequest) {
     authRoutes.some((r) => pathname.startsWith(r));
 
   if (needsAuthCheck) {
-    const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+    const token = await getToken({
+      req,
+      secret: process.env.AUTH_SECRET,
+      cookieName: sessionCookieName,
+      secureCookie: useSecureCookies,
+    });
     const isLoggedIn = !!token;
 
     if (authRoutes.some((r) => pathname.startsWith(r)) && isLoggedIn) {
