@@ -239,6 +239,24 @@ export default function Pricing() {
           </p>
         </div>
 
+        {/* Enterprise contact-only tier */}
+        <div className="mt-6 p-6 rounded-2xl border border-[rgba(139,92,246,0.2)] bg-transparent flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="text-left">
+            <div className="text-sm font-bold text-[var(--text-primary)]">Enterprise</div>
+            <p className="mt-1 text-sm text-[var(--text-secondary)] max-w-2xl">
+              Above 10,000 conversations/month, multi-brand portfolios, custom SLAs with dedicated
+              account manager, custom integrations, SOC 2 / ISO 27001 / data-residency
+              requirements. Priced per engagement.
+            </p>
+          </div>
+          <a
+            href="/contact"
+            className="border-2 border-[rgba(139,92,246,0.5)] text-[var(--text-primary)] font-semibold px-6 py-3 rounded-xl whitespace-nowrap hover:bg-[rgba(139,92,246,0.08)] hover:border-[#8B5CF6] transition-all"
+          >
+            Contact Sales
+          </a>
+        </div>
+
         {/* Extras */}
         <div className="mt-8 text-center text-sm text-[var(--text-muted)] space-y-1.5">
           <p>Prepaid WA packs: 1,000 conversations for A$180</p>

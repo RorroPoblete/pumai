@@ -74,12 +74,14 @@ Each of the 4 channels can be subscribed independently:
 
 Per-channel pricing:
 
-| Channel | Starter | Growth | Scale | Add-on (after first paid) |
-|---------|---------|--------|-------|---------------------------|
-| Webchat | A$99 | A$299 | A$599 | A$350/mo (Growth-level) |
-| Messenger | A$129 | A$349 | A$699 | A$350/mo |
-| Instagram | A$129 | A$349 | A$699 | A$350/mo |
-| WhatsApp | A$199 | A$499 | A$899 | A$350/mo |
+| Channel | Starter (500 conv) | Growth (2,000 conv) | Scale (10,000 conv) | Enterprise | Add-on (after first paid) |
+|---------|---------|--------|-------|------------|---------------------------|
+| Webchat | A$99 | A$299 | A$599 | Contact sales | A$350/mo (Growth-level) |
+| Messenger | A$129 | A$349 | A$699 | Contact sales | A$350/mo |
+| Instagram | A$129 | A$349 | A$699 | Contact sales | A$350/mo |
+| WhatsApp | A$199 | A$499 | A$899 | Contact sales | A$350/mo |
+
+Enterprise is not backed by a self-serve Stripe Price — it's a contact-sales tier for volumes above 10,000 conversations/month, multi-brand portfolios, custom SLAs, dedicated account manager, and compliance requirements (SOC 2 / ISO 27001 / data residency).
 
 ### Setup fees
 - **Single channel**: channel/tier specific (e.g. Webchat Growth = A$300)
