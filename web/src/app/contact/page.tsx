@@ -1,9 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
 
-export const metadata = {
-  title: "Contact Sales · PumAI",
-  description: "Talk to our team about Enterprise plans for PumAI.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Sales",
+  description:
+    "Talk to our team about Enterprise plans for PumAI — custom SLAs, dedicated account management, SOC 2 / ISO 27001 and data-residency requirements.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact Sales · PumAI",
+    description: "Talk to our team about Enterprise plans for PumAI.",
+    url: "/contact",
+    type: "website",
+  },
 };
 
 export default function ContactPage() {

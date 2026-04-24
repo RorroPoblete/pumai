@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import LegalLayout from "@/components/legal/LegalLayout";
 
-export const metadata = { title: "Security Policy · PumAI" };
+export const metadata: Metadata = {
+  title: "Security & Responsible Disclosure",
+  description:
+    "How PumAI handles security, data protection and responsible disclosure. Report vulnerabilities via security@pumai.com.au.",
+  alternates: { canonical: "/security" },
+  robots: { index: true, follow: true },
+};
 
 export default function SecurityPage() {
   return (

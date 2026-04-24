@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Particles from "./Particles";
 
 export default function Hero() {
@@ -32,12 +33,12 @@ export default function Hero() {
 
         {/* CTAs */}
         <div className="animate-fade-in-up-delay-3 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
+          <Link
             href="/register"
             className="gradient-btn !text-white font-semibold text-lg px-8 py-4 rounded-xl glow-sm hover:glow-md hover:-translate-y-0.5 transition-all duration-300"
           >
             Get Started
-          </a>
+          </Link>
           <a
             href="#how-it-works"
             className="text-[var(--text-primary)] font-semibold text-lg px-8 py-4 rounded-xl border-2 border-[rgba(139,92,246,0.4)] hover:border-[#8B5CF6] hover:bg-[rgba(139,92,246,0.08)] transition-all duration-300"

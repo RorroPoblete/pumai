@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const footerLinks: Record<string, { label: string; href: string }[]> = {
   Product: [
@@ -32,7 +33,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-4">
               <Image
                 src="/logo.png"
-                alt="PumAI"
+                alt="PumAI logo"
                 width={28}
                 height={28}
                 className="rounded-lg"
@@ -54,16 +55,28 @@ export default function Footer() {
                 {heading}
               </h4>
               <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const external = link.href.startsWith("mailto:") || link.href.startsWith("http");
+                  return (
+                    <li key={link.label}>
+                      {external ? (
+                        <a
+                          href={link.href}
+                          className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-sm text-[var(--text-muted)] hover:text-[#8B5CF6] transition-colors duration-200"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import LegalLayout from "@/components/legal/LegalLayout";
 
-export const metadata = { title: "Terms of Service · PumAI" };
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description:
+    "The Terms of Service that govern your use of the PumAI omnichannel AI platform — billing, acceptable use, liability and termination.",
+  alternates: { canonical: "/terms" },
+  robots: { index: true, follow: true },
+};
 
 export default function TermsPage() {
   return (

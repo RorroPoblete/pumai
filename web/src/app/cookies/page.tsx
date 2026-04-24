@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import LegalLayout from "@/components/legal/LegalLayout";
 
-export const metadata = { title: "Cookie Policy · PumAI" };
+export const metadata: Metadata = {
+  title: "Cookie Policy",
+  description:
+    "What cookies and similar technologies PumAI uses, why we use them, and how to control them.",
+  alternates: { canonical: "/cookies" },
+  robots: { index: true, follow: true },
+};
 
 export default function CookiesPage() {
   return (

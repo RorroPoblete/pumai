@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CTA() {
   return (
     <section className="relative py-24 px-6">
@@ -18,18 +20,18 @@ export default function CTA() {
             to close more deals, support more customers, and work less.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
+            <Link
               href="/register"
               className="gradient-btn !text-white font-semibold text-lg px-8 py-4 rounded-xl glow-sm hover:glow-md hover:-translate-y-0.5 transition-all duration-300"
             >
               Get Started Today
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              href="/contact"
               className="text-[var(--text-secondary)] font-semibold text-lg hover:text-[var(--text-primary)] transition-colors duration-300"
             >
               Book a Demo &rarr;
-            </a>
+            </Link>
           </div>
         </div>
       </div>

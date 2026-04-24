@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTheme } from "@/components/ThemeProvider";
 
 const links = [
@@ -40,18 +41,19 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3" aria-label="PumAI home">
           <Image
             src="/logo.png"
-            alt="PumAI"
+            alt="PumAI logo"
             width={36}
             height={36}
+            priority
             className="rounded-lg"
           />
           <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
             Pum<span className="text-[#8B5CF6]">AI</span>
           </span>
-        </a>
+        </Link>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
@@ -80,18 +82,18 @@ export default function Navbar() {
               </svg>
             )}
           </button>
-          <a
+          <Link
             href="/login"
             className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             Log in
-          </a>
-          <a
+          </Link>
+          <Link
             href="/register"
             className="gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition-all duration-300 glow-sm"
           >
             Get Started
-          </a>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -155,18 +157,18 @@ export default function Navbar() {
                 )}
                 {theme === "dark" ? "Light mode" : "Dark mode"}
               </button>
-              <a
+              <Link
                 href="/login"
                 className="px-4 py-2.5 rounded-xl text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]"
               >
                 Log in
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/register"
                 className="flex-1 gradient-btn !text-white text-sm font-semibold px-5 py-2.5 rounded-xl text-center"
               >
                 Get Started
-              </a>
+              </Link>
             </div>
           </div>
         </div>

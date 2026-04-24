@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 
 type Channel = "webchat" | "wa" | "instagram" | "messenger";
 
@@ -191,7 +192,7 @@ export default function Pricing() {
                 </div>
               )}
 
-              <div className="text-sm font-semibold text-[var(--text-secondary)] mb-1">{p.name}</div>
+              <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-1">{p.name}</h3>
               <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-4xl font-black text-[var(--text-primary)]">{p.price}</span>
                 <span className="text-[var(--text-muted)] text-sm">{p.period}</span>
@@ -210,7 +211,7 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              <a
+              <Link
                 href={p.cta === "Contact Sales" ? "/contact" : "/register"}
                 className={`block text-center font-semibold py-3 rounded-xl transition-all duration-300 ${
                   p.popular
@@ -219,7 +220,7 @@ export default function Pricing() {
                 }`}
               >
                 {p.cta}
-              </a>
+              </Link>
             </div>
           ))}
         </div>
@@ -249,12 +250,12 @@ export default function Pricing() {
               requirements. Priced per engagement.
             </p>
           </div>
-          <a
+          <Link
             href="/contact"
             className="border-2 border-[rgba(139,92,246,0.5)] text-[var(--text-primary)] font-semibold px-6 py-3 rounded-xl whitespace-nowrap hover:bg-[rgba(139,92,246,0.08)] hover:border-[#8B5CF6] transition-all"
           >
             Contact Sales
-          </a>
+          </Link>
         </div>
 
         {/* Extras */}
