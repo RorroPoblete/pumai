@@ -1,473 +1,334 @@
-# PumAI — Deployment Plan (Google Cloud, Sydney)
+# PumAI — GCP Deployment Runbook
 
-**Target:** Production deployment to Google Cloud (region `australia-southeast1`) using Cloud Run + Cloud SQL + Upstash Redis + GCS.
-**Author:** Claude (Cyber Neo audit + deploy planning session, 2026-04-23)
-**Status:** DRAFT — awaiting user approval on open decisions before execution.
+**Region:** `australia-southeast1` (Sydney)
+**Status:** Production live on Cloud Run auto URL; custom domain `pumai.com.au` in Cloudflare-DNS propagation.
+**Last updated:** 2026-04-23
+
+No secret values appear in this document. All secrets live in Secret Manager and in local `.env` (gitignored).
 
 ---
 
-## 1. Goals
+## 1. Live service
 
-- Ship PumAI to production on managed, auto-scaling infrastructure.
-- Keep fixed cost low (<$40/mo baseline, scales with traffic).
-- All components co-located in Sydney to minimise latency and egress.
-- Zero long-lived service-account keys (Workload Identity Federation for GitHub Actions).
-- All secrets in Secret Manager — no secret ever on a developer disk after rotation.
-- TLS-terminated on Cloud Run, HSTS enforced, same-origin redirects only.
-- No regression vs the existing security posture (per `docs/SECURITY-AUDIT.md` if added, else Cyber Neo report dated 2026-04-23).
+- **Cloud Run URL:** `https://pumai-app-822489336766.australia-southeast1.run.app`
+- **Custom domain (in progress):** `pumai.com.au` + `www.pumai.com.au`
+- **Admin login:** `admin@pumai.com.au` (password stored in user's password manager, not here)
+- **GCP project:** `pumai-prod` (project number `822489336766`)
+- **Billing account:** `017703-67E2C4-BFBF04`
 
-## 2. Open Decisions (confirm before executing)
-
-| # | Decision | Default recommendation | Alternative |
-|---|---|---|---|
-| D1 | Redis backend | **Upstash Redis free tier** — $0/mo, no VPC connector, no refactor | Memorystore Basic 1 GB ($37/mo + VPC connector $11/mo) |
-| D2 | Cloud SQL HA | **No HA** at launch (single zone) — ~$13/mo | Add HA failover replica — ~$26/mo, activatable later without migration |
-| D3 | GCP project | — *to be provided by user* — | Create fresh `pumai-prod` if none exists |
-| D4 | Domain | — *to be provided by user* — | Cloud Run auto-issues TLS via Google-managed cert |
-| D5 | DNS provider | — *to be provided by user* — (Cloudflare / Namecheap / Route 53) | Cloud DNS ($0.20/zone/mo) |
-| D6 | Uploads retention | Default GCS bucket lifecycle = keep indefinitely | Add lifecycle rule to delete after N days |
-| D7 | Monitoring alerts | Cloud Monitoring free tier + email alerts to owner | Integrate with PagerDuty / Slack later |
-
-All subsequent steps assume the default recommendations unless the user overrides.
-
-## 3. Target Architecture
+## 2. Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│ australia-southeast1 (Sydney)                                    │
-│                                                                  │
-│   ┌───────────────┐        ┌─────────────────────────────┐       │
-│   │ Cloud Run     │───────▶│ Cloud SQL Postgres 16       │       │
-│   │ pumai-app     │ socket │ private IP, shared-core     │       │
-│   │ 1 vCPU / 1GB  │        └─────────────────────────────┘       │
-│   │ min=0 max=3   │                                              │
-│   │ timeout=3600s │        ┌─────────────────────────────┐       │
-│   │               │───────▶│ GCS bucket pumai-uploads    │       │
-│   │               │ REST   │ (uniform bucket-level IAM)  │       │
-│   │               │        └─────────────────────────────┘       │
-│   │               │                                              │
-│   │               │        ┌─────────────────────────────┐       │
-│   │               │───────▶│ Secret Manager              │       │
-│   │               │ env    │ (mounted as env vars)       │       │
-│   │               │        └─────────────────────────────┘       │
-│   │               │                                              │
-│   └───────┬───────┘                                              │
-│           │                                                      │
-└───────────┼──────────────────────────────────────────────────────┘
-            │ TLS (Upstash)
-            ▼
-    ┌───────────────────┐
-    │ Upstash Redis     │  (ap-southeast-2 closest, Sydney if available)
-    │ rediss://…        │  free tier 10k cmd/day
-    └───────────────────┘
-
-  User ──HTTPS──▶ Cloud Run custom domain (e.g. app.pumai.com.au)
-                    │  Google-managed cert (auto-renew)
+             Browser
+               │ HTTPS
+               ▼
+      Cloudflare (Proxied CNAME)
+               │
+               ▼
+Cloud Run service: pumai-app  (australia-southeast1, min=0 max=3, 1 vCPU / 1 GiB)
+      │              │                 │                │
+      │ socket       │ REST            │ env            │ rediss://
+      ▼              ▼                 ▼                ▼
+Cloud SQL       GCS bucket        Secret Manager    Upstash Redis
+Postgres 16     pumai-uploads-    (12 secrets)      (free tier,
+db-f1-micro     prod              runtime SA        Sydney)
+ENTERPRISE      uniform IAM       has accessor
+edition         public-access-
+                prevention
 ```
 
-**Why this shape:**
-- Cloud Run handles TLS + autoscale + zero-ops — fits the "simple + cheap" goal.
-- Cloud SQL over **Unix socket** (`?host=/cloudsql/PROJECT:REGION:INSTANCE`) — no VPC connector needed, no public IP exposure.
-- Upstash Redis is external over `rediss://` — no VPC connector, ~$40/mo saved vs Memorystore.
-- GCS replaces local `/app/uploads` — Cloud Run filesystem is ephemeral.
-- Secret Manager replaces the `.env` file entirely.
+### Runtime identity
 
-## 4. Cost Estimate (USD/mo, Sydney)
+- Cloud Run service account: `pumai-run@pumai-prod.iam.gserviceaccount.com`
+  - `roles/cloudsql.client` (project)
+  - `roles/storage.objectAdmin` (bucket-scoped)
+  - `roles/secretmanager.secretAccessor` (per-secret)
 
-| Item | Config | Est. cost |
-|---|---|---|
-| Cloud Run | 1 vCPU / 1 GB, min=0 max=3, ~2M req/mo | $5–20 |
-| Cloud SQL Postgres 16 | Enterprise shared-core, 10 GB SSD, no HA | ~$13 |
-| Upstash Redis | Free tier (10k cmd/day) | $0 |
-| Artifact Registry | ~500 MB image, handful of tags | <$1 |
-| Secret Manager | ~15 secrets | <$0.50 |
-| GCS uploads bucket | ~5 GB + standard ops | ~$1 |
-| Cloud DNS (if used) | 1 zone | $0.20 |
-| Egress | ~10 GB/mo out of Sydney | ~$1.20 |
-| **Baseline** | | **~$22–37/mo** |
+### Deploy identity
 
-Upside scenarios:
-- Traffic 10× expected → Cloud Run scales linearly (~$50-100 compute only).
-- Enable Cloud SQL HA later → +$13/mo.
-
-## 5. Pre-requisites (user side)
-
-1. Google Cloud account with billing enabled.
-2. `gcloud` CLI installed locally (or happy to `! gcloud auth login` in the Claude session).
-3. Domain registered + access to DNS (to add A/CNAME record).
-4. Upstash account created at https://upstash.com (free signup, no card required for free tier).
-5. GitHub repository admin access (to configure WIF + branch protection).
-
-## 6. Phase 1 — Fix Security Blockers (BEFORE any deploy)
-
-Ordered by priority. Each item = 1 commit, each merged via PR to `main`.
-
-### P1.1 — Gate the seed script (CN-005) — **blocker**
-- File: `web/entrypoint.sh`
-- Change: wrap `npx prisma db seed` in `if [ "${NODE_ENV}" != "production" ] && [ "${RUN_SEED:-0}" = "1" ]; then … fi`.
-- File: `web/prisma/seed.ts` — early-return when `NODE_ENV === "production"` unless `SEED_ADMIN_PASSWORD` is supplied.
-- Verification: build image with `NODE_ENV=production`, run `docker run` — seed must be skipped.
-
-### P1.2 — Kill host-header redirects (CN-001) — **blocker**
-- File: `web/src/middleware.ts`
-  - Remove `appBase()` function.
-  - Replace `NextResponse.redirect(\`${base}/dashboard\`)` → `NextResponse.redirect(new URL("/dashboard", req.url))`.
-  - Same for the login redirect.
-- Files: `web/src/app/api/auth/invalid-session/route.ts`, `web/src/app/api/meta/deletion-callback/route.ts`, `web/src/server/billing-actions.ts`
-  - Remove `publicBase()` fallbacks to `http://localhost:3002`.
-  - Require `NEXT_PUBLIC_APP_URL` at module load when `NODE_ENV === "production"`.
-
-### P1.3 — Remove dev widget script from production layout (CN-003) — **blocker**
-- File: `web/src/app/layout.tsx`
-- Change: gate the `<Script src="http://localhost:3002/widget.js">` behind `{process.env.NODE_ENV !== "production" && …}`, or delete entirely if the main app should never auto-mount the widget.
-
-### P1.4 — Harden NextAuth cookies + require `AUTH_URL=https://` (CN-009) — **blocker**
-- File: `web/src/auth.ts`
-- Add explicit `cookies` block forcing `__Secure-authjs.session-token` / `__Host-authjs.csrf-token` in prod with `secure: true`.
-- Add startup guard: throw if `NODE_ENV === "production"` and `AUTH_URL` does not start with `https://`.
-
-### P1.5 — Rotate exposed secrets (CN-004)
-- Rotate `OPENAI_API_KEY` at https://platform.openai.com/api-keys.
-- Rotate `AUTH_SECRET` = `openssl rand -base64 32`.
-- Rotate `POSTGRES_PASSWORD` + `REDIS_PASSWORD` (local dev — will be new values in GCP regardless).
-- Update local `.env`. Do not commit.
-
-**Exit criteria for Phase 1:** all 5 merged to `main`, CI green, `/api/health` responds 200 in dev.
-
-## 7. Phase 2 — Code Refactors for Cloud Run
-
-### P2.1 — Uploads → GCS
-- Add dep: `npm i @google-cloud/storage`.
-- New file: `web/src/server/storage.ts` — wrapper around `Storage.bucket(bucketName)` with `putObject(name, buffer, contentType)` and `signedReadUrl(name, ttl)`.
-- File: `web/src/app/api/webchat/[widgetKey]/upload/route.ts` — replace `await writeFile(join(UPLOADS_DIR, filename), buffer)` with `await storage.putObject(filename, buffer, contentType)`.
-- File: `web/src/app/api/uploads/[filename]/route.ts` — replace `readFile` with a `NextResponse.redirect(signedReadUrl)`, or stream via `bucket.file(name).createReadStream()`.
-- New env var: `UPLOADS_BUCKET`. Remove `UPLOADS_DIR` from all production code (keep for local dev if desired).
-- Auth on uploads: the existing HMAC-signed URL scheme (`web/src/app/api/webchat/[widgetKey]/upload/route.ts:46-55`) still signs the logical filename. Either keep the HMAC wrapper unchanged, or migrate to GCS signed URLs (v4) for download — pick one, do not mix.
-- Cyber Neo findings CN-021 and CN-030 become irrelevant once filesystem is gone; leave the code comments clean, no back-compat shim.
-
-### P2.2 — Prisma → Cloud SQL socket
-- File: `web/src/server/prisma.ts`
-- Change: `@prisma/adapter-pg` accepts `{ connectionString }`. Cloud SQL socket format:
-  ```
-  postgresql://USER:PASSWORD@/DB_NAME?host=/cloudsql/PROJECT:REGION:INSTANCE&sslmode=disable
-  ```
-  (SSL is N/A on the Unix socket path — GCP handles it.)
-- Add `statement_timeout: 15000`, `connection_limit` param (CN-015 remediation is part of this refactor).
-
-### P2.3 — Rate-limit + SSE keep using `REDIS_URL`
-- No code change — Upstash speaks the Redis protocol via `rediss://`.
-- Verify `web/src/server/redis.ts` uses `new Redis(process.env.REDIS_URL!)` (it does).
-- Confirm TLS certificate validation — Upstash uses Let's Encrypt, ioredis trusts system CAs by default (good, do not disable).
-
-### P2.4 — Trusted-proxy hops for Cloud Run
-- Set env `TRUSTED_PROXY_HOPS=1` in Cloud Run service config.
-- Cloud Run places requests behind Google Front End (1 hop). The existing `request-meta.ts` IP parser then reads the client IP correctly for rate-limit keys.
-
-### P2.5 — Container listens on `$PORT`
-- Verify `web/Dockerfile` `CMD` respects `PORT` env. Next.js standalone output does by default when `HOSTNAME=0.0.0.0` is set — already the case.
-- Add `ENV PORT=8080` default (Cloud Run sets it, but explicit is better).
-
-### P2.6 — Misc hardening bundled with this PR
-From Cyber Neo findings easy to fix in this PR:
-- CN-024 `poweredByHeader: false` in `next.config.ts`.
-- CN-019 replace `console.*` in `stripe/route.ts`, `webchat/stream/route.ts`, `webchat/events/route.ts` with `scoped(...)` from `@/server/logger`.
-- CN-020 extend `SENSITIVE_PATHS` in `logger.ts` with the missing paths listed in the audit.
-- CN-026 drop `pumai_active_business` cookie `maxAge` to 30 days + clear on NextAuth `signOut`.
-
-**Exit criteria for Phase 2:** PR merged. Local `docker compose up` still works (pointing at local Postgres + Redis + local filesystem `UPLOADS_DIR`). A feature flag on `UPLOADS_BUCKET` toggles local FS vs GCS.
-
-## 8. Phase 3 — Provision GCP Infrastructure
-
-All steps run as `gcloud` commands. The user will approve each destructive/creation step.
-
-### P3.1 — Project + APIs
-```bash
-PROJECT=pumai-prod   # or user-supplied
-REGION=australia-southeast1
-gcloud projects create "$PROJECT" --name="PumAI Prod"
-gcloud config set project "$PROJECT"
-gcloud services enable \
-  run.googleapis.com \
-  sqladmin.googleapis.com \
-  secretmanager.googleapis.com \
-  artifactregistry.googleapis.com \
-  storage.googleapis.com \
-  iamcredentials.googleapis.com \
-  sts.googleapis.com
-```
-
-### P3.2 — Artifact Registry
-```bash
-gcloud artifacts repositories create pumai \
-  --repository-format=docker \
-  --location="$REGION" \
-  --description="PumAI container images"
-```
-
-### P3.3 — Cloud SQL Postgres 16
-```bash
-gcloud sql instances create pumai-db \
-  --database-version=POSTGRES_16 \
-  --edition=ENTERPRISE \
-  --tier=db-perf-optimized-N-2   # or shared-core equivalent — confirm SKU availability in Sydney
-  --region="$REGION" \
-  --storage-size=10GB \
-  --storage-auto-increase \
-  --backup-start-time=14:00    # UTC = 00:00 AEST
-gcloud sql databases create pumai --instance=pumai-db
-gcloud sql users create pumai --instance=pumai-db --password=<generated>
-```
-The tier will be tuned to the cheapest Postgres 16 SKU available in Sydney at execution time — `gcloud sql tiers list --filter="region:australia-southeast1"` to confirm.
-
-### P3.4 — GCS uploads bucket
-```bash
-gcloud storage buckets create gs://pumai-uploads-prod \
-  --location="$REGION" \
-  --uniform-bucket-level-access \
-  --public-access-prevention
-```
-
-### P3.5 — Secret Manager entries
-Load rotated secrets:
-```bash
-for S in OPENAI_API_KEY AUTH_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET \
-         META_APP_SECRET META_APP_SECRET_IG CHANNEL_CRED_KEY UPLOAD_SIGNING_KEY \
-         WHATSAPP_WEBHOOK_TOKEN GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET \
-         DATABASE_URL REDIS_URL; do
-  gcloud secrets create "$S" --replication-policy=automatic
-  # value pasted interactively or via --data-file=-
-done
-```
-
-### P3.6 — Service accounts + IAM
-- Runtime SA: `pumai-run@$PROJECT.iam.gserviceaccount.com` — grant:
-  - `roles/cloudsql.client`
-  - `roles/secretmanager.secretAccessor` (scoped per-secret)
-  - `roles/storage.objectAdmin` (scoped to `gs://pumai-uploads-prod`)
-- Deploy SA for GitHub Actions: `pumai-deploy@...` — grant:
+- GitHub Actions impersonates: `pumai-deploy@pumai-prod.iam.gserviceaccount.com`
   - `roles/run.admin`
   - `roles/artifactregistry.writer`
+  - `roles/cloudbuild.builds.editor`
   - `roles/iam.serviceAccountUser` on `pumai-run`
+- WIF provider: `projects/822489336766/locations/global/workloadIdentityPools/github-pool/providers/github-provider`
+- Pool only accepts OIDC tokens where `repository = RorroPoblete/AUSTRALIAN_DREAM`.
 
-### P3.7 — Workload Identity Federation for GitHub Actions
-Create pool + provider restricted to the repo (`RorroPoblete/AUSTRALIAN_DREAM`), bind `pumai-deploy` SA. Avoids long-lived service-account keys (Cyber Neo CN-018-adjacent hardening).
+## 3. Resources provisioned
 
-### P3.8 — Upstash Redis
-Outside GCP: create database in Upstash dashboard, region closest to Sydney. Copy TLS connection string (`rediss://default:TOKEN@xxxxx.upstash.io:6379`). Save it to Secret Manager as `REDIS_URL`.
+| Resource | Name / ID | Notes |
+|---|---|---|
+| GCP project | `pumai-prod` | linked to billing `017703-...` |
+| Enabled APIs | `run`, `sqladmin`, `secretmanager`, `artifactregistry`, `storage`, `iamcredentials`, `sts`, `cloudbuild` | |
+| Artifact Registry | `australia-southeast1-docker.pkg.dev/pumai-prod/pumai` | Docker repo |
+| Cloud SQL instance | `pumai-db` | Postgres 16, `db-f1-micro`, ENTERPRISE, 10 GB SSD, backups 14:00 UTC, PITR on |
+| Cloud SQL connection name | `pumai-prod:australia-southeast1:pumai-db` | used as `host=/cloudsql/<conn>` |
+| Cloud SQL database | `pumai` | |
+| Cloud SQL user | `pumai` | password in Secret Manager (`DATABASE_URL` composite) |
+| GCS bucket | `gs://pumai-uploads-prod` | Sydney, uniform IAM, public-access-prevention |
+| Upstash Redis | `precious-zebra-105408.upstash.io:6379` | TLS required (`rediss://`), Sydney, free tier |
+| Cloud Run service | `pumai-app` | min=0, max=3, 1 vCPU / 1 GiB, timeout=3600 s (SSE), concurrency=80 |
+| Runtime SA | `pumai-run@pumai-prod.iam.gserviceaccount.com` | bound to Cloud Run |
+| Deploy SA | `pumai-deploy@pumai-prod.iam.gserviceaccount.com` | impersonated by WIF |
+| WIF pool / provider | `github-pool` / `github-provider` | |
 
-## 9. Phase 4 — CI/CD Wiring
+### Secret Manager entries (names only)
 
-### P4.1 — Update `.github/workflows/ci.yml`
-Add deploy job gated on `push` to `main` + successful test/lint/trivy jobs:
-```yaml
-deploy:
-  needs: [typecheck-lint, trivy]
-  if: github.ref == 'refs/heads/main'
-  runs-on: ubuntu-latest
-  permissions:
-    contents: read
-    id-token: write  # for WIF
-  steps:
-    - uses: actions/checkout@<sha>
-    - uses: google-github-actions/auth@<sha>
-      with:
-        workload_identity_provider: projects/.../providers/github
-        service_account: pumai-deploy@pumai-prod.iam.gserviceaccount.com
-    - uses: google-github-actions/setup-gcloud@<sha>
-    - name: Build + push
-      run: |
-        gcloud auth configure-docker australia-southeast1-docker.pkg.dev
-        docker build -t australia-southeast1-docker.pkg.dev/pumai-prod/pumai/app:${{ github.sha }} ./web
-        docker push australia-southeast1-docker.pkg.dev/pumai-prod/pumai/app:${{ github.sha }}
-    - name: Deploy to Cloud Run
-      run: |
-        gcloud run deploy pumai-app \
-          --image=australia-southeast1-docker.pkg.dev/pumai-prod/pumai/app:${{ github.sha }} \
-          --region=australia-southeast1 \
-          --service-account=pumai-run@pumai-prod.iam.gserviceaccount.com \
-          --add-cloudsql-instances=pumai-prod:australia-southeast1:pumai-db \
-          --set-env-vars=NODE_ENV=production,UPLOADS_BUCKET=pumai-uploads-prod,TRUSTED_PROXY_HOPS=1,AUTH_URL=https://app.pumai.com.au,AUTH_TRUST_HOST=true,NEXT_PUBLIC_APP_URL=https://app.pumai.com.au \
-          --set-secrets=OPENAI_API_KEY=OPENAI_API_KEY:latest,AUTH_SECRET=AUTH_SECRET:latest,DATABASE_URL=DATABASE_URL:latest,REDIS_URL=REDIS_URL:latest,STRIPE_SECRET_KEY=STRIPE_SECRET_KEY:latest,STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest,META_APP_SECRET=META_APP_SECRET:latest,META_APP_SECRET_IG=META_APP_SECRET_IG:latest,CHANNEL_CRED_KEY=CHANNEL_CRED_KEY:latest,UPLOAD_SIGNING_KEY=UPLOAD_SIGNING_KEY:latest,WHATSAPP_WEBHOOK_TOKEN=WHATSAPP_WEBHOOK_TOKEN:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest \
-          --min-instances=0 \
-          --max-instances=3 \
-          --memory=1Gi \
-          --cpu=1 \
-          --timeout=3600 \
-          --concurrency=80 \
-          --allow-unauthenticated
+```
+DATABASE_URL              (Postgres URL with Cloud SQL socket host)
+REDIS_URL                 (Upstash rediss:// URL)
+AUTH_SECRET               (NextAuth JWT signing key; prod-only)
+CHANNEL_CRED_KEY          (AES-256-GCM envelope key; prod-only)
+UPLOAD_SIGNING_KEY        (HMAC for signed upload URLs; prod-only)
+OPENAI_API_KEY
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+META_APP_SECRET
+META_APP_SECRET_IG
+META_WEBHOOK_VERIFY_TOKEN
+WHATSAPP_WEBHOOK_TOKEN
 ```
 
-### P4.2 — Addressing the `--ignore-scripts` hardening (CN-035)
-Also in the same CI update: add `--ignore-scripts` to `npm ci` and add explicit `npx prisma generate` step.
+`AUTH_SECRET`, `CHANNEL_CRED_KEY`, `UPLOAD_SIGNING_KEY` were freshly generated for production — they are not the same values used in local dev.
 
-### P4.3 — Address Trivy installer (CN-018)
-Pin the installer to a tagged release + sha256 verify. Same PR as P4.1.
+## 4. Code changes shipped
 
-## 10. Phase 5 — First Deploy + Smoke Tests
+All on `main`. Commit hashes in chronological order:
 
-1. Run Prisma migrations once from the CI container against Cloud SQL (via socket):
-   ```
-   gcloud run jobs create pumai-migrate --image=... --command="npx,prisma,migrate,deploy"
-   gcloud run jobs execute pumai-migrate --wait
-   ```
-2. Seed a single real admin user manually (not via `prisma db seed` — that's dev-only):
-   ```
-   gcloud sql connect pumai-db --user=pumai -- psql pumai
-   -- INSERT a single admin with bcrypt(<strong password>)
-   ```
-3. Map custom domain: `gcloud run domain-mappings create --service=pumai-app --domain=app.pumai.com.au --region=...`. Copy the CNAME/A record targets and paste into the DNS provider.
-4. Wait for Google-managed cert provisioning (~10–30 min).
-5. Smoke tests:
-   - `curl -sS https://app.pumai.com.au/api/health` → 200.
-   - Browser: login page loads, TLS is valid, HSTS header present, CSP header present.
-   - Log in as the admin created in step 2.
-   - Create a test agent, send a chat message, verify Prisma writes + OpenAI response.
-   - Post a dummy message to `/api/webhooks/meta` — expect 403 (no valid signature). Then post a correctly signed one — expect 200 + dedupe idempotency.
-   - Upload a file via webchat widget → GCS writes object; reading via `/api/uploads/<filename>` serves it.
-6. Check logs: `gcloud run services logs tail pumai-app`. No `TOO_MANY_ATTEMPTS` leaks, no unredacted secrets, no stack traces to the client.
+| SHA | Summary |
+|---|---|
+| `f3a257a` | Phase 1 security blockers — host-header redirects, seed gate, dev widget, NextAuth cookie hardening + AUTH_URL guard |
+| `0488bbd` | Phase 2 Cloud Run refactor — uploads → GCS via `@google-cloud/storage`, Pino redact expansion, `console.*` → `scoped()`, `poweredByHeader: false`, cookie maxAge 30d |
+| `8cb2894` | Entrypoint detects Cloud SQL Unix socket and skips TCP wait |
+| `8ad0cc8` | `proxy.ts` passes `cookieName: __Secure-authjs.session-token` + `secureCookie: true` to `getToken()` so middleware finds the prod session cookie |
+| `5b3aa28` | `prisma/prod-bootstrap.ts` — idempotent prod-safe seed (assumes admin exists; no demo user; encrypts channel-config credentials with prod `CHANNEL_CRED_KEY`) |
+| `d37acb7` | Phase 4 CI/CD — WIF deploy job, `npm ci --ignore-scripts`, Trivy installer pinned to `v0.69.3`, Dependabot (npm + actions + docker, weekly), root `SECURITY.md` |
 
-## 11. Phase 6 — Post-Deploy Operations
+### Key environment behaviour
 
-### P6.1 — Backups
-Cloud SQL automated backups are on by default (retention 7 days). Add point-in-time recovery (PITR) for 7-day granular restore:
+- `NODE_ENV=production` is set in the Dockerfile (required for Next build) — so guards in `auth.ts` and `billing-actions.ts` check `NEXT_PHASE !== 'phase-production-build'` to avoid firing during `next build`, and allow `http://localhost` URLs through (docker-compose dev runs a prod build locally).
+- Cookies switch to `__Secure-` / `__Host-` prefixes **based on `AUTH_URL` starting with `https://`**, not on `NODE_ENV`. This keeps docker-compose dev working over plain HTTP.
+- Seed refuses to run when `DATABASE_URL` is not `@localhost:` / `@127.0.0.1:` / `@postgres:` — which means it is automatically blocked against Cloud SQL sockets in prod.
+- Middleware renamed `middleware.ts` → `proxy.ts` (Next 16 convention). Root layout uses `export const dynamic = "force-dynamic"` so the CSP nonce actually gets injected into hydration scripts (required for `'strict-dynamic'`).
+
+## 5. First deploy (already done — manual)
+
+The initial deploy used local `docker buildx --platform linux/amd64 --push` from the developer machine to populate Artifact Registry (tags `v1`, `v2`, `latest`). After that, `gcloud run services update` swapped the image. CI (below) will take over from the next push.
+
+### Manual prod-bootstrap run
+
+Once per environment, executed locally via Cloud SQL Auth Proxy:
+
 ```bash
-gcloud sql instances patch pumai-db \
-  --enable-point-in-time-recovery \
-  --backup-location=australia-southeast1
+# ADC must be set: gcloud auth application-default login
+cloud-sql-proxy pumai-prod:australia-southeast1:pumai-db --port=15432 &
+
+DB_PWD=...                      # from the user's password manager
+PROD_KEY=$(gcloud secrets versions access latest --secret=CHANNEL_CRED_KEY)
+
+cd web
+DATABASE_URL="postgresql://pumai:${DB_PWD}@localhost:15432/pumai" \
+CHANNEL_CRED_KEY="$PROD_KEY" \
+ADMIN_EMAIL="admin@pumai.com.au" \
+npx tsx prisma/prod-bootstrap.ts
 ```
 
-### P6.2 — Monitoring + alerts
-Cloud Monitoring free alerting policies:
-- Cloud Run 5xx rate > 1% over 5 min → email.
-- Cloud Run request latency p95 > 2 s over 10 min → email.
-- Cloud SQL CPU > 80% over 10 min → email.
-- Secret Manager access denied events → email.
-Log-based metric: count of `TOTP_INVALID` events > 20 in 10 min → email (brute-force signal).
+The script upserts: PumAI business, 4 channel subscriptions (GROWTH), 5 demo agents, and the landing webchat widget (`wk_pumai_landing`). Idempotent — safe to re-run after schema changes.
 
-### P6.3 — Uptime check
-Cloud Monitoring synthetic `GET /api/health` from 3 regions every 5 min. Alerts if 2 consecutive failures.
+## 6. CI/CD (active from next push to `main`)
 
-### P6.4 — Dependabot (CN-012)
-Merge the `.github/dependabot.yml` PR described in the Cyber Neo report. Enable Dependabot alerts + security updates in GitHub repo settings.
+`.github/workflows/ci.yml` runs on every PR and every push to `main`.
 
-### P6.5 — SECURITY.md (CN-034)
-Add a root `SECURITY.md` with disclosure email + SLA.
+**Jobs:**
+1. `typecheck-lint` — `npm ci --ignore-scripts`, `prisma generate`, `tsc --noEmit`, `eslint`
+2. `npm-audit` — `npm audit --omit=dev --audit-level=high`
+3. `trivy` — filesystem scan with vuln/secret/misconfig; SARIF uploaded to GitHub Security; blocks on Critical/High
+4. `deploy` — only on `push` to `main` after all above pass. Auths via WIF, builds the image on the x86 runner (no QEMU needed), pushes `${sha}` + `latest` to Artifact Registry, `gcloud run services update --image=...` (preserves env vars and secrets), smoke-tests `/api/health`
 
-## 12. Rollback Plan
+**Dependabot (`.github/dependabot.yml`)** opens weekly Monday PRs for `/web` npm, root GitHub Actions, and `/web` Docker base images. `next-auth` major bumps are ignored (beta pinned).
 
-Cloud Run keeps all past revisions. Rollback is 1 command:
+## 7. Custom domain (`pumai.com.au` + `www`)
+
+### Why Cloudflare
+
+`australia-southeast1` does NOT support Cloud Run native domain mappings (`gcloud run domain-mappings create` returns HTTP 501 `UNIMPLEMENTED`). Alternatives: Cloudflare (free, keeps Cloud Run in Sydney) or Global External HTTPS Load Balancer (~USD 20/month fixed). Chose Cloudflare.
+
+### Setup performed
+
+1. Domain registered at GoDaddy.
+2. Cloudflare free account created; domain added; DNS scan imported records from GoDaddy.
+3. Email-related CNAMEs (`autodiscover`, `lyncdiscover`, `sip`, `msoid`, `email`, `_domainconnect`) explicitly set to **DNS only** (grey cloud). Email is Microsoft 365 — proxying them would break Autodiscover/Teams.
+4. GoDaddy parking A records at apex deleted.
+5. Added `CNAME @` → `pumai-app-822489336766.australia-southeast1.run.app` (Proxied).
+6. `CNAME www` → `pumai.com.au` (Proxied; apex is flattened by Cloudflare).
+7. In GoDaddy, nameservers swapped: `ns43/ns44.domaincontrol.com` → `brian.ns.cloudflare.com`, `diana.ns.cloudflare.com`.
+
+### Records preserved unchanged (M365 email)
+
+- `MX pumai.com.au → pumai-com-au.mail.protection.outlook.com`
+- `TXT SPF` (`v=spf1 include:secureserver.net -all`)
+- `TXT NETORG...onmicrosoft.com` (M365 verify)
+- `TXT google-site-verification=...`
+- `TXT _dmarc` (current quarantine policy)
+- `CNAME autodiscover` → `autodiscover.outlook.com`
+- `CNAME lyncdiscover` → `webdir.online.lync.com`
+- `CNAME sip` → `sipdir.online.lync.com`
+- `CNAME msoid` → `clientconfig.microsoftonline-p.net`
+- `CNAME email` → GoDaddy email forwarding
+- `CNAME _domainconnect` → GoDaddy domain connect
+- `SRV _sipfederationtls._tcp` — Teams federation
+- `SRV _sip._tls` — Teams SIP/TLS
+
+### After DNS propagates (pending)
+
+1. Verify propagation:
+   ```bash
+   dig +short NS pumai.com.au @8.8.8.8
+   # expect: brian.ns.cloudflare.com.  /  diana.ns.cloudflare.com.
+   ```
+2. Update Cloud Run env vars to point at the custom domain:
+   ```bash
+   gcloud run services update pumai-app \
+     --region=australia-southeast1 \
+     --update-env-vars=AUTH_URL=https://pumai.com.au,NEXT_PUBLIC_APP_URL=https://pumai.com.au
+   ```
+3. Set up a Cloudflare Page Rule to redirect `www.pumai.com.au/*` → `https://pumai.com.au/$1` (or leave www working as alias).
+4. Verify TLS (Cloudflare Universal SSL provisions automatically, a few minutes).
+5. Register the prod webhook endpoint in Stripe (`https://pumai.com.au/api/webhooks/stripe`) and rotate `STRIPE_WEBHOOK_SECRET` in Secret Manager.
+6. Update Meta Messenger / Instagram webhook callback URLs to `https://pumai.com.au/api/webhooks/meta`.
+7. Update Google OAuth authorised redirect URIs to `https://pumai.com.au/api/auth/callback/google`.
+
+## 8. Cost snapshot (expected monthly, USD, Sydney)
+
+| Item | Cost |
+|---|---|
+| Cloud SQL Postgres 16 `db-f1-micro` + 10 GB SSD + backups | ~$10 |
+| Cloud Run 1 vCPU / 1 GiB, min=0, low traffic | $0–5 |
+| Artifact Registry (~500 MB) | <$0.10 |
+| Secret Manager (12 secrets, a few versions each) | <$0.50 |
+| GCS uploads (low volume) | ~$1 |
+| Cloud Monitoring / logging | $0 (free tier) |
+| Upstash Redis free tier | $0 |
+| Cloudflare Free | $0 |
+| Egress (~10 GB/mo out of Sydney) | ~$1.20 |
+| **Baseline** | **~$13–18/month** |
+
+Well inside the GCP $300 / 90-day new-account credit.
+
+## 9. Operations runbook
+
+### Deploy a change
+
+Normal flow — push to `main`:
+
 ```bash
+git push origin main
+# CI runs: typecheck + lint + npm audit + Trivy + WIF deploy to Cloud Run
+```
+
+### Roll back to a previous revision
+
+```bash
+# List recent revisions
+gcloud run revisions list --service=pumai-app --region=australia-southeast1
+
+# Route all traffic to an older one
 gcloud run services update-traffic pumai-app \
-  --to-revisions=pumai-app-<previous-rev>=100 \
+  --to-revisions=<previous-revision-name>=100 \
   --region=australia-southeast1
 ```
 
-Database rollback = restore from automated backup (last 7 days) or PITR to an exact timestamp.
+### Tail production logs
 
-Uploads bucket has object versioning disabled by default — turn on **if** accidental deletes are a likely failure mode (adds storage cost).
+```bash
+gcloud logging tail 'resource.type=cloud_run_revision AND resource.labels.service_name=pumai-app'
+```
 
-## 13. Final Checklist (pre-launch)
+### Connect to the prod database (read-only investigation)
 
-**Security**
-- [ ] CN-001 host-header redirects fixed and deployed
-- [ ] CN-003 dev widget script removed from prod layout
-- [ ] CN-004 all listed secrets rotated
-- [ ] CN-005 seed gated behind `NODE_ENV` + `RUN_SEED`
-- [ ] CN-009 NextAuth cookies hardened + `AUTH_URL=https://...`
-- [ ] At least CN-010 (resource limits), CN-011 (`no-new-privileges`), CN-019 (`console.*`), CN-020 (Pino redact paths) from Phase 2 hardening bundle
-- [ ] SECURITY.md present
-- [ ] Dependabot enabled
+```bash
+cloud-sql-proxy pumai-prod:australia-southeast1:pumai-db --port=15432 &
+# Password from /tmp/pumai_db_password.txt / local password manager
+PGPASSWORD=$DB_PWD psql -h 127.0.0.1 -p 15432 -U pumai -d pumai
+```
 
-**Infra**
-- [ ] Artifact Registry repo created
-- [ ] Cloud SQL instance created with automated backups + PITR
-- [ ] GCS uploads bucket with uniform IAM + public-access-prevention
-- [ ] Secret Manager has every required secret (listed in Phase 3.5)
-- [ ] Workload Identity Federation configured for GitHub Actions
-- [ ] Upstash Redis provisioned, `REDIS_URL` stored
+### Rotate a Secret Manager secret
 
-**App**
-- [ ] `UPLOADS_BUCKET` + Cloud SQL socket + Upstash URL work end-to-end locally with staging credentials
-- [ ] Prisma migrations applied to prod DB
-- [ ] Single real admin user created (seed not run in prod)
-- [ ] Custom domain mapped, cert issued
-- [ ] Meta / Stripe webhooks repointed to `https://app.pumai.com.au/api/webhooks/…`
-- [ ] Stripe customer portal return URL updated
-- [ ] Google OAuth authorised redirect URIs updated
+```bash
+# Generate new value
+NEW=$(openssl rand -base64 32)
+# Add as new version
+printf '%s' "$NEW" | gcloud secrets versions add AUTH_SECRET --data-file=-
+# Trigger Cloud Run to pick it up (empty update forces a revision)
+gcloud run services update pumai-app \
+  --region=australia-southeast1 \
+  --update-secrets=AUTH_SECRET=AUTH_SECRET:latest
+```
 
-**Observability**
-- [ ] Monitoring alerts live
-- [ ] Uptime check live
-- [ ] Log-based TOTP-invalid metric alert live
+Rotating `AUTH_SECRET` invalidates all active sessions — users have to log in again. Expected.
 
-**Go-live**
-- [ ] Smoke tests from Phase 5 all pass
-- [ ] Rotate admin password immediately after first login
-- [ ] Invite real team members via `Invitation` table (not seed)
-- [ ] Monitor first 24 h for anomalies
+### Add a new secret to Secret Manager
 
----
+```bash
+printf '%s' "$VALUE" | gcloud secrets create NEW_SECRET \
+  --replication-policy=automatic \
+  --data-file=-
+gcloud secrets add-iam-policy-binding NEW_SECRET \
+  --member=serviceAccount:pumai-run@pumai-prod.iam.gserviceaccount.com \
+  --role=roles/secretmanager.secretAccessor
+# Mount it on the Cloud Run service
+gcloud run services update pumai-app \
+  --region=australia-southeast1 \
+  --update-secrets=NEW_SECRET=NEW_SECRET:latest
+```
 
-## Appendix A — Files that will change in Phases 1 & 2
+### Re-run prod-bootstrap (idempotent — updates agents/widgets after schema change)
 
-Tracked here so reviewers know the blast radius in advance.
+See section 5.
 
-**Phase 1 (security):**
-- `web/entrypoint.sh`
-- `web/prisma/seed.ts`
-- `web/src/middleware.ts`
-- `web/src/app/api/auth/invalid-session/route.ts`
-- `web/src/app/api/meta/deletion-callback/route.ts`
-- `web/src/server/billing-actions.ts`
-- `web/src/app/layout.tsx`
-- `web/src/auth.ts`
-- `.env` (local, not committed — rotated values)
+## 10. Known follow-ups
 
-**Phase 2 (Cloud Run refactor + hardening):**
-- `web/package.json` (`@google-cloud/storage`)
-- `web/src/server/storage.ts` (new)
-- `web/src/app/api/webchat/[widgetKey]/upload/route.ts`
-- `web/src/app/api/uploads/[filename]/route.ts`
-- `web/src/server/prisma.ts`
-- `web/src/server/logger.ts`
-- `web/next.config.ts`
-- `web/src/app/api/webhooks/stripe/route.ts`
-- `web/src/app/api/webchat/[widgetKey]/stream/route.ts`
-- `web/src/app/api/webchat/[widgetKey]/events/route.ts`
-- `web/src/server/actions.ts` (cookie maxAge)
+- Finish DNS propagation, update `AUTH_URL` + `NEXT_PUBLIC_APP_URL`.
+- Register the Stripe prod webhook and rotate `STRIPE_WEBHOOK_SECRET`.
+- Configure Google OAuth client for production and store `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in Secret Manager (currently empty in `.env`).
+- Cloud Monitoring alert policies: 5xx rate, p95 latency, Cloud SQL CPU, Secret-Manager access-denied events.
+- Uptime check on `/api/health`.
+- Enable Dependabot alerts + security updates in GitHub repo settings.
+- Consider enabling Cloud SQL HA (+~$10/mo) once real users are on the platform.
+- Consider a GCP Global Load Balancer later if the Cloudflare-proxied traffic needs finer backend control or you want to centralise everything inside GCP.
 
-**Phase 4 (CI):**
-- `.github/workflows/ci.yml`
-- `.github/dependabot.yml` (new)
-- `SECURITY.md` (new, root)
+## 11. Out of scope
 
-## Appendix B — Environment variables in prod
+Same as the original plan — no multi-region failover, no read replicas, no VPC Service Controls, no IAP, no Cloud Armor. Revisit once the app actually needs them.
 
-| Var | Source | Purpose |
-|---|---|---|
-| `NODE_ENV` | env (literal `production`) | Gates seed, dev-only behaviour |
-| `AUTH_URL` | env (`https://app.pumai.com.au`) | NextAuth canonical URL |
-| `AUTH_TRUST_HOST` | env (`true`) | Required behind GFE |
-| `NEXT_PUBLIC_APP_URL` | env (`https://app.pumai.com.au`) | Public-facing URL |
-| `TRUSTED_PROXY_HOPS` | env (`1`) | XFF parsing depth |
-| `UPLOADS_BUCKET` | env (`pumai-uploads-prod`) | GCS bucket name |
-| `AUTH_SECRET` | Secret Manager | NextAuth JWT signing |
-| `DATABASE_URL` | Secret Manager | Postgres connection (Unix socket) |
-| `REDIS_URL` | Secret Manager | Upstash `rediss://` URL |
-| `OPENAI_API_KEY` | Secret Manager | OpenAI |
-| `STRIPE_SECRET_KEY` | Secret Manager | Stripe API |
-| `STRIPE_WEBHOOK_SECRET` | Secret Manager | Stripe webhook HMAC |
-| `META_APP_SECRET` | Secret Manager | Messenger HMAC |
-| `META_APP_SECRET_IG` | Secret Manager | Instagram HMAC |
-| `CHANNEL_CRED_KEY` | Secret Manager | AES-GCM envelope key |
-| `UPLOAD_SIGNING_KEY` | Secret Manager | Upload HMAC |
-| `WHATSAPP_WEBHOOK_TOKEN` | Secret Manager | Whapi verify token |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Secret Manager | Google OAuth |
+## Appendix A — Files that changed during the rollout
 
-## Appendix C — Non-goals for this plan (explicitly out of scope)
+Source code:
 
-- Horizontal DB read replicas. Skip until metrics prove need.
-- Multi-region failover. Single region until traffic justifies.
-- VPC Service Controls. Not worth the complexity for a single-tenant-per-business SaaS at this stage.
-- Cloud Armor / WAF. Cloud Run already has DDoS protection via Google Front End. Add later if targeted.
-- IAP or VPN for admin access. Keep it simple — Cloud Run service is public, admin gating is application-level (`requireSuperadmin`).
+- `web/entrypoint.sh` — gate seed behind `RUN_SEED=1`; detect Cloud SQL socket
+- `web/prisma/seed.ts` — refuse non-local DB; drop password logging; upsert demo webchat config
+- `web/prisma/prod-bootstrap.ts` — new, prod-safe bootstrap
+- `docker-compose.yml` — `RUN_SEED: "1"` in dev
+- `web/src/proxy.ts` — renamed from `middleware.ts`; dropped XFH trust; passes cookieName to `getToken()`
+- `web/src/auth.ts` — explicit `cookies` block; AUTH_URL guard; localhost escape hatch
+- `web/src/app/layout.tsx` — removed hardcoded dev widget; added `dynamic = "force-dynamic"`
+- `web/src/app/api/auth/invalid-session/route.ts` — `new URL(path, req.url)` pattern
+- `web/src/app/api/meta/deletion-callback/route.ts` — same
+- `web/src/server/billing-actions.ts` — same + `NEXT_PUBLIC_APP_URL` guard
+- `web/src/server/storage.ts` — new, GCS wrapper with FS fallback
+- `web/src/app/api/webchat/[widgetKey]/upload/route.ts` — uses storage wrapper
+- `web/src/app/api/uploads/[filename]/route.ts` — uses storage wrapper
+- `web/src/app/api/webchat/[widgetKey]/stream/route.ts` — uses storage wrapper + scoped logger
+- `web/src/app/api/webchat/[widgetKey]/events/route.ts` — scoped logger
+- `web/src/app/api/webhooks/stripe/route.ts` — scoped logger
+- `web/src/server/logger.ts` — redact paths expanded
+- `web/src/server/actions.ts` — cookie maxAge 30d, secure gated on AUTH_URL
+- `web/next.config.ts` — `poweredByHeader: false`
+- `web/package.json` / `web/package-lock.json` — `@google-cloud/storage` added
+
+Infrastructure / meta:
+
+- `.github/workflows/ci.yml` — Phase 4 rewrite (WIF deploy, pinned Trivy, --ignore-scripts)
+- `.github/dependabot.yml` — new
+- `SECURITY.md` — new
+- `docs/DEPLOY_GCP.md` — this document
