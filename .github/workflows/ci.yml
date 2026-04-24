@@ -25,7 +25,7 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - name: Install
         working-directory: web
-        run: npm ci
+        run: npm ci --ignore-scripts
       - name: Prisma generate
         working-directory: web
         run: npx prisma generate
@@ -60,9 +60,14 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Install Trivy
+      - name: Install Trivy (pinned release)
+        env:
+          TRIVY_VERSION: v0.69.3
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          curl -sfL "https://raw.githubusercontent.com/aquasecurity/trivy/${TRIVY_VERSION}/contrib/install.sh" \
+            -o /tmp/trivy-install.sh
+          sh /tmp/trivy-install.sh -b /usr/local/bin "${TRIVY_VERSION}"
+          rm /tmp/trivy-install.sh
       - name: Run Trivy (SARIF for GitHub Security tab)
         run: |
           trivy fs \
@@ -86,3 +91,57 @@ jobs:
             --exit-code 1 \
             --format table \
             .
+
+  deploy:
+    name: Deploy to Cloud Run
+    needs: [typecheck-lint, npm-audit, trivy]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GCP_PROJECT: pumai-prod
+      GCP_REGION: australia-southeast1
+      AR_IMAGE: australia-southeast1-docker.pkg.dev/pumai-prod/pumai/app
+      CLOUD_RUN_SERVICE: pumai-app
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Auth via Workload Identity Federation
+        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f # v2.1.7
+        with:
+          workload_identity_provider: projects/822489336766/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: pumai-deploy@pumai-prod.iam.gserviceaccount.com
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@77e7a554d41e2ee56fc945c52dfd3f33b12ef9b5 # v2.1.2
+      - name: Configure docker for Artifact Registry
+        run: gcloud auth configure-docker australia-southeast1-docker.pkg.dev --quiet
+      - name: Build image
+        run: docker build -f web/Dockerfile -t "${AR_IMAGE}:${{ github.sha }}" -t "${AR_IMAGE}:latest" .
+      - name: Push image (sha + latest)
+        run: |
+          docker push "${AR_IMAGE}:${{ github.sha }}"
+          docker push "${AR_IMAGE}:latest"
+      - name: Deploy new revision (image swap, preserves env + secrets)
+        run: |
+          gcloud run services update "${CLOUD_RUN_SERVICE}" \
+            --image="${AR_IMAGE}:${{ github.sha }}" \
+            --region="${GCP_REGION}" \
+            --quiet
+      - name: Smoke test /api/health
+        run: |
+          URL=$(gcloud run services describe "${CLOUD_RUN_SERVICE}" \
+            --region="${GCP_REGION}" \
+            --format='value(status.url)')
+          echo "Deployed URL: $URL"
+          for i in 1 2 3 4 5; do
+            if curl -sf "${URL}/api/health" > /dev/null; then
+              echo "Health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 5
+          done
+          echo "Health check failed after 5 attempts"
+          exit 1
