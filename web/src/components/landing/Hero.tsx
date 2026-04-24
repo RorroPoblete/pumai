@@ -15,8 +15,26 @@ export default function Hero() {
   const badgeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const reveal = () => {
+      for (const el of [
+        badgeRef.current,
+        h1Ref.current,
+        subtitleRef.current,
+        ctasRef.current,
+        statsRef.current,
+      ]) {
+        if (el) el.style.opacity = "1";
+      }
+    };
+
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
+    if (reduced) {
+      reveal();
+      return;
+    }
+
+    // Fallback: if GSAP fails or takes too long, show content after 2s
+    const fallback = window.setTimeout(reveal, 2000);
 
     let cleanup: (() => void) | undefined;
     let cancelled = false;
@@ -28,11 +46,15 @@ export default function Hero() {
         import("gsap/SplitText"),
       ]);
       if (cancelled || !h1Ref.current) return;
+      window.clearTimeout(fallback);
 
       gsap.registerPlugin(ScrollTrigger, SplitText);
 
       const fullText = h1Ref.current.textContent ?? "";
       h1Ref.current.setAttribute("aria-label", fullText);
+
+      // Make parent visible now; chars start offscreen and animate up.
+      h1Ref.current.style.opacity = "1";
 
       const split = new SplitText(h1Ref.current, {
         type: "lines,words,chars",
@@ -43,14 +65,14 @@ export default function Hero() {
       });
 
       gsap.set(split.chars, { yPercent: 110, opacity: 0 });
-      gsap.set(
-        [badgeRef.current, subtitleRef.current, ctasRef.current, statsRef.current],
-        { opacity: 0, y: 24 }
-      );
 
       const tl = gsap.timeline({ delay: 0.1 });
 
-      tl.to(badgeRef.current, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" })
+      tl.fromTo(
+        badgeRef.current,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }
+      )
         .to(
           split.chars,
           {
@@ -65,9 +87,24 @@ export default function Hero() {
           },
           "-=0.5"
         )
-        .to(subtitleRef.current, { opacity: 1, y: 0, duration: 1, ease: "expo.out" }, "-=0.6")
-        .to(ctasRef.current, { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, "-=0.7")
-        .to(statsRef.current, { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, "-=0.7");
+        .fromTo(
+          subtitleRef.current,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 1, ease: "expo.out" },
+          "-=0.6"
+        )
+        .fromTo(
+          ctasRef.current,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
+          "-=0.7"
+        )
+        .fromTo(
+          statsRef.current,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" },
+          "-=0.7"
+        );
 
       const scrubA = gsap.to(contentRef.current, {
         scale: 1.1,
@@ -127,6 +164,7 @@ export default function Hero() {
       >
         <div
           ref={badgeRef}
+          style={{ opacity: 0 }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(139,92,246,0.3)] bg-[rgba(139,92,246,0.08)] mb-8"
         >
           <span className="text-xs font-semibold text-[#8B5CF6] tracking-wide uppercase">
@@ -136,24 +174,27 @@ export default function Hero() {
 
         <h1
           ref={h1Ref}
+          style={{ opacity: 0 }}
           className="hero-h1 text-5xl sm:text-6xl lg:text-7xl font-black tracking-[-0.04em] leading-[1.1] mb-6"
         >
-          <span className="gradient-text">AI Agents for </span>
-          <span className="gradient-text">WhatsApp, Instagram </span>
+          <span className="gradient-text">AI Chatbots for</span>{" "}
+          <span className="gradient-text">WhatsApp, Instagram</span>{" "}
           <span className="text-[#8B5CF6]">&amp; Every Channel</span>
         </h1>
 
         <p
           ref={subtitleRef}
+          style={{ opacity: 0 }}
           className="text-lg sm:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          AI-powered agents that handle sales, support, and marketing 24/7 — via
-          WhatsApp, Webchat, Instagram DMs, and Facebook Messenger. One platform,
-          every conversation.
+          Australian AI chatbots and agents that handle sales, customer service and marketing
+          24/7 — on WhatsApp, Webchat, Instagram DMs and Facebook Messenger. One platform, every
+          conversation.
         </p>
 
         <div
           ref={ctasRef}
+          style={{ opacity: 0 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link
@@ -172,11 +213,12 @@ export default function Hero() {
 
         <div
           ref={statsRef}
+          style={{ opacity: 0 }}
           className="mt-16 grid grid-cols-3 gap-8 max-w-xl mx-auto"
         >
           {[
             { value: "24/7", label: "Always On" },
-            { value: "2.5M+", label: "SMEs in Australia" },
+            { value: "Official", label: "WhatsApp Business API" },
             { value: "4", label: "Channels, One Platform" },
           ].map((s) => (
             <div key={s.label}>

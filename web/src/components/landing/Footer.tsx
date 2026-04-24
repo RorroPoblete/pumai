@@ -21,8 +21,8 @@ const footerLinks: Record<string, { label: string; href: string }[]> = {
     { label: "Cookie Policy", href: "/cookies" },
   ],
   Support: [
-    { label: "Help Centre", href: "mailto:support@pumai.com.au" },
-    { label: "Contact", href: "mailto:support@pumai.com.au" },
+    { label: "Contact Sales", href: "/contact" },
+    { label: "Support email", href: "mailto:support@pumai.com.au" },
   ],
 };
 
@@ -35,7 +35,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/logo.svg"
+                src="/logo.png"
                 alt="PumAI logo"
                 width={28}
                 height={28}

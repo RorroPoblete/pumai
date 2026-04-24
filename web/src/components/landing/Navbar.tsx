@@ -48,7 +48,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3" aria-label="PumAI home">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="PumAI logo"
             width={36}
             height={36}

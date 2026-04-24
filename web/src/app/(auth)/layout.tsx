@@ -24,7 +24,7 @@ export default function AuthLayout({
         <div className="relative z-10 max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <Image
-              src="/logo.svg"
+              src="/logo.png"
               alt="PumAI logo"
               width={44}
               height={44}

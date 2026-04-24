@@ -30,7 +30,7 @@ export default function LegalLayout({
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-[var(--border-subtle)] bg-[rgba(9,9,11,0.8)] backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="PumAI home">
-            <Image src="/logo.svg" alt="PumAI logo" width={28} height={28} className="rounded-lg" />
+            <Image src="/logo.png" alt="PumAI logo" width={28} height={28} className="rounded-lg" />
             <span className="text-base font-bold text-[var(--text-primary)]">
               Pum<span className="text-[#8B5CF6]">AI</span>
             </span>

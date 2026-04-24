@@ -261,6 +261,19 @@ body {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-scroll,
+  .animate-pulse-glow {
+    animation: none;
+  }
+}
+
+/* ---- Anchor scroll offset (fixed navbar) ---- */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
 /* ---- Scroll Reveal ---- */
 .reveal {
   opacity: 0;

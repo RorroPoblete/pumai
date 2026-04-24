@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pumai.com.au";
-const BUILD_DATE = process.env.BUILD_DATE ?? "2026-04-24";
+const BUILD_DATE = process.env.BUILD_DATE ?? new Date().toISOString().slice(0, 10);
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

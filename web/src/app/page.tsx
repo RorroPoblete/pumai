@@ -6,27 +6,29 @@ import Hero from "@/components/landing/Hero";
 import LogoCarousel from "@/components/landing/LogoCarousel";
 import ScrollReveal from "@/components/landing/ScrollReveal";
 import JsonLd from "@/components/JsonLd";
+import { homeFaqs } from "@/components/landing/FAQ";
 
 const Features = dynamic(() => import("@/components/landing/Features"));
 const HowItWorks = dynamic(() => import("@/components/landing/HowItWorks"));
 const Pricing = dynamic(() => import("@/components/landing/Pricing"));
 const Industries = dynamic(() => import("@/components/landing/Industries"));
 const CTA = dynamic(() => import("@/components/landing/CTA"));
+const FAQ = dynamic(() => import("@/components/landing/FAQ"));
 const Footer = dynamic(() => import("@/components/landing/Footer"));
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pumai.com.au";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "PumAI — AI Agents for WhatsApp, Instagram & Messenger",
+    absolute: "AI Chatbot Australia — WhatsApp & Instagram AI Agents | PumAI",
   },
   description:
-    "Deploy AI agents 24/7 on WhatsApp, Webchat, Instagram DMs and Messenger. One platform, every conversation — built for Australian SMEs.",
+    "Australian AI chatbot platform for WhatsApp, Instagram, Messenger and Webchat. Deploy 24/7 AI agents for sales and customer service. Live in minutes. From A$99/mo inc GST.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "PumAI — AI Agents for WhatsApp, Instagram & Messenger",
+    title: "AI Chatbot Australia — WhatsApp & Instagram AI Agents | PumAI",
     description:
-      "Deploy AI agents 24/7 on WhatsApp, Webchat, Instagram DMs and Messenger. Built for Australian SMEs.",
+      "Australian AI chatbot platform for WhatsApp, Instagram, Messenger and Webchat. Live in minutes. From A$99/mo.",
     url: "/",
     type: "website",
   },
@@ -54,14 +56,14 @@ export default function Home() {
         contactType: "sales",
         email: "sales@pumai.com.au",
         availableLanguage: ["English"],
-        areaServed: "AU",
+        areaServed: { "@type": "Country", name: "Australia" },
       },
       {
         "@type": "ContactPoint",
         contactType: "customer support",
         email: "support@pumai.com.au",
         availableLanguage: ["English"],
-        areaServed: "AU",
+        areaServed: { "@type": "Country", name: "Australia" },
       },
     ],
   };
@@ -69,18 +71,21 @@ export default function Home() {
   const softwareApp = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": `${SITE_URL}/#software`,
     name: "PumAI",
     operatingSystem: "Web",
     applicationCategory: "BusinessApplication",
     description:
-      "Omnichannel AI agent platform for WhatsApp, Webchat, Instagram DMs and Messenger. Automate sales, support and marketing.",
+      "Omnichannel AI chatbot platform for WhatsApp, Webchat, Instagram DMs and Messenger. Automate sales, support and marketing.",
     url: SITE_URL,
+    publisher: { "@id": `${SITE_URL}/#organization` },
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "AUD",
       lowPrice: "99",
       highPrice: "899",
-      availability: "https://schema.org/OnlineOnly",
+      offerCount: "12",
+      availability: "https://schema.org/InStock",
       url: `${SITE_URL}/pricing`,
     },
     featureList: [
@@ -108,48 +113,13 @@ export default function Home() {
   const faq = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Which channels does PumAI support?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "PumAI supports Webchat, WhatsApp, Instagram DMs and Facebook Messenger from a single AI platform — with the same agent powering every channel.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "How much does PumAI cost?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Plans start at A$99/month for Webchat Starter and scale up to A$899/month for WhatsApp Scale. Enterprise pricing is available for volumes above 10,000 conversations/month. All prices include GST.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Do I need technical knowledge to set up PumAI?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "No. You can configure your AI agent — personality, knowledge base and conversation flows — entirely from the dashboard. Most customers go live within minutes.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Is PumAI compliant with Australian privacy laws?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes. PumAI is built for Australian businesses and operates under the Privacy Act 1988 (Cth), the Australian Privacy Principles and the Spam Act 2003.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Can the AI agent hand off to a human?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes. The platform detects escalation signals and routes conversations to a human team member when required, with full conversation history preserved.",
-        },
-      },
-    ],
+    "@id": `${SITE_URL}/#faq`,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    mainEntity: homeFaqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
   };
 
   return (
@@ -169,6 +139,9 @@ export default function Home() {
       </ScrollReveal>
       <ScrollReveal>
         <Industries />
+      </ScrollReveal>
+      <ScrollReveal>
+        <FAQ />
       </ScrollReveal>
       <ScrollReveal>
         <CTA />

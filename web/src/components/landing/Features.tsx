@@ -9,9 +9,9 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
       </svg>
     ),
-    title: "Conversational AI, Not Rigid Bots",
+    title: "Conversational AI Chatbots, Not Scripted Bots",
     description:
-      "Powered by GPT-4o Mini, your agent understands context, handles nuance, and responds naturally in English — like a real team member.",
+      "Powered by GPT-4o Mini, your chatbot understands context, handles nuance, and responds naturally in English — like a real team member.",
   },
   {
     icon: (
@@ -179,8 +179,8 @@ export default function Features() {
             ref={h2Ref}
             className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]"
           >
-            <span>Everything you need to automate </span>
-            <span className="gradient-text-violet">customer conversations</span>
+            <span>Everything an Australian business needs from an </span>
+            <span className="gradient-text-violet">AI chatbot</span>
           </h2>
           <p
             ref={subtitleRef}
@@ -195,7 +195,7 @@ export default function Features() {
           {features.map((f, i) => (
             <div
               key={i}
-              className="feature-card card-gradient border border-[rgba(139,92,246,0.15)] rounded-2xl p-8 hover:-translate-y-2 hover:border-[rgba(139,92,246,0.5)] hover:shadow-[0_20px_60px_rgba(139,92,246,0.15)] transition-all duration-400 group"
+              className="feature-card card-gradient border border-[rgba(139,92,246,0.15)] rounded-2xl p-8 hover:-translate-y-2 hover:border-[rgba(139,92,246,0.5)] hover:shadow-[0_20px_60px_rgba(139,92,246,0.15)] transition-all duration-500 group"
             >
               <div className="w-14 h-14 rounded-xl bg-[rgba(139,92,246,0.12)] flex items-center justify-center text-[#8B5CF6] mb-6 group-hover:bg-[rgba(139,92,246,0.2)] transition-colors">
                 {f.icon}

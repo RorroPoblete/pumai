@@ -130,7 +130,7 @@ export default function Sidebar({
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-5 py-6 flex items-center gap-2.5">
-        <Image src="/logo.svg" alt="PumAI logo" width={30} height={30} className="rounded-lg" />
+        <Image src="/logo.png" alt="PumAI logo" width={30} height={30} className="rounded-lg" />
         <span className="text-base font-bold text-[var(--text-primary)]">
           Pum<span className="text-[#8B5CF6]">AI</span>
         </span>

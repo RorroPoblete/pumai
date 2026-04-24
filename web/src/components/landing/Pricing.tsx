@@ -120,8 +120,8 @@ export default function Pricing() {
             Pricing
           </span>
           <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--text-primary)]">
-            Four channels,{" "}
-            <span className="gradient-text-violet">one platform</span>
+            AI chatbot pricing —{" "}
+            <span className="gradient-text-violet">four channels, one platform</span>
           </h2>
           <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-xl mx-auto">
             Choose the channels your customers use. Mix and match, or go Omnichannel for full coverage.
@@ -140,14 +140,19 @@ export default function Pricing() {
               <button
                 key={ch}
                 onClick={() => setChannel(ch)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border-2 ${
                   active
-                    ? `border-2 shadow-[0_0_20px_${c.bg}0.15)]`
-                    : "border-2 border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border-input)]"
+                    ? ""
+                    : "border-[var(--border-input)] text-[var(--text-muted)] hover:border-[var(--border-input)]"
                 }`}
                 style={
                   active
-                    ? { backgroundColor: `${c.bg}0.15)`, color: c.color, borderColor: c.color }
+                    ? {
+                        backgroundColor: `${c.bg}0.15)`,
+                        color: c.color,
+                        borderColor: c.color,
+                        boxShadow: `0 0 20px ${c.bg}0.15)`,
+                      }
                     : undefined
                 }
               >
@@ -185,8 +190,8 @@ export default function Pricing() {
             >
               {p.popular && (
                 <div
-                  className="absolute -top-3 right-6 text-xs font-bold px-3 py-1 rounded-md text-[var(--text-primary)]"
-                  style={{ background: cfg.color }}
+                  className="absolute -top-3 right-6 text-xs font-bold px-3 py-1 rounded-md"
+                  style={{ background: cfg.color, color: "#ffffff" }}
                 >
                   MOST POPULAR
                 </div>
