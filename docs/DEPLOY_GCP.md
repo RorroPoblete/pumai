@@ -1,17 +1,19 @@
 # PumAI — GCP Deployment Runbook
 
-**Region:** `australia-southeast1` (Sydney)
-**Status:** Production live on Cloud Run auto URL; custom domain `pumai.com.au` in Cloudflare-DNS propagation.
+**Region:** `asia-southeast1` (Singapore)
+**Status:** Production live on Cloud Run auto URL; custom domain `pumai.com.au` uses native Cloud Run domain mapping, DNS at GoDaddy.
 **Last updated:** 2026-04-23
 
 No secret values appear in this document. All secrets live in Secret Manager and in local `.env` (gitignored).
+
+**Why Singapore and not Sydney:** `australia-southeast1` does not support native Cloud Run domain mappings (`gcloud beta run domain-mappings create` returns HTTP 501). Singapore supports them, adds ~60-70 ms latency for Australian users (still under 120 ms), and keeps the stack pure GCP + GoDaddy DNS — no Cloudflare proxy, no Worker, no Load Balancer, $0 extra infrastructure cost.
 
 ---
 
 ## 1. Live service
 
-- **Cloud Run URL:** `https://pumai-app-822489336766.australia-southeast1.run.app`
-- **Custom domain (in progress):** `pumai.com.au` + `www.pumai.com.au`
+- **Cloud Run URL:** `https://pumai-app-822489336766.asia-southeast1.run.app`
+- **Custom domain:** `https://pumai.com.au` + `https://www.pumai.com.au`
 - **Admin login:** `admin@pumai.com.au` (password stored in user's password manager, not here)
 - **GCP project:** `pumai-prod` (project number `822489336766`)
 - **Billing account:** `017703-67E2C4-BFBF04`
@@ -20,21 +22,21 @@ No secret values appear in this document. All secrets live in Secret Manager and
 
 ```
              Browser
-               │ HTTPS
+               │ HTTPS (Google-managed cert)
                ▼
-      Cloudflare (Proxied CNAME)
+GoDaddy DNS → 4 A + 4 AAAA (Google Cloud Run IPs)
                │
                ▼
-Cloud Run service: pumai-app  (australia-southeast1, min=0 max=3, 1 vCPU / 1 GiB)
+Cloud Run service: pumai-app  (asia-southeast1, min=0 max=3, 1 vCPU / 1 GiB)
       │              │                 │                │
       │ socket       │ REST            │ env            │ rediss://
       ▼              ▼                 ▼                ▼
 Cloud SQL       GCS bucket        Secret Manager    Upstash Redis
-Postgres 16     pumai-uploads-    (12 secrets)      (free tier,
-db-f1-micro     prod              runtime SA        Sydney)
-ENTERPRISE      uniform IAM       has accessor
-edition         public-access-
-                prevention
+Postgres 16     pumai-uploads-sg  (12 secrets)      (free tier,
+db-f1-micro     uniform IAM       runtime SA        Sydney, cross-
+ENTERPRISE      public-access-    has accessor      region ok)
+edition         prevention
+asia-southeast1
 ```
 
 ### Runtime identity
@@ -60,14 +62,15 @@ edition         public-access-
 |---|---|---|
 | GCP project | `pumai-prod` | linked to billing `017703-...` |
 | Enabled APIs | `run`, `sqladmin`, `secretmanager`, `artifactregistry`, `storage`, `iamcredentials`, `sts`, `cloudbuild` | |
-| Artifact Registry | `australia-southeast1-docker.pkg.dev/pumai-prod/pumai` | Docker repo |
-| Cloud SQL instance | `pumai-db` | Postgres 16, `db-f1-micro`, ENTERPRISE, 10 GB SSD, backups 14:00 UTC, PITR on |
-| Cloud SQL connection name | `pumai-prod:australia-southeast1:pumai-db` | used as `host=/cloudsql/<conn>` |
+| Artifact Registry | `asia-southeast1-docker.pkg.dev/pumai-prod/pumai` | Docker repo (Singapore) |
+| Cloud SQL instance | `pumai-db-sg` | Postgres 16, `db-f1-micro`, ENTERPRISE, 10 GB SSD, backups 14:00 UTC, PITR on |
+| Cloud SQL connection name | `pumai-prod:asia-southeast1:pumai-db-sg` | used as `host=/cloudsql/<conn>` |
 | Cloud SQL database | `pumai` | |
 | Cloud SQL user | `pumai` | password in Secret Manager (`DATABASE_URL` composite) |
-| GCS bucket | `gs://pumai-uploads-prod` | Sydney, uniform IAM, public-access-prevention |
+| GCS bucket | `gs://pumai-uploads-sg` | Singapore, uniform IAM, public-access-prevention |
 | Upstash Redis | `precious-zebra-105408.upstash.io:6379` | TLS required (`rediss://`), Sydney, free tier |
-| Cloud Run service | `pumai-app` | min=0, max=3, 1 vCPU / 1 GiB, timeout=3600 s (SSE), concurrency=80 |
+| Cloud Run service | `pumai-app` (asia-southeast1) | min=0, max=3, 1 vCPU / 1 GiB, timeout=3600 s (SSE), concurrency=80 |
+| Cloud Run domain mappings | `pumai.com.au`, `www.pumai.com.au` | native mapping in Singapore, Google-managed SSL |
 | Runtime SA | `pumai-run@pumai-prod.iam.gserviceaccount.com` | bound to Cloud Run |
 | Deploy SA | `pumai-deploy@pumai-prod.iam.gserviceaccount.com` | impersonated by WIF |
 | WIF pool / provider | `github-pool` / `github-provider` | |
@@ -149,19 +152,29 @@ The script upserts: PumAI business, 4 channel subscriptions (GROWTH), 5 demo age
 
 ## 7. Custom domain (`pumai.com.au` + `www`)
 
-### Why Cloudflare
+Native Cloud Run domain mapping in `asia-southeast1`. DNS at GoDaddy. No Cloudflare proxy, no Worker, no Load Balancer.
 
-`australia-southeast1` does NOT support Cloud Run native domain mappings (`gcloud run domain-mappings create` returns HTTP 501 `UNIMPLEMENTED`). Alternatives: Cloudflare (free, keeps Cloud Run in Sydney) or Global External HTTPS Load Balancer (~USD 20/month fixed). Chose Cloudflare.
+### Cloud Run side
 
-### Setup performed
+```bash
+gcloud beta run domain-mappings create --service=pumai-app --domain=pumai.com.au --region=asia-southeast1
+gcloud beta run domain-mappings create --service=pumai-app --domain=www.pumai.com.au --region=asia-southeast1
+```
 
-1. Domain registered at GoDaddy.
-2. Cloudflare free account created; domain added; DNS scan imported records from GoDaddy.
-3. Email-related CNAMEs (`autodiscover`, `lyncdiscover`, `sip`, `msoid`, `email`, `_domainconnect`) explicitly set to **DNS only** (grey cloud). Email is Microsoft 365 — proxying them would break Autodiscover/Teams.
-4. GoDaddy parking A records at apex deleted.
-5. Added `CNAME @` → `pumai-app-822489336766.australia-southeast1.run.app` (Proxied).
-6. `CNAME www` → `pumai.com.au` (Proxied; apex is flattened by Cloudflare).
-7. In GoDaddy, nameservers swapped: `ns43/ns44.domaincontrol.com` → `brian.ns.cloudflare.com`, `diana.ns.cloudflare.com`.
+Cloud Run returns 4 A + 4 AAAA records for the apex and a CNAME for `www` (→ `ghs.googlehosted.com`). Google provisions a managed SSL certificate automatically once DNS propagates (5-30 min).
+
+### GoDaddy DNS configuration
+
+The apex gets 4 Google anycast IPs (IPv4 + IPv6); `www` becomes a CNAME to the Google hosted services alias. Managed in the GoDaddy DNS panel or via the GoDaddy REST API (`api.godaddy.com/v1/domains/pumai.com.au/records`).
+
+Records set at apex (`@`):
+- **A** × 4: `216.239.32.21`, `216.239.34.21`, `216.239.36.21`, `216.239.38.21`
+- **AAAA** × 4: `2001:4860:4802:32::15`, `2001:4860:4802:34::15`, `2001:4860:4802:36::15`, `2001:4860:4802:38::15`
+
+Record at `www`:
+- **CNAME** → `ghs.googlehosted.com`
+
+Nameservers: GoDaddy's own (`ns43.domaincontrol.com`, `ns44.domaincontrol.com`).
 
 ### Records preserved unchanged (M365 email)
 
@@ -179,26 +192,17 @@ The script upserts: PumAI business, 4 channel subscriptions (GROWTH), 5 demo age
 - `SRV _sipfederationtls._tcp` — Teams federation
 - `SRV _sip._tls` — Teams SIP/TLS
 
-### After DNS propagates (pending)
+### Cloud Run env vars (already set)
 
-1. Verify propagation:
-   ```bash
-   dig +short NS pumai.com.au @8.8.8.8
-   # expect: brian.ns.cloudflare.com.  /  diana.ns.cloudflare.com.
-   ```
-2. Update Cloud Run env vars to point at the custom domain:
-   ```bash
-   gcloud run services update pumai-app \
-     --region=australia-southeast1 \
-     --update-env-vars=AUTH_URL=https://pumai.com.au,NEXT_PUBLIC_APP_URL=https://pumai.com.au
-   ```
-3. Set up a Cloudflare Page Rule to redirect `www.pumai.com.au/*` → `https://pumai.com.au/$1` (or leave www working as alias).
-4. Verify TLS (Cloudflare Universal SSL provisions automatically, a few minutes).
-5. Register the prod webhook endpoint in Stripe (`https://pumai.com.au/api/webhooks/stripe`) and rotate `STRIPE_WEBHOOK_SECRET` in Secret Manager.
-6. Update Meta Messenger / Instagram webhook callback URLs to `https://pumai.com.au/api/webhooks/meta`.
-7. Update Google OAuth authorised redirect URIs to `https://pumai.com.au/api/auth/callback/google`.
+`AUTH_URL=https://pumai.com.au` and `NEXT_PUBLIC_APP_URL=https://pumai.com.au` were set at deploy time; no post-DNS update needed.
 
-## 8. Cost snapshot (expected monthly, USD, Sydney)
+### Follow-ups once HTTPS is live
+
+1. Register the prod webhook endpoint in Stripe (`https://pumai.com.au/api/webhooks/stripe`) and rotate `STRIPE_WEBHOOK_SECRET` in Secret Manager.
+2. Update Meta Messenger / Instagram webhook callback URLs to `https://pumai.com.au/api/webhooks/meta`.
+3. Update Google OAuth authorised redirect URIs to `https://pumai.com.au/api/auth/callback/google` once a prod OAuth client is created.
+
+## 8. Cost snapshot (expected monthly, USD, Singapore)
 
 | Item | Cost |
 |---|---|
@@ -209,8 +213,7 @@ The script upserts: PumAI business, 4 channel subscriptions (GROWTH), 5 demo age
 | GCS uploads (low volume) | ~$1 |
 | Cloud Monitoring / logging | $0 (free tier) |
 | Upstash Redis free tier | $0 |
-| Cloudflare Free | $0 |
-| Egress (~10 GB/mo out of Sydney) | ~$1.20 |
+| Egress (~10 GB/mo out of Singapore) | ~$1.20 |
 | **Baseline** | **~$13–18/month** |
 
 Well inside the GCP $300 / 90-day new-account credit.
@@ -247,9 +250,9 @@ gcloud logging tail 'resource.type=cloud_run_revision AND resource.labels.servic
 ### Connect to the prod database (read-only investigation)
 
 ```bash
-cloud-sql-proxy pumai-prod:australia-southeast1:pumai-db --port=15432 &
-# Password from /tmp/pumai_db_password.txt / local password manager
-PGPASSWORD=$DB_PWD psql -h 127.0.0.1 -p 15432 -U pumai -d pumai
+cloud-sql-proxy pumai-prod:asia-southeast1:pumai-db-sg --port=15433 &
+# Password from the user's password manager
+PGPASSWORD=$DB_PWD psql -h 127.0.0.1 -p 15433 -U pumai -d pumai
 ```
 
 ### Rotate a Secret Manager secret
