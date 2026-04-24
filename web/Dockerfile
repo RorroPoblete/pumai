@@ -45,7 +45,8 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 
 COPY web/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+RUN sed -i 's/\r$//' ./entrypoint.sh && \
+    chmod +x ./entrypoint.sh
 
 RUN chown -R nextjs:nodejs /app
 
@@ -54,6 +55,6 @@ USER nextjs
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD wget --spider -q http://127.0.0.1:3000/api/health || exit 1
+    CMD wget --spider -q http://127.0.0.1:3000/api/health || exit 1
 
 ENTRYPOINT ["./entrypoint.sh"]

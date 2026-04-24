@@ -123,8 +123,14 @@ export default function Sidebar({
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isActive = (href: string) =>
-    href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    if (href === "/dashboard/tenants") {
+      return pathname === "/dashboard/tenants" || 
+             (pathname.startsWith("/dashboard/tenants/") && !pathname.startsWith("/dashboard/tenants/platform"));
+    }
+    return pathname.startsWith(href);
+  };
 
   const nav = (
     <div className="flex flex-col h-full">

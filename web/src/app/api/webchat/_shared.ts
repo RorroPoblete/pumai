@@ -19,8 +19,6 @@ export function publicCorsHeaders(): HeadersInit {
   };
 }
 
-// Scoped CORS — reflect Origin only when it's in the widget's allowlist.
-// Empty allowlist = no Allow-Origin header emitted (browser blocks cross-origin).
 export function corsHeaders(req: Request, allowed: string[] = []): HeadersInit {
   const headers: Record<string, string> = {
     "Vary": "Origin",
@@ -29,7 +27,9 @@ export function corsHeaders(req: Request, allowed: string[] = []): HeadersInit {
     "Access-Control-Max-Age": "86400",
   };
   const origin = req.headers.get("origin");
-  if (origin && allowed.includes(origin)) {
+  if (allowed.length === 0) {
+    headers["Access-Control-Allow-Origin"] = origin || "*";
+  } else if (origin && allowed.includes(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
   }
   return headers;
@@ -88,10 +88,9 @@ export async function resolveWebchatConfig(widgetKey: string): Promise<ResolvedC
   };
 }
 
-// Default-deny. Missing Origin is only permitted when there is no allowlist
-// (e.g. the public /config bootstrap); otherwise the request must match.
+// Default-allow if empty. If allowlist is empty, allow all.
 export function originAllowed(origin: string, allowed: string[]): boolean {
-  if (allowed.length === 0) return !origin;
+  if (allowed.length === 0) return true;
   return !!origin && allowed.includes(origin);
 }
 

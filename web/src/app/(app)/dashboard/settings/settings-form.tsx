@@ -38,8 +38,8 @@ export default function SettingsForm({
   }
 
   function handleChangePassword() {
-    if (!currentPw || !newPw || newPw.length < 8) {
-      setPwMsg({ ok: false, text: "New password must be at least 8 characters" });
+    if (!currentPw || !newPw || newPw.length < 12) {
+      setPwMsg({ ok: false, text: "New password must be at least 12 characters" });
       return;
     }
     startTransition(async () => {
@@ -105,7 +105,7 @@ export default function SettingsForm({
             </div>
             <div>
               <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">New password</label>
-              <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Minimum 8 characters" className={inputClass} />
+              <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Minimum 12 characters" className={inputClass} />
             </div>
             {pwMsg && (
               <p className={`text-xs ${pwMsg.ok ? "text-[#22c55e]" : "text-[#ef4444]"}`}>{pwMsg.text}</p>
@@ -136,13 +136,14 @@ export default function SettingsForm({
                   <div className="text-xs text-[var(--text-muted)]">{n.desc}</div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setNotifications((prev) => ({ ...prev, [n.key]: !prev[n.key as keyof typeof prev] }))}
-                  className={`w-11 h-6 rounded-full transition-colors duration-200 relative ${
+                  className={`w-11 h-6 rounded-full transition-colors duration-200 flex items-center px-1 ${
                     notifications[n.key as keyof typeof notifications] ? "bg-[#8B5CF6]" : "bg-[var(--bg-hover)]"
                   }`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                    notifications[n.key as keyof typeof notifications] ? "translate-x-6" : "translate-x-1"
+                  <span className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                    notifications[n.key as keyof typeof notifications] ? "translate-x-5" : "translate-x-0"
                   }`} />
                 </button>
               </div>
