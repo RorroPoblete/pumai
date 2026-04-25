@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import TopBar from "@/components/dashboard/TopBar";
 import { updateSettings, updatePassword } from "@/server/actions";
+import { PasswordChecklist, isStrongPassword } from "@/components/PasswordChecklist";
 
 interface SettingsFormProps {
   initialBusinessName: string;
@@ -38,11 +39,7 @@ export default function SettingsForm({
   }
 
   function handleChangePassword() {
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPw);
-    const hasNumber = /\d/.test(newPw);
-    const hasCapital = /[A-Z]/.test(newPw);
-
-    if (!currentPw || !newPw || newPw.length < 12 || !hasSpecialChar || !hasNumber || !hasCapital) {
+    if (!currentPw || !isStrongPassword(newPw)) {
       setPwMsg({ ok: false, text: "Password does not meet requirements" });
       return;
     }
@@ -110,12 +107,7 @@ export default function SettingsForm({
             <div>
               <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">New password</label>
               <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Minimum 12 characters" className={inputClass} />
-              <div className="text-[10px] space-y-0.5 mt-2">
-                <p className={newPw.length >= 12 ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{newPw.length >= 12 ? "✓" : "○"} At least 12 characters</p>
-                <p className={/[A-Z]/.test(newPw) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/[A-Z]/.test(newPw) ? "✓" : "○"} At least 1 capital letter</p>
-                <p className={/\d/.test(newPw) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/\d/.test(newPw) ? "✓" : "○"} At least 1 number</p>
-                <p className={/[!@#$%^&*(),.?":{}|<>]/.test(newPw) ? "text-[#22c55e]" : "text-[var(--text-muted)]"}>{/[!@#$%^&*(),.?":{}|<>]/.test(newPw) ? "✓" : "○"} At least 1 special character</p>
-              </div>
+              <PasswordChecklist password={newPw} />
             </div>
             {pwMsg && (
               <p className={`text-xs ${pwMsg.ok ? "text-[#22c55e]" : "text-[#ef4444]"}`}>{pwMsg.text}</p>

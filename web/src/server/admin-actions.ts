@@ -9,33 +9,42 @@ import { redirect } from "next/navigation";
 import { encryptSecret } from "./crypto";
 import { auditWrite } from "./audit";
 import { getRequestMeta } from "./request-meta";
+import { tenantSchema, addUserSchema } from "./validation";
+import bcrypt from "bcryptjs";
 
 export async function createTenant(formData: FormData) {
   const ctx = await requireSuperadmin();
 
-  const name = formData.get("name") as string;
-  const industry = formData.get("industry") as string;
-  const ownerEmail = formData.get("ownerEmail") as string;
-  const ownerName = formData.get("ownerName") as string;
+  const data = tenantSchema.parse({
+    name: formData.get("name"),
+    industry: formData.get("industry"),
+    plan: formData.get("plan") ?? "STARTER",
+    ownerName: formData.get("ownerName"),
+    ownerEmail: formData.get("ownerEmail"),
+    ownerPassword: formData.get("ownerPassword"),
+  });
 
-  if (!name || !industry || !ownerEmail || !ownerName) {
-    throw new Error("All fields are required");
-  }
-
-  const existingUser = await prisma.user.findUnique({ where: { email: ownerEmail } });
+  const normalizedEmail = data.ownerEmail.trim().toLowerCase();
+  const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+  const hashedPassword = existingUser ? null : await bcrypt.hash(data.ownerPassword, 12);
 
   await prisma.$transaction(async (tx) => {
     const owner = existingUser ?? await tx.user.create({
-      data: { name: ownerName, email: ownerEmail, onboarded: true },
+      data: {
+        name: data.ownerName,
+        email: normalizedEmail,
+        password: hashedPassword!,
+        onboarded: true,
+      },
     });
 
     const existingBiz = await tx.business.findUnique({ where: { userId: owner.id } });
-    if (existingBiz) throw new Error(`User ${ownerEmail} already owns a business`);
+    if (existingBiz) throw new Error(`User ${normalizedEmail} already owns a business`);
 
     const business = await tx.business.create({
       data: {
-        name,
-        industry,
+        name: data.name,
+        industry: data.industry,
         userId: owner.id,
       },
     });
@@ -50,7 +59,7 @@ export async function createTenant(formData: FormData) {
     actorId: ctx.userId,
     actorRole: ctx.role,
     targetType: "Business",
-    metadata: { name, industry, ownerEmail },
+    metadata: { name: data.name, industry: data.industry, ownerEmail: normalizedEmail, ownerExisted: !!existingUser },
     ip: meta.ip,
     userAgent: meta.userAgent,
   });
@@ -121,25 +130,38 @@ export async function updateTenantPlan(businessId: string, tier: "FREE" | "START
 export async function addUserToTenant(formData: FormData) {
   await requireSuperadmin();
 
-  const businessId = formData.get("businessId") as string;
-  const email = formData.get("email") as string;
-  const name = formData.get("name") as string;
-  const role = (formData.get("role") as string) || "MEMBER";
+  const passwordRaw = formData.get("password");
+  const data = addUserSchema.parse({
+    businessId: formData.get("businessId"),
+    name: formData.get("name"),
+    email: formData.get("email"),
+    role: formData.get("role") ?? "MEMBER",
+    password: typeof passwordRaw === "string" && passwordRaw.length > 0 ? passwordRaw : undefined,
+  });
 
-  if (!businessId || !email || !name) throw new Error("All fields are required");
+  const normalizedEmail = data.email.trim().toLowerCase();
+  const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  if (!existing && !data.password) {
+    throw new Error("Password is required when creating a new user");
+  }
+
   const user = existing ?? await prisma.user.create({
-    data: { name, email, onboarded: true },
+    data: {
+      name: data.name,
+      email: normalizedEmail,
+      password: await bcrypt.hash(data.password!, 12),
+      onboarded: true,
+    },
   });
 
   const alreadyMember = await prisma.businessMember.findUnique({
-    where: { userId_businessId: { userId: user.id, businessId } },
+    where: { userId_businessId: { userId: user.id, businessId: data.businessId } },
   });
   if (alreadyMember) throw new Error("User is already a member of this business");
 
   await prisma.businessMember.create({
-    data: { userId: user.id, businessId, role: role as "OWNER" | "ADMIN" | "MEMBER" },
+    data: { userId: user.id, businessId: data.businessId, role: data.role },
   });
 
   revalidatePath("/dashboard/tenants");
