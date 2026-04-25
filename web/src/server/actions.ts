@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import type { AgentTone } from "@/generated/prisma/enums";
+import type { Prisma } from "@/generated/prisma/client";
 import { onboardingSchema, agentSchema, settingsSchema } from "./validation";
 import { hasAnyActiveSubscription } from "./channel-gate";
 
@@ -94,6 +95,26 @@ async function postOnboardingDestination(): Promise<string> {
 
 // ─── Agent CRUD ───
 
+function parseAgentForm(formData: FormData) {
+  let config: unknown = null;
+  const rawConfig = formData.get("config");
+  if (typeof rawConfig === "string" && rawConfig.length > 0) {
+    try {
+      config = JSON.parse(rawConfig);
+    } catch {
+      throw new Error("Invalid agent config payload");
+    }
+  }
+  return agentSchema.parse({
+    name: formData.get("name"),
+    tone: formData.get("tone") || "PROFESSIONAL",
+    industry: formData.get("industry") || null,
+    systemPrompt: formData.get("systemPrompt") || null,
+    knowledgeBase: formData.get("knowledgeBase") || null,
+    config,
+  });
+}
+
 export async function createAgent(formData: FormData) {
   const businessId = await getBusinessId();
 
@@ -103,16 +124,16 @@ export async function createAgent(formData: FormData) {
     throw new Error("Free tier allows 1 agent. Upgrade a channel to add more.");
   }
 
-  const data = agentSchema.parse({
-    name: formData.get("name"),
-    tone: formData.get("tone") || "PROFESSIONAL",
-    industry: formData.get("industry") || null,
-    systemPrompt: formData.get("systemPrompt") || null,
-    knowledgeBase: formData.get("knowledgeBase") || null,
-  });
+  const data = parseAgentForm(formData);
 
   const agent = await prisma.agent.create({
-    data: { ...data, tone: data.tone as AgentTone, status: "DRAFT", businessId },
+    data: {
+      ...data,
+      tone: data.tone as AgentTone,
+      status: "DRAFT",
+      businessId,
+      config: (data.config ?? undefined) as Prisma.InputJsonValue | undefined,
+    },
   });
 
   redirect(`/dashboard/agents/${agent.id}`);
@@ -120,17 +141,15 @@ export async function createAgent(formData: FormData) {
 
 export async function updateAgent(id: string, formData: FormData) {
   const businessId = await getBusinessId();
-  const data = agentSchema.parse({
-    name: formData.get("name"),
-    tone: formData.get("tone") || "PROFESSIONAL",
-    industry: formData.get("industry") || null,
-    systemPrompt: formData.get("systemPrompt") || null,
-    knowledgeBase: formData.get("knowledgeBase") || null,
-  });
+  const data = parseAgentForm(formData);
 
   const { count } = await prisma.agent.updateMany({
     where: { id, businessId },
-    data: { ...data, tone: data.tone as AgentTone },
+    data: {
+      ...data,
+      tone: data.tone as AgentTone,
+      config: (data.config ?? undefined) as Prisma.InputJsonValue | undefined,
+    },
   });
   if (count !== 1) throw new Error("Agent not found");
 

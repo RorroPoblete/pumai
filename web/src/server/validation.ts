@@ -21,8 +21,9 @@ export const agentSchema = z.object({
   name: z.string().min(1, "Agent name is required").max(50),
   tone: z.enum(["PROFESSIONAL", "FRIENDLY", "CASUAL"]).default("PROFESSIONAL"),
   industry: z.string().max(50).nullable().optional(),
-  systemPrompt: z.string().max(10000).nullable().optional(),
-  knowledgeBase: z.string().max(50000).nullable().optional(),
+  systemPrompt: z.string().max(20000).nullable().optional(),
+  knowledgeBase: z.string().max(100000).nullable().optional(),
+  config: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 
 export const settingsSchema = z.object({

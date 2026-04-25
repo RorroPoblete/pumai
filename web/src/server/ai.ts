@@ -30,9 +30,9 @@ function getClient(): OpenAI {
 
 export function buildSystemPrompt(ctx: AgentContext): string {
   const toneMap: Record<string, string> = {
-    CASUAL: "Use a casual, laid-back Australian tone. Be relaxed, use slang like 'arvo', 'no worries', 'mate' where natural.",
-    FRIENDLY: "Use a warm, friendly tone. Be approachable, personable, and enthusiastic.",
-    PROFESSIONAL: "Use a professional, polished tone. Be courteous, efficient, and formal.",
+    CASUAL: "Use a relaxed, conversational tone — but always professional. No slang, no informal address. This is a service interaction.",
+    FRIENDLY: "Use a warm, welcoming tone. Be approachable and personable while staying professional. No slang.",
+    PROFESSIONAL: "Use a professional, polished tone. Be courteous, efficient, and clear.",
   };
 
   return [

@@ -18,7 +18,11 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["gsap", "@gsap/react"],
+    serverActions: {
+      bodySizeLimit: "30mb",
+    },
   },
+  serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
   async headers() {
     return [
       {

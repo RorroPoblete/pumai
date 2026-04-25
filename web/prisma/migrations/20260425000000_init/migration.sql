@@ -107,6 +107,7 @@ CREATE TABLE "Business" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "stripeCustomerId" TEXT,
+    "scrapeCount" INTEGER NOT NULL DEFAULT 0,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "Business_pkey" PRIMARY KEY ("id")
@@ -163,6 +164,7 @@ CREATE TABLE "Agent" (
     "systemPrompt" TEXT,
     "knowledgeBase" TEXT,
     "industry" TEXT,
+    "config" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "businessId" TEXT NOT NULL,

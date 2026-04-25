@@ -98,6 +98,7 @@ model Business {
   updatedAt DateTime @updatedAt
 
   stripeCustomerId String?
+  scrapeCount      Int     @default(0)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -183,6 +184,7 @@ model Agent {
   systemPrompt   String?     @db.Text
   knowledgeBase  String?     @db.Text
   industry       String?
+  config         Json?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
