@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+// Password rule: min 12 chars, ≥1 uppercase, ≥1 number, ≥1 symbol.
+// Mirrored on the client (password-checklist.tsx) — keep both in sync.
+export const strongPassword = z.string()
+  .min(12, "Password must be at least 12 characters")
+  .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+  .regex(/\d/, "Password must contain at least 1 number")
+  .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least 1 special character");
+
 export const onboardingSchema = z.object({
   businessName: z.string().min(1, "Business name is required").max(100),
   industry: z.string().min(1, "Industry is required"),
@@ -24,7 +32,14 @@ export const settingsSchema = z.object({
 
 export const passwordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(12, "Minimum 12 characters"),
+  newPassword: strongPassword,
+});
+
+export const registerSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  email: z.string().email("Valid email required"),
+  password: strongPassword,
+  consent: z.literal(true, { message: "You must accept the Terms and Privacy Policy" }),
 });
 
 export const tenantSchema = z.object({
@@ -33,6 +48,7 @@ export const tenantSchema = z.object({
   plan: z.enum(["STARTER", "GROWTH", "ENTERPRISE"]).default("STARTER"),
   ownerName: z.string().min(1, "Owner name is required").max(100),
   ownerEmail: z.string().email("Valid email required"),
+  ownerPassword: strongPassword,
 });
 
 export const addUserSchema = z.object({
@@ -40,6 +56,7 @@ export const addUserSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   email: z.string().email("Valid email required"),
   role: z.enum(["OWNER", "ADMIN", "MEMBER"]).default("MEMBER"),
+  password: strongPassword.optional(),
 });
 
 export const channelConfigSchema = z.object({

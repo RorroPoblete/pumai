@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { createTenant, deleteTenant, updateTenantPlan, addUserToTenant, removeUserFromTenant, updateMemberRole, deleteUser } from "@/server/admin-actions";
 import { setActiveBusiness } from "@/server/actions";
+import { PasswordChecklist, isStrongPassword } from "@/components/PasswordChecklist";
 
 interface Member {
   id: string;
@@ -49,6 +50,8 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
   const [addUserForBiz, setAddUserForBiz] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
+  const [ownerPassword, setOwnerPassword] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
 
   const filtered = businesses.filter(
     (b) => b.name.toLowerCase().includes(search.toLowerCase()) || b.industry.toLowerCase().includes(search.toLowerCase()),
@@ -103,6 +106,12 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
             <div>
               <label className="block text-xs text-[var(--text-secondary)] mb-1">Owner Email</label>
               <input name="ownerEmail" type="email" required placeholder="john@acme.com.au" className={inputClass} />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-[var(--text-secondary)] mb-1">Owner Password</label>
+              <input name="ownerPassword" type="password" required minLength={12} autoComplete="new-password" value={ownerPassword} onChange={(e) => setOwnerPassword(e.target.value)} placeholder="Initial password for the owner" className={inputClass} />
+              <PasswordChecklist password={ownerPassword} />
+              <p className="text-[10px] text-[var(--text-muted)] mt-1">Owner can change this on first login. If the email already has a user, password is ignored.</p>
             </div>
             <div hidden>
               <label className="block text-xs text-[var(--text-secondary)] mb-1">Plan</label>
@@ -184,26 +193,33 @@ export default function TenantsList({ businesses }: { businesses: Business[] }) 
                   {addUserForBiz === b.id && (
                     <form
                       action={(fd) => { fd.set("businessId", b.id); startTransition(() => addUserToTenant(fd)); setAddUserForBiz(null); }}
-                      className="flex items-end gap-3 p-3 rounded-lg bg-[var(--bg-input)] border border-[var(--border-subtle)]"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-[var(--bg-input)] border border-[var(--border-subtle)]"
                     >
-                      <div className="flex-1">
+                      <div>
                         <label className="block text-[10px] text-[var(--text-muted)] mb-1">Name</label>
                         <input name="name" required placeholder="Jane Doe" className="w-full px-2.5 py-1.5 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-input)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6]" />
                       </div>
-                      <div className="flex-1">
+                      <div>
                         <label className="block text-[10px] text-[var(--text-muted)] mb-1">Email</label>
                         <input name="email" type="email" required placeholder="jane@company.com" className="w-full px-2.5 py-1.5 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-input)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6]" />
                       </div>
-                      <div className="w-28">
-                        <label className="block text-[10px] text-[var(--text-muted)] mb-1">Role</label>
-                        <select name="role" className="w-full px-2.5 py-1.5 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-input)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6]">
-                          <option value="MEMBER">Member</option>
-                          <option value="ADMIN">Admin</option>
-                        </select>
+                      <div>
+                        <label className="block text-[10px] text-[var(--text-muted)] mb-1">Initial password (leave blank if user already exists)</label>
+                        <input name="password" type="password" minLength={12} autoComplete="new-password" value={newUserPassword} onChange={(e) => setNewUserPassword(e.target.value)} placeholder="Required for new users" className="w-full px-2.5 py-1.5 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-input)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[#8B5CF6]" />
+                        {newUserPassword.length > 0 && <PasswordChecklist password={newUserPassword} size="xs" />}
                       </div>
-                      <button type="submit" disabled={pending} className="gradient-btn !text-white text-[10px] font-semibold px-4 py-1.5 rounded-md disabled:opacity-50">
-                        Add
-                      </button>
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <label className="block text-[10px] text-[var(--text-muted)] mb-1">Role</label>
+                          <select name="role" className="w-full px-2.5 py-1.5 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-input)] text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#8B5CF6]">
+                            <option value="MEMBER">Member</option>
+                            <option value="ADMIN">Admin</option>
+                          </select>
+                        </div>
+                        <button type="submit" disabled={pending} className="gradient-btn !text-white text-[10px] font-semibold px-4 py-1.5 rounded-md disabled:opacity-50">
+                          Add
+                        </button>
+                      </div>
                     </form>
                   )}
 

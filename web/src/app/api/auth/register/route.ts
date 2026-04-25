@@ -3,6 +3,7 @@ import { registerUser } from "@/auth";
 import { rateLimit } from "@/server/rate-limit";
 import { clientIPFromRequest } from "@/server/request-meta";
 import { scoped } from "@/server/logger";
+import { registerSchema } from "@/server/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -16,17 +17,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { name, email, password, consent } = await req.json();
-
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
+    const body = await req.json();
+    const parsed = registerSchema.safeParse(body);
+    if (!parsed.success) {
+      const first = parsed.error.issues[0]?.message ?? "Invalid input";
+      return NextResponse.json({ error: first }, { status: 400 });
     }
-    if (password.length < 12) {
-      return NextResponse.json({ error: "Password must be at least 12 characters" }, { status: 400 });
-    }
-    if (!consent) {
-      return NextResponse.json({ error: "You must accept the Terms and Privacy Policy" }, { status: 400 });
-    }
+    const { name, email, password } = parsed.data;
 
     try {
       await registerUser(name, email, password);
