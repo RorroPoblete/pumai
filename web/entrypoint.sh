@@ -24,6 +24,12 @@ case "$DATABASE_URL" in
     ;;
 esac
 
+# One-time recovery: a previous deploy left a consolidated migration
+# `20260425000000_init` marked as failed in `_prisma_migrations`, blocking every
+# subsequent `migrate deploy` with P3009. Roll it back so the new delta-only
+# migration history can apply cleanly. Idempotent — exits 0 if not present.
+npx prisma migrate resolve --rolled-back 20260425000000_init 2>/dev/null || true
+
 echo "[pumai] Applying migrations..."
 npx prisma migrate deploy
 
