@@ -103,6 +103,7 @@ export interface DashboardConversation {
   agentId: string;
   agentName: string;
   status: "active" | "resolved" | "escalated";
+  escalationReason: "user_request" | "ai_rule" | "sentiment" | "manual" | null;
   lastMessage: string;
   updatedAt: string;
   messages: number;
@@ -251,6 +252,7 @@ export async function getDashboardOverview(): Promise<DashboardOverviewData | nu
     agentId: c.agentId,
     agentName: c.agent.name,
     status: c.status.toLowerCase() as DashboardConversation["status"],
+    escalationReason: (c.escalationReason?.toLowerCase() ?? null) as DashboardConversation["escalationReason"],
     lastMessage: c.messages[0]?.content ?? "",
     updatedAt: timeAgo(c.updatedAt),
     messages: c.messagesCount,
@@ -334,6 +336,7 @@ export async function getConversations(): Promise<ConversationWithMessages[]> {
     agentId: c.agentId,
     agentName: c.agent.name,
     status: c.status.toLowerCase() as DashboardConversation["status"],
+    escalationReason: (c.escalationReason?.toLowerCase() ?? null) as DashboardConversation["escalationReason"],
     lastMessage: c.messages[c.messages.length - 1]?.content ?? "",
     updatedAt: timeAgo(c.updatedAt),
     messages: c.messagesCount,

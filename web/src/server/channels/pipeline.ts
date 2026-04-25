@@ -10,6 +10,7 @@ import type { InboundMessage, ChannelConfigData } from "./types";
 import { getChannelAccess } from "../channel-gate";
 import { decryptSecret } from "../crypto";
 import { scoped } from "../logger";
+import { isUserHandoffRequest } from "../escalation";
 import type { ChannelKey } from "@/lib/stripe";
 
 const log = scoped("pipeline");
@@ -168,9 +169,18 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
   }
   history.push({ role: "user", content: sanitize(message.messageText) });
 
+  // Detect explicit user-handoff request (EN + ES) before the AI responds.
+  const userRequestedHuman = isUserHandoffRequest(message.messageText);
+
   const aiResponse = await getChatResponse(systemContent, history);
-  const isEscalated = aiResponse.includes("[ESCALATE]");
+  const aiFlaggedEscalation = aiResponse.includes("[ESCALATE]");
   const cleanResponse = aiResponse.replace("[ESCALATE]", "").trim();
+  const isEscalated = userRequestedHuman || aiFlaggedEscalation;
+  const escalationReason: "USER_REQUEST" | "AI_RULE" | null = userRequestedHuman
+    ? "USER_REQUEST"
+    : aiFlaggedEscalation
+      ? "AI_RULE"
+      : null;
 
   // 9. Send outbound via channel adapter
   const outboundMsgId = await adapter.sendMessage(configData, {
@@ -198,18 +208,25 @@ export async function handleInbound(message: InboundMessage): Promise<InboundRes
         messagesCount: { increment: 1 },
         lastMessageAt: new Date(),
         ...(isEscalated ? { status: "ESCALATED" } : {}),
+        ...(escalationReason ? { escalationReason } : {}),
       },
     }),
   ]);
 
-  // 11. Async sentiment analysis (fire-and-forget)
+  // 11. Async sentiment analysis (fire-and-forget) — only sets SENTIMENT
+  //     escalation reason when no stronger reason has been recorded.
   analyzeConversation([...history, { role: "agent", content: cleanResponse }])
     .then(async (meta) => {
+      const current = await prisma.conversation.findUnique({
+        where: { id: conversation.id },
+        select: { escalationReason: true },
+      });
       await prisma.conversation.update({
         where: { id: conversation.id },
         data: {
           sentiment: SENTIMENT_MAP[meta.sentiment] ?? "NEUTRAL",
           ...(meta.escalation ? { status: "ESCALATED" } : {}),
+          ...(meta.escalation && !current?.escalationReason ? { escalationReason: "SENTIMENT" } : {}),
         },
       });
     })

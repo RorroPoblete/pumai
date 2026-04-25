@@ -243,6 +243,7 @@ model Conversation {
   contactPhone      String?
   contactExternalId String?
   status            ConversationStatus @default(ACTIVE)
+  escalationReason  EscalationReason?
   sentiment         Sentiment          @default(NEUTRAL)
   aiEnabled         Boolean            @default(true)
   messagesCount     Int                @default(0)
@@ -265,6 +266,13 @@ enum ConversationStatus {
   ACTIVE
   RESOLVED
   ESCALATED
+}
+
+enum EscalationReason {
+  USER_REQUEST
+  AI_RULE
+  SENTIMENT
+  MANUAL
 }
 
 enum Sentiment {
