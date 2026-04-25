@@ -10,6 +10,8 @@ interface Message {
   createdAt: string;
 }
 
+type EscalationReason = "user_request" | "ai_rule" | "sentiment" | "manual" | null;
+
 interface Conversation {
   id: string;
   contact: string;
@@ -18,6 +20,7 @@ interface Conversation {
   aiEnabled: boolean;
   agentName: string;
   status: "active" | "resolved" | "escalated";
+  escalationReason: EscalationReason;
   lastMessage: string;
   updatedAt: string;
   messages: number;
@@ -25,6 +28,25 @@ interface Conversation {
   sentiment: "positive" | "neutral" | "negative";
   chatMessages: Message[];
 }
+
+const escalationLabel: Record<Exclude<EscalationReason, null>, { label: string; hint: string }> = {
+  user_request: {
+    label: "User requested human",
+    hint: "The customer explicitly asked to speak with a person.",
+  },
+  ai_rule: {
+    label: "AI rule triggered",
+    hint: "The agent matched an escalation rule from its instructions (e.g. complaint, legal threat).",
+  },
+  sentiment: {
+    label: "Sentiment flagged",
+    hint: "Sentiment analysis detected distress or strong negative tone.",
+  },
+  manual: {
+    label: "Marked manually",
+    hint: "A team member flagged this conversation.",
+  },
+};
 
 const filters = ["All", "Active", "Resolved", "Escalated"] as const;
 
@@ -72,8 +94,9 @@ export default function ConversationsList({ conversations: initialConversations 
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [selectedId, conversations]);
 
-  // Poll for new conversations every 10 seconds
+  // Adaptive polling: 3s when a chat is open, 10s otherwise.
   useEffect(() => {
+    const intervalMs = selectedId ? 3000 : 10000;
     const interval = setInterval(async () => {
       try {
         const res = await fetch("/api/conversations");
@@ -92,9 +115,42 @@ export default function ConversationsList({ conversations: initialConversations 
       } catch {
         // silent
       }
-    }, 10000);
+    }, intervalMs);
     return () => clearInterval(interval);
   }, [selectedId]);
+
+  // Tab title shows total unread across all conversations.
+  useEffect(() => {
+    const total = conversations.reduce((s, c) => s + c.unreadCount, 0);
+    document.title = total > 0 ? `(${total}) Conversations · PumAI` : "Conversations · PumAI";
+    return () => {
+      document.title = "PumAI";
+    };
+  }, [conversations]);
+
+  // Highlight the latest message when it arrives via polling (not when the user sent it).
+  const lastMsgIdRef = useRef<string | null>(null);
+  const [pingMsgId, setPingMsgId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!selected) {
+      lastMsgIdRef.current = null;
+      return;
+    }
+    const latest = selected.chatMessages[selected.chatMessages.length - 1];
+    if (!latest) return;
+    if (lastMsgIdRef.current === null) {
+      lastMsgIdRef.current = latest.id;
+      return;
+    }
+    if (latest.id !== lastMsgIdRef.current && latest.role !== "agent") {
+      // New inbound — flash it.
+      setPingMsgId(latest.id);
+      const t = setTimeout(() => setPingMsgId(null), 1800);
+      lastMsgIdRef.current = latest.id;
+      return () => clearTimeout(t);
+    }
+    lastMsgIdRef.current = latest.id;
+  }, [selected]);
 
   // Mark conversation as read when selected
   useEffect(() => {
@@ -213,7 +269,14 @@ export default function ConversationsList({ conversations: initialConversations 
                   <div className="flex items-center gap-2 min-w-0">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${sentimentDot[c.sentiment]}`} />
                     <span className={`text-sm truncate ${c.unreadCount > 0 ? "font-bold text-[var(--text-primary)]" : "font-semibold text-[var(--text-primary)]"}`}>{c.contact}</span>
-                    <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${statusColor[c.status]}`}>
+                    <span
+                      className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${statusColor[c.status]}`}
+                      title={
+                        c.status === "escalated" && c.escalationReason && escalationLabel[c.escalationReason]
+                          ? escalationLabel[c.escalationReason].label
+                          : undefined
+                      }
+                    >
                       {c.status}
                     </span>
                     {c.unreadCount > 0 && (
@@ -304,30 +367,56 @@ export default function ConversationsList({ conversations: initialConversations 
               </div>
             </div>
 
+            {/* Escalation banner */}
+            {selected.status === "escalated" && (
+              <div className="mx-6 mt-3 px-4 py-3 rounded-xl border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.06)] flex items-start gap-3">
+                <svg className="w-4 h-4 text-[#ef4444] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <div className="flex-1 text-xs leading-relaxed">
+                  <strong className="text-[#ef4444]">Escalated to human</strong>
+                  {selected.escalationReason && escalationLabel[selected.escalationReason] && (
+                    <>
+                      {" — "}
+                      <span className="text-[var(--text-primary)] font-semibold">
+                        {escalationLabel[selected.escalationReason].label}
+                      </span>
+                      <p className="text-[var(--text-muted)] mt-0.5">
+                        {escalationLabel[selected.escalationReason].hint}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-              {selected.chatMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-start" : "justify-end"}`}
-                >
+              {selected.chatMessages.map((msg) => {
+                const isPing = pingMsgId === msg.id;
+                return (
                   <div
-                    className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
-                      msg.role === "user"
-                        ? "bg-[var(--bg-hover)] rounded-bl-md"
-                        : "bg-[rgba(139,92,246,0.15)] rounded-br-md"
-                    }`}
+                    key={msg.id}
+                    className={`flex ${msg.role === "user" ? "justify-start" : "justify-end"}`}
                   >
-                    <p className="text-sm text-[var(--text-primary)] leading-relaxed">{msg.content}</p>
-                    <div className={`flex items-center gap-1.5 mt-1 ${msg.role === "user" ? "" : "justify-end"}`}>
-                      <span className="text-[10px] text-[var(--text-muted)]">
-                        {msg.role === "user" ? selected.contact.split(" ")[0] : selected.agentName}
-                      </span>
-                      <span className="text-[10px] text-[var(--text-muted)]">{msg.createdAt}</span>
+                    <div
+                      className={`max-w-[75%] rounded-2xl px-4 py-2.5 transition-shadow duration-700 ${
+                        msg.role === "user"
+                          ? "bg-[var(--bg-hover)] rounded-bl-md"
+                          : "bg-[rgba(139,92,246,0.15)] rounded-br-md"
+                      } ${isPing ? "ring-2 ring-[#8B5CF6] shadow-[0_0_24px_rgba(139,92,246,0.5)]" : ""}`}
+                    >
+                      <p className="text-sm text-[var(--text-primary)] leading-relaxed">{msg.content}</p>
+                      <div className={`flex items-center gap-1.5 mt-1 ${msg.role === "user" ? "" : "justify-end"}`}>
+                        <span className="text-[10px] text-[var(--text-muted)]">
+                          {msg.role === "user" ? selected.contact.split(" ")[0] : selected.agentName}
+                        </span>
+                        <span className="text-[10px] text-[var(--text-muted)]">{msg.createdAt}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
 

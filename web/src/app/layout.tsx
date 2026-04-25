@@ -5,6 +5,11 @@ import ToastProvider from "@/components/Toast";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import "./globals.css";
 
+// Force dynamic rendering globally so the per-request CSP nonce from proxy.ts
+// is injected into Next runtime scripts. Static pages bypass the proxy and
+// would emit non-nonced inline scripts that 'strict-dynamic' CSP rejects.
+export const dynamic = "force-dynamic";
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pumai.com.au";
 
 const inter = Inter({
@@ -30,10 +35,7 @@ export const metadata: Metadata = {
   referrer: "origin-when-cross-origin",
   formatDetection: { telephone: false, email: false, address: false },
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     apple: "/logo.png",
   },
   openGraph: {

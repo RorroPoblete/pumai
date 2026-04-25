@@ -23,6 +23,9 @@ CREATE TYPE "Channel" AS ENUM ('MESSENGER', 'INSTAGRAM', 'WEBCHAT', 'WHATSAPP');
 CREATE TYPE "ConversationStatus" AS ENUM ('ACTIVE', 'RESOLVED', 'ESCALATED');
 
 -- CreateEnum
+CREATE TYPE "EscalationReason" AS ENUM ('USER_REQUEST', 'AI_RULE', 'SENTIMENT', 'MANUAL');
+
+-- CreateEnum
 CREATE TYPE "Sentiment" AS ENUM ('POSITIVE', 'NEUTRAL', 'NEGATIVE');
 
 -- CreateEnum
@@ -107,6 +110,7 @@ CREATE TABLE "Business" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "stripeCustomerId" TEXT,
+    "scrapeCount" INTEGER NOT NULL DEFAULT 0,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "Business_pkey" PRIMARY KEY ("id")
@@ -163,6 +167,7 @@ CREATE TABLE "Agent" (
     "systemPrompt" TEXT,
     "knowledgeBase" TEXT,
     "industry" TEXT,
+    "config" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "businessId" TEXT NOT NULL,
@@ -193,6 +198,7 @@ CREATE TABLE "Conversation" (
     "contactPhone" TEXT,
     "contactExternalId" TEXT,
     "status" "ConversationStatus" NOT NULL DEFAULT 'ACTIVE',
+    "escalationReason" "EscalationReason",
     "sentiment" "Sentiment" NOT NULL DEFAULT 'NEUTRAL',
     "aiEnabled" BOOLEAN NOT NULL DEFAULT true,
     "messagesCount" INTEGER NOT NULL DEFAULT 0,

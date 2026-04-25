@@ -6,6 +6,7 @@ import { buildSystemPrompt, streamChatResponse, analyzeConversation } from "@/se
 import { CONTEXT_WINDOW_MS, SENTIMENT_MAP } from "@/server/channels/types";
 import { getObjectBytes } from "@/server/storage";
 import { scoped } from "@/server/logger";
+import { isUserHandoffRequest } from "@/server/escalation";
 
 const log = scoped("webchat:stream");
 import {
@@ -155,8 +156,15 @@ export async function POST(
       send({ type: "token", content: delta });
     }
 
-    const isEscalated = buffer.includes("[ESCALATE]");
+    const userRequestedHuman = isUserHandoffRequest(text ?? "");
+    const aiFlaggedEscalation = buffer.includes("[ESCALATE]");
     const cleanResponse = buffer.replace("[ESCALATE]", "").trim();
+    const isEscalated = userRequestedHuman || aiFlaggedEscalation;
+    const escalationReason: "USER_REQUEST" | "AI_RULE" | null = userRequestedHuman
+      ? "USER_REQUEST"
+      : aiFlaggedEscalation
+        ? "AI_RULE"
+        : null;
 
     await prisma.$transaction([
       prisma.message.create({
@@ -176,6 +184,7 @@ export async function POST(
           messagesCount: { increment: 1 },
           lastMessageAt: new Date(),
           ...(isEscalated ? { status: "ESCALATED" } : {}),
+          ...(escalationReason ? { escalationReason } : {}),
         },
       }),
     ]);
@@ -184,11 +193,16 @@ export async function POST(
 
     analyzeConversation([...history, { role: "agent", content: cleanResponse }])
       .then(async (meta) => {
+        const current = await prisma.conversation.findUnique({
+          where: { id: conversation.id },
+          select: { escalationReason: true },
+        });
         await prisma.conversation.update({
           where: { id: conversation.id },
           data: {
             sentiment: SENTIMENT_MAP[meta.sentiment] ?? "NEUTRAL",
             ...(meta.escalation ? { status: "ESCALATED" } : {}),
+            ...(meta.escalation && !current?.escalationReason ? { escalationReason: "SENTIMENT" } : {}),
           },
         });
       })

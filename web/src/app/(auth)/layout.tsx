@@ -1,6 +1,11 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 
+// Force dynamic rendering so the per-request CSP nonce from proxy.ts gets
+// injected into Next runtime scripts. Static auth pages would otherwise serve
+// prebuilt HTML with no nonce, and 'strict-dynamic' CSP blocks them.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     default: "Sign in",
